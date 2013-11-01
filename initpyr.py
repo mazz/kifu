@@ -63,40 +63,25 @@ def main():
     #__init__.py
     #config.include('pyramid_jinja2')
 
-
-
-    #sed  's/^sqlalchemy.url.*/sqlalchemy.url = sqlite:\/\/\/%(here)s\/pets2.sqlite/g' al.ini
-    #sed -i '.orig' 's/^sqlalchemy.url.*/sqlalchemy.url = sqlite:\/\/\/%(here)s\/pets2.sqlite/g' al.ini
-
-    #alembicini1_str = "sed -i 's/^sqlalchemy.url.*/sqlalchemy.url = sqlite:\/\/\/%(here)s\/" + options.project_name + ".sqlite/g' alembic.ini"
-
+    # edit alembic.ini with `sqlalchemy.url = sqlite:///%(here)s/projname.sqlite`
     alembicini1_str = "awk '{ gsub(/sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname/, \"sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite\"); print}' alembic.ini > /tmp/alembic.ini && mv /tmp/alembic.ini alembic.ini"
-    # sed -i 's/^sqlalchemy.url.*/sqlalchemy.url = sqlite:\/\/\/%(here)s\/" + options.project_name + ".sqlite/g' alembic.ini
-
+    
     os.system(alembicini1_str) 
-    #alembicini2_str = "sed -i 's/^script_location.*/script_location = alembic\nversions = alembic\n/g' alembic.ini"
 
+    # edit alembic.ini from `script_location` to 
+    # `script_location = alembic`
+    # `versions = alembic`
     alembicini2_str = "awk '{ gsub(/script_location.*/,\"script_location = alembic\\\nversions = alembic\\\n\"); print }' alembic.ini > /tmp/alembic.ini && mv /tmp/alembic.ini alembic.ini"
 
     os.system(alembicini2_str)
     #alembicenv1_str = "sed -i 's/^target_metadata = None.*/from " + options.project_name + ".models import Base\ntarget_metadata = Base.metadata\n/g' alembic/env.py"
+
+    # edit env.py from `target_metadata = None` to `from projname.models import Base\ntarget_metadata = Base.metadata`
     alembicenv1_str = "awk '{ gsub(/target_metadata = None.*/,\"from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n\"); print }' alembic/env.py > /tmp/env.py && mv /tmp/env.py alembic/env.py"
     os.system(alembicenv1_str)
 
     os.system("../bin/alembic revision --autogenerate -m \"starting\"")
     os.system("../bin/alembic stamp head")
-
-    #target_metadata = None
-
-    #[alembic]
-    #sqlalchemy.url = sqlite:///%(here)s/pets2.sqlite
-    #versions=alembic
-    #script_location=alembic
-
-    #from pets2.models import Base
-    #target_metadata = Base.metadata
-
-    #alembic revision --autogenerate -m "starting"
 
     os.system("../bin/gunicorn --paster production.ini")
 
