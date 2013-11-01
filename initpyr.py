@@ -11,6 +11,7 @@ options = {}
 def main():
     parser = OptionParser()
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
+    parser.add_option("-d", "--deploy", dest="deploy_gunicorn", action="store_true", help="Deploy with gunicorn when script finishes.")
 
     (options, args) = parser.parse_args()
 
@@ -18,8 +19,6 @@ def main():
     
     if options.project_name == None:
         options.project_name = "default"
-
-
 
     settings = open("initpyr.yaml", "r")
     print (yaml.load(settings))
@@ -35,6 +34,9 @@ def main():
     subprocess.call(["../bin/python", "setup.py", "develop"])
     subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
     
+    # install gunicorn
+    subprocess.call(["../bin/easy_install", "-U", "gunicorn"])
+
     # Install alembic
     subprocess.call(["../bin/pip", "install", "alembic"])
     subprocess.call(["../bin/alembic", "init", "alembic"])
@@ -95,6 +97,8 @@ def main():
     #target_metadata = Base.metadata
 
     #alembic revision --autogenerate -m "starting"
+
+    os.system("../bin/gunicorn --paster production.ini")
 
 if __name__ == "__main__":
     main()
