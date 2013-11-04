@@ -12,20 +12,27 @@ unix_app_socket = "app.sock"
 def main():
     parser = OptionParser()
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
-    parser.add_option("-d", "--deploy", dest="deploy_gunicorn", action="store_true", help="Deploy with gunicorn when script finishes.")
+    parser.add_option("-d", "--deploy", dest="deploy_dir", type="string", help="Deploy base directory of webapp.")
 
     (options, args) = parser.parse_args()
 
     argc = len(sys.argv[1:])
+
+    base_dir = os.getcwd();
     
     if options.project_name == None:
         options.project_name = "default"
 
-    settings = open("initpyr.yaml", "r")
+    if options.deploy_dir == None:
+        options.deploy_dir = base_dir
+
+    absolute_deploydir = os.path.abspath(options.deploy_dir)
+
+    settings = open(base_dir + "/initpyr.yaml", "r")
     print (yaml.load(settings))
 
-    base_dir = os.getcwd();
-
+    os.chdir(absolute_deploydir)
+    
     subprocess.call(["virtualenv", options.project_name + "_env"])
     #activate = options.project_name + "_env/bin/activate"
     #print "activate: " + activate
