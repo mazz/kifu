@@ -1,1 +1,1 @@
-view_templates: pyramid_jinja2
+template: pyramid_jinja2

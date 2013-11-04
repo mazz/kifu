@@ -6,6 +6,8 @@ import subprocess
 from optparse import OptionParser
 import yaml
 
+
+
 options = {}
 unix_app_socket = "app.sock"
 
@@ -13,6 +15,7 @@ def main():
     parser = OptionParser()
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
     parser.add_option("-d", "--deploy", dest="deploy_dir", type="string", help="Deploy base directory of webapp.")
+    #parser.add_option("-t", "--template", dest="template", type="string", help="Override Chameleon with this template.")
 
     (options, args) = parser.parse_args()
 
@@ -29,7 +32,7 @@ def main():
     absolute_deploydir = os.path.abspath(options.deploy_dir)
 
     settings = open(base_dir + "/initpyr.yaml", "r")
-    print (yaml.load(settings))
+    defaults = (yaml.load(settings))
 
     os.chdir(absolute_deploydir)
     
@@ -38,9 +41,32 @@ def main():
     #print "activate: " + activate
     #subprocess.call(["source", activate])
     os.chdir(options.project_name + "_env")
+
+    if defaults["template"] != "default":
+        subprocess.call(["bin/easy_install", defaults["template"]])
+
     subprocess.call(["bin/easy_install", "pyramid"])
     subprocess.call(["bin/pcreate", "-s", "alchemy", options.project_name])
     os.chdir(options.project_name)
+
+    if defaults["template"] == "pyramid_jinja2":
+        #awk 'BEGIN{print""}1' data.txt
+        initpy_importjinja2 = "awk 'BEGIN{print\"import pyramid_jinja2\"}1' default/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py default/__init__.py"
+        os.system(initpy_importjinja2)
+
+        initpy_jinjarenderer = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.add_renderer(\\\".html\\\", \\\"pyramid_jinja2.renderer_factory\\\")\"); print }' default/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py default/__init__.py"
+        os.system(initpy_jinjarenderer)
+        
+        initpy_jinjainclude = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.include(\\\"pyramid_jinja2\\\")\"); print }' default/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py default/__init__.py"
+        os.system(initpy_jinjainclude)
+
+        developmentini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\\\n\"); print }' development.ini > /tmp/development.ini && mv /tmp/development.ini development.ini"
+        os.system(developmentini_jinja2)   
+
+        productionini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\\\n\"); print }' production.ini > /tmp/production.ini && mv /tmp/production.ini production.ini"
+        os.system(productionini_jinja2)   
+
+
     subprocess.call(["../bin/python", "setup.py", "develop"])
     subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
     
@@ -96,6 +122,7 @@ def main():
     productionini_socket = "awk '{ gsub(/\[server:main\]/, \"[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n\"); print }' production.ini > /tmp/production.ini && mv /tmp/production.ini production.ini"
     os.system(productionini_socket)   
     #unix_socket = %(here)s/app.sock
+#    config = Configurator(settings=settings)
 
     # Help text for configuring nginx
 
