@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import os
 import sys
+import shutil
 import subprocess
-import string
 from optparse import OptionParser
 import yaml
 
 options = {}
+unix_app_socket = "app.sock"
 
 def main():
     parser = OptionParser()
@@ -22,6 +23,8 @@ def main():
 
     settings = open("initpyr.yaml", "r")
     print (yaml.load(settings))
+
+    base_dir = os.getcwd();
 
     subprocess.call(["virtualenv", options.project_name + "_env"])
     #activate = options.project_name + "_env/bin/activate"
@@ -65,7 +68,7 @@ def main():
 
     # edit alembic.ini with `sqlalchemy.url = sqlite:///%(here)s/projname.sqlite`
     alembicini1_str = "awk '{ gsub(/sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname/, \"sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite\"); print}' alembic.ini > /tmp/alembic.ini && mv /tmp/alembic.ini alembic.ini"
-    
+
     os.system(alembicini1_str) 
 
     # edit alembic.ini from `script_location` to 
@@ -83,7 +86,68 @@ def main():
     os.system("../bin/alembic revision --autogenerate -m \"starting\"")
     os.system("../bin/alembic stamp head")
 
-    os.system("../bin/gunicorn --paster production.ini")
+    productionini_socket = "awk '{ gsub(/\[server:main\]/, \"[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n\"); print }' production.ini > /tmp/production.ini && mv /tmp/production.ini production.ini"
+    os.system(productionini_socket)   
+    #unix_socket = %(here)s/app.sock
+
+    # Help text for configuring nginx
+
+    print "add to nginx http {} section:"
+    print "upstream "+ options.project_name + "-site {"
+    print "     server unix://" + os.path.abspath(unix_app_socket) + " fail_timeout=0;"
+    print "}"
+    print ""
+    print "add to nginx server {} section:"
+    print "server {"
+    print ""
+    print "    # optional ssl configuration"
+    print ""
+    print "    #listen 443 ssl;"
+    print "    #ssl_certificate /path/to/ssl/pem_file;"
+    print "    #ssl_certificate_key /path/to/ssl/certificate_key;"
+    print ""
+    print "    # end of optional ssl configuration"
+    print "    listen 80 default;"
+    print "    server_name _;"
+    print ""
+    print "    access_log  " + os.getcwd() + "/access.log;"
+    print "    error_log   " + os.getcwd() + "/error.log;"
+    print "" 
+    print "    location /static/ {"
+    print "        root                    " + os.getcwd() + "/" + options.project_name + "/"
+    print "        expires                 30d;"
+    print "        add_header              Cache-Control public;"
+    print "        access_log              off;"
+    print "    }"
+    print ""
+    print ""
+    print "    location / {"
+    print "        proxy_set_header        Host $http_host;"
+    print "        proxy_set_header        X-Real-IP $remote_addr;"
+    print "        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;"
+    print "        proxy_set_header        X-Forwarded-Proto $scheme;"
+    print ""
+    print "        client_max_body_size    10m;"
+    print "        client_body_buffer_size 128k;"
+    print "        proxy_connect_timeout   60s;"
+    print "        proxy_send_timeout      90s;"
+    print "        proxy_read_timeout      90s;"
+    print "        proxy_buffering         off;"
+    print "        proxy_temp_file_write_size 64k;"
+    print "        proxy_pass http://" + options.project_name + "-site;"
+    print "        proxy_redirect          off;"
+    print "    }"
+    print "}"
+
+
+    # Install supervisord and run
+    os.system("../bin/pip install supervisor")
+
+    # Copy supervisord.conf file to new environment
+    shutil.copy(base_dir + "/supervisord.conf", os.getcwd())
+
+    os.system("../bin/supervisord -n -c supervisord.conf")
+
 
 if __name__ == "__main__":
     main()
