@@ -114,7 +114,7 @@ def main():
     print "    #ssl_certificate_key /path/to/ssl/certificate_key;"
     print ""
     print "    # end of optional ssl configuration"
-    print "    listen 80 default;"
+    print "    listen 80;"
     print "    server_name _;"
     print ""
     print "    access_log  " + os.getcwd() + "/access.log;"
