@@ -114,7 +114,7 @@ def main():
     print "    error_log   " + os.getcwd() + "/error.log;"
     print "" 
     print "    location /static/ {"
-    print "        root                    " + os.getcwd() + "/" + options.project_name + "/"
+    print "        root                    " + os.getcwd() + "/" + options.project_name + "/;"
     print "        expires                 30d;"
     print "        add_header              Cache-Control public;"
     print "        access_log              off;"
