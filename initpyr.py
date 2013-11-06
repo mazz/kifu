@@ -60,12 +60,17 @@ def main():
         initpy_jinjainclude = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.include(\\\"pyramid_jinja2\\\")\"); print }' default/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py default/__init__.py"
         os.system(initpy_jinjainclude)
 
-        developmentini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\\\n\"); print }' development.ini > /tmp/development.ini && mv /tmp/development.ini development.ini"
+        developmentini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\"); print }' development.ini > /tmp/development.ini && mv /tmp/development.ini development.ini"
         os.system(developmentini_jinja2)   
 
-        productionini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\\\n\"); print }' production.ini > /tmp/production.ini && mv /tmp/production.ini production.ini"
+        productionini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\"); print }' production.ini > /tmp/production.ini && mv /tmp/production.ini production.ini"
         os.system(productionini_jinja2)   
 
+    # Setup Celery
+    subprocess.call(["../bin/easy_install", "celery"])
+
+    # Redis is used as a result backend
+    subprocess.call(["../bin/pip", "install", "redis"])    
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
     subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
