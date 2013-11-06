@@ -30,9 +30,9 @@ def load_ini():
 INI = load_ini()
 
 celery = Celery(
-    "&&PROJNAME&&.queue",
+    "~~~PROJNAME~~~.queue",
     broker="amqp://",
-    include=["&&PROJNAME&&.queue.tasks"])
+    include=["~~~PROJNAME~~~.queue.tasks"])
 
 celery.conf.update(
     CELERY_RESULT_BACKEND = "redis://",

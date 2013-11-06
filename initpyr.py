@@ -8,7 +8,7 @@ import yaml
 
 options = {}
 unix_app_socket = "app.sock"
-project_name_placeholder = "&&PROJNAME&&"
+project_name_placeholder = "~~~PROJNAME~~~"
 
 def main():
     parser = OptionParser()
@@ -30,8 +30,8 @@ def main():
 
     absolute_deploydir = os.path.abspath(options.deploy_dir)
 
-    settings = open(base_dir + "/initpyr.yaml", "r")
-    defaults = (yaml.load(settings))
+    settingsdict = open(base_dir + "/initpyr.yaml", "r")
+    settings = (yaml.load(settingsdict))
 
     os.chdir(absolute_deploydir)
     
@@ -41,22 +41,23 @@ def main():
     #subprocess.call(["source", activate])
     os.chdir(options.project_name + "_env")
 
-    if defaults["template"] != "default":
-        subprocess.call(["bin/easy_install", defaults["template"]])
+    if settings["template"] != "default":
+        subprocess.call(["bin/easy_install", settings["template"]])
 
     subprocess.call(["bin/easy_install", "pyramid"])
     subprocess.call(["bin/pcreate", "-s", "alchemy", options.project_name])
     os.chdir(options.project_name)
 
-    if defaults["template"] == "pyramid_jinja2":
+    # Add jinja2 if it is in the yaml file
+    if settings["template"] == "pyramid_jinja2":
         #awk 'BEGIN{print""}1' data.txt
-        initpy_importjinja2 = "awk 'BEGIN{print\"import pyramid_jinja2\"}1' default/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py default/__init__.py"
+        initpy_importjinja2 = "awk 'BEGIN{print\"import pyramid_jinja2\"}1' " + options.project_name + "/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py " + options.project_name + "/__init__.py"
         os.system(initpy_importjinja2)
 
-        initpy_jinjarenderer = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.add_renderer(\\\".html\\\", \\\"pyramid_jinja2.renderer_factory\\\")\"); print }' default/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py default/__init__.py"
+        initpy_jinjarenderer = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.add_renderer(\\\".html\\\", \\\"pyramid_jinja2.renderer_factory\\\")\"); print }' " + options.project_name + "/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py " + options.project_name + "/__init__.py"
         os.system(initpy_jinjarenderer)
         
-        initpy_jinjainclude = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.include(\\\"pyramid_jinja2\\\")\"); print }' default/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py default/__init__.py"
+        initpy_jinjainclude = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.include(\\\"pyramid_jinja2\\\")\"); print }' " + options.project_name + "/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py " + options.project_name + "/__init__.py"
         os.system(initpy_jinjainclude)
 
         developmentini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\"); print }' development.ini > /tmp/development.ini && mv /tmp/development.ini development.ini"
@@ -69,7 +70,17 @@ def main():
     subprocess.call(["../bin/easy_install", "celery"])
 
     # Copy Celery-related files to the app
-    shutil.copytree(base_dir + "/queue", os.path.join(os.getcwd(), options.project_name))
+    celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
+    shutil.copytree(base_dir + "/queue", celery_dir)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the Celery code
+    celerypy = os.path.join(celery_dir, "celery.py")
+    celerypy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + celerypy + " > /tmp/celery.py && mv /tmp/celery.py " + celerypy + ""
+    os.system(celerypy_projname)
+
+    taskspy = os.path.join(celery_dir, "tasks.py")
+    taskspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + taskspy + " > /tmp/tasks.py && mv /tmp/tasks.py " + taskspy + ""
+    os.system(taskspy_projname)
 
     #project_name_placeholder
 
@@ -182,15 +193,12 @@ def main():
     print "    }"
     print "}"
 
-
     # Install supervisord and run
     os.system("../bin/pip install supervisor")
 
     # Copy supervisord.conf file to new environment
     shutil.copy(base_dir + "/supervisord.conf", os.getcwd())
-
     os.system("../bin/supervisord -n -c supervisord.conf")
-
 
 if __name__ == "__main__":
     main()
