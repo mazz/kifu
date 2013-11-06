@@ -69,7 +69,7 @@ def main():
     subprocess.call(["../bin/easy_install", "celery"])
 
     # Copy Celery-related files to the app
-    shutil.copytree(base_dir + "/queue", os.path.join(os.getcwd(), options.project_name)
+    shutil.copytree(base_dir + "/queue", os.path.join(os.getcwd(), options.project_name))
 
     #project_name_placeholder
 
