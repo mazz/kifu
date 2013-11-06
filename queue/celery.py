@@ -16,13 +16,13 @@ def load_ini():
     #    raise Exception(msg)
 
     cfg = ConfigParser()
-    ini_path = path.join(path.dirname(path.dirname(path.dirname(__file__))), "foo")
+    ini_path = path.join(path.dirname(path.dirname(path.dirname(__file__))), "development.ini")
     print "ini_path: " + ini_path
 
-    #cfg.readfp(open(ini_path))
+    cfg.readfp(open(ini_path))
 
     # Hold onto the ini config.
-    #return dict(cfg.items('app:bookie', raw=True))
+    return dict(cfg.items('app:main', raw=True))
 
 
 @worker_init.connect
