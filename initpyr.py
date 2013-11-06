@@ -6,10 +6,9 @@ import subprocess
 from optparse import OptionParser
 import yaml
 
-
-
 options = {}
 unix_app_socket = "app.sock"
+project_name_placeholder = "&&PROJNAME&&"
 
 def main():
     parser = OptionParser()
@@ -68,6 +67,11 @@ def main():
 
     # Setup Celery
     subprocess.call(["../bin/easy_install", "celery"])
+
+    # Copy Celery-related files to the app
+    shutil.copytree(base_dir + "/queue", os.path.join(os.getcwd(), options.project_name)
+
+    #project_name_placeholder
 
     # Redis is used as a result backend
     subprocess.call(["../bin/pip", "install", "redis"])    

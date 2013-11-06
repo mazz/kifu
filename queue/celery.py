@@ -7,42 +7,32 @@ from os import path
 
 from celery.signals import worker_init
 
-
 def load_ini():
     print "load_ini"
-    #selected_ini = environ.get('BOOKIE_INI', 'bookie.ini')
-    #if selected_ini is None:
-    #    msg = "Please set the BOOKIE_INI env variable!"
-    #    raise Exception(msg)
-
     cfg = ConfigParser()
     ini_path = path.join(path.dirname(path.dirname(path.dirname(__file__))), "development.ini")
     print "ini_path: " + ini_path
 
     cfg.readfp(open(ini_path))
-
     # Hold onto the ini config.
     return dict(cfg.items('app:main', raw=True))
 
-
-@worker_init.connect
-def bootstrap_pyramid(signal, sender):
-    import os
-    from pyramid.paster import bootstrap
-    #sender.app.settings = bootstrap(os.environ['development.ini'])['registry'].settings
-    print "signal: " + str(signal)
-    print "sender: " + str(sender)
-    print "os.environ: " + str(os.environ)
-    #print "sender.app.settings: " + sender.app.settings
+#@worker_init.connect
+#def bootstrap_pyramid(signal, sender):
+#    import os
+#    from pyramid.paster import bootstrap
+#    #sender.app.settings = bootstrap(os.environ['development.ini'])['registry'].settings
+#    print "signal: " + str(signal)
+#    print "sender: " + str(sender)
+#    print "os.environ: " + str(os.environ)
+#    #print "sender.app.settings: " + sender.app.settings
 
 INI = load_ini()
 
 celery = Celery(
-    "default.queue",
+    "&&PROJNAME&&.queue",
     broker="amqp://",
-    include=["default.queue.tasks"])
-
-#celery.config_from_object('celeryconfig')
+    include=["&&PROJNAME&&.queue.tasks"])
 
 celery.conf.update(
     CELERY_RESULT_BACKEND = "redis://",
@@ -55,7 +45,4 @@ celery.conf.update(
 
 if __name__ == '__main__':
     celery.start()
-
-#celery = Celery()
-#celery.config_from_object('default.queue.celeryconfig')
 
