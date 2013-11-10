@@ -112,6 +112,9 @@ def main():
     viewspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
     os.system(viewspy_projname)
 
+    # Queue a trivial celery task when the default view loads
+
+
     # Copy views.py to the views package and rename it home.py
     shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
 
@@ -161,6 +164,9 @@ def main():
 
     # Delete the unnecessary tests.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
+
+    # Redis is used as a result backend
+    subprocess.call(["../bin/pip", "install", "redis"])    
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
     subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
