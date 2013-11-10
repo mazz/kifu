@@ -113,7 +113,10 @@ def main():
     os.system(viewspy_projname)
 
     # Queue a trivial celery task when the default view loads
-
+    viewspy_importcelery = "awk 'BEGIN{print\"from foo.queue import tasks\"}1' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
+    os.system(viewspy_importcelery)
+    viewspy_celerytask = "awk '{ gsub(/def my_view\(request\):/, \"def my_view\(request\):\\\n    tasks.add.delay\(4,4\)\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
+    os.system(viewspy_celerytask)       
 
     # Copy views.py to the views package and rename it home.py
     shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
