@@ -14,7 +14,6 @@ def main():
     parser = OptionParser()
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
     parser.add_option("-d", "--deploy", dest="deploy_dir", type="string", help="Deploy base directory of webapp.")
-    #parser.add_option("-t", "--template", dest="template", type="string", help="Override Chameleon with this template.")
 
     (options, args) = parser.parse_args()
 
@@ -84,12 +83,6 @@ def main():
     # Delete the unnecessary models.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
 
-    # Copy tests to the app
-#    views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
-#    shutil.copytree(base_dir + "/views", views_dir)
-
-
-
     # Replace ~~~PROJNAME~~~ placeholders in the Celery code
     celerypy = os.path.join(celery_dir, "celery.py")
     celerypy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + celerypy + " > /tmp/celery.py && mv /tmp/celery.py " + celerypy + ""
@@ -99,11 +92,7 @@ def main():
     taskspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + taskspy + " > /tmp/tasks.py && mv /tmp/tasks.py " + taskspy + ""
     os.system(taskspy_projname)
 
-
     # Tweak initialize db script to use replacement model hierarchy
-    # from ~~~PROJNAME~~~.models.mymodel import (
-    # from ..models import (
-
     initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
     initializedbpy_modelpath = "awk '{ gsub(/from ..models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + initializedbpy + " > /tmp/initializedb.py && mv /tmp/initializedb.py " + initializedbpy + ""
     os.system(initializedbpy_modelpath)
@@ -112,34 +101,10 @@ def main():
     initializedbpy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + initializedbpy + " > /tmp/initializedb.py && mv /tmp/initializedb.py " + initializedbpy + ""
     os.system(initializedbpy_projname)
 
-    # Tweak the views/home.py to use the project name and correct models path
-
-#    viewshomepy = os.path.join(os.getcwd(), options.project_name + "/views/home.py")
-#    viewshomepy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + viewshomepy + " > /tmp/home.py && mv /tmp/home.py " + viewshomepy + ""
-#    os.system(viewshomepy_modelpath)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the views/home.py code
-#    viewshomepy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewshomepy + " > /tmp/home.py && mv /tmp/home.py " + viewshomepy + ""
-#    os.system(viewshomepy_projname)
-
-
-    # Copy templates dir to the views package
-    #templates_dir = os.path.join(os.getcwd(), options.project_name + "/templates")
-    #shutil.copytree(templates_dir, base_dir + "/views")
-
     # Tweak the views.py to use the project name and correct models path
-
     viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
     viewspy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
     os.system(viewspy_modelpath)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the views/home.py code
-#    viewspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
-#    os.system(viewspy_projname)
-
-    # Tweak the views.py file to point to the correct location of the templates dir
-    #templates/mytemplate.pt
-    #default:templates/mytemplate.pt
 
     viewspy_templatepath = "awk '{ gsub(/templates\/mytemplate.pt/, \"~~~PROJNAME~~~:templates/mytemplate.pt\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
     os.system(viewspy_templatepath)
@@ -150,8 +115,6 @@ def main():
     # Copy views.py to the views package and rename it home.py
     shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
 
-
-
     # Copy views to the app
     views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
     shutil.copytree(base_dir + "/views", views_dir)
@@ -159,18 +122,10 @@ def main():
     # Delete the unnecessary views.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/views.py"))
 
-
-
     # Tweak the main __init__.py to use the project name and correct models path
-
     maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
     maininitpy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + maininitpy + " > /tmp/views.py && mv /tmp/views.py " + maininitpy + ""
     os.system(maininitpy_modelpath)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
-#    maininitpy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + maininitpy + " > /tmp/maininit.py && mv /tmp/maininit.py " + maininitpy + ""
-#    os.system(maininitpy_projname)
-
 
     # Tweak the main __init__.py to use the project name and correct models path
     maininitpy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + maininitpy + " > /tmp/views.py && mv /tmp/views.py " + maininitpy + ""
@@ -197,9 +152,6 @@ def main():
     testspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
     os.system(testspy_projname)
 
-#from .views import
-
-
     # Copy tests.py to the tests package
     shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
 
@@ -210,15 +162,7 @@ def main():
     # Delete the unnecessary tests.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
 
-
-
-    #project_name_placeholder
-
-    # Redis is used as a result backend
-    subprocess.call(["../bin/pip", "install", "redis"])    
-
     subprocess.call(["../bin/python", "setup.py", "develop"])
-
     subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
     
     # install gunicorn
@@ -227,28 +171,6 @@ def main():
     # Install alembic
     subprocess.call(["../bin/pip", "install", "alembic"])
     subprocess.call(["../bin/alembic", "init", "alembic"])
-
-    subprocess.call(["../bin/alembic", "init", "alembic"])
-
-    #setup.py
-    #'pyramid_mako',
-    #'psycopg2',
-
-    #../bin/python setup.py develop
-
-    # alembic.ini
-    #sqlalchemy.url = sqlite:///%(here)s/pets2.sqlite
-    #versions = alembic
-
-    #alembic/env.py
-    #from pets2.models import Base
-    #target_metadata = Base.metadata
-
-    #../bin/alembic revision --autogenerate -m "starting"
-    #../bin/alembic stamp head
-
-    #__init__.py
-    #config.include('pyramid_jinja2')
 
     # edit alembic.ini with `sqlalchemy.url = sqlite:///%(here)s/projname.sqlite`
     alembicini1_str = "awk '{ gsub(/sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname/, \"sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite\"); print}' alembic.ini > /tmp/alembic.ini && mv /tmp/alembic.ini alembic.ini"
