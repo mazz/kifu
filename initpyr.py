@@ -41,11 +41,12 @@ def main():
     #subprocess.call(["source", activate])
     os.chdir(options.project_name + "_env")
 
+    subprocess.call(["bin/easy_install", "pyramid"])
+    subprocess.call(["bin/pcreate", "-s", "alchemy", options.project_name])
+
     if settings["template"] != "default":
         subprocess.call(["bin/easy_install", settings["template"]])
 
-    subprocess.call(["bin/easy_install", "pyramid"])
-    subprocess.call(["bin/pcreate", "-s", "alchemy", options.project_name])
     os.chdir(options.project_name)
 
     # Add jinja2 if it is in the yaml file
@@ -73,6 +74,22 @@ def main():
     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
     shutil.copytree(base_dir + "/queue", celery_dir)
 
+    # Copy models.py to the models package and rename it mymodel.py
+    shutil.copy(os.path.join(os.getcwd(), options.project_name + "/models.py"), base_dir + "/models/mymodel.py")
+
+    # Copy models dir to the app
+    models_dir = os.path.join(os.getcwd(), options.project_name + "/models")
+    shutil.copytree(base_dir + "/models", models_dir)
+
+    # Delete the unnecessary models.py file
+    os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
+
+    # Copy tests to the app
+#    views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
+#    shutil.copytree(base_dir + "/views", views_dir)
+
+
+
     # Replace ~~~PROJNAME~~~ placeholders in the Celery code
     celerypy = os.path.join(celery_dir, "celery.py")
     celerypy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + celerypy + " > /tmp/celery.py && mv /tmp/celery.py " + celerypy + ""
@@ -82,12 +99,126 @@ def main():
     taskspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + taskspy + " > /tmp/tasks.py && mv /tmp/tasks.py " + taskspy + ""
     os.system(taskspy_projname)
 
+
+    # Tweak initialize db script to use replacement model hierarchy
+    # from ~~~PROJNAME~~~.models.mymodel import (
+    # from ..models import (
+
+    initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
+    initializedbpy_modelpath = "awk '{ gsub(/from ..models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + initializedbpy + " > /tmp/initializedb.py && mv /tmp/initializedb.py " + initializedbpy + ""
+    os.system(initializedbpy_modelpath)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the initializedb.py code
+    initializedbpy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + initializedbpy + " > /tmp/initializedb.py && mv /tmp/initializedb.py " + initializedbpy + ""
+    os.system(initializedbpy_projname)
+
+    # Tweak the views/home.py to use the project name and correct models path
+
+#    viewshomepy = os.path.join(os.getcwd(), options.project_name + "/views/home.py")
+#    viewshomepy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + viewshomepy + " > /tmp/home.py && mv /tmp/home.py " + viewshomepy + ""
+#    os.system(viewshomepy_modelpath)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the views/home.py code
+#    viewshomepy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewshomepy + " > /tmp/home.py && mv /tmp/home.py " + viewshomepy + ""
+#    os.system(viewshomepy_projname)
+
+
+    # Copy templates dir to the views package
+    #templates_dir = os.path.join(os.getcwd(), options.project_name + "/templates")
+    #shutil.copytree(templates_dir, base_dir + "/views")
+
+    # Tweak the views.py to use the project name and correct models path
+
+    viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
+    viewspy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
+    os.system(viewspy_modelpath)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the views/home.py code
+#    viewspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
+#    os.system(viewspy_projname)
+
+    # Tweak the views.py file to point to the correct location of the templates dir
+    #templates/mytemplate.pt
+    #default:templates/mytemplate.pt
+
+    viewspy_templatepath = "awk '{ gsub(/templates\/mytemplate.pt/, \"~~~PROJNAME~~~:templates/mytemplate.pt\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
+    os.system(viewspy_templatepath)
+
+    viewspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
+    os.system(viewspy_projname)
+
+    # Copy views.py to the views package and rename it home.py
+    shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
+
+
+
+    # Copy views to the app
+    views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
+    shutil.copytree(base_dir + "/views", views_dir)
+
+    # Delete the unnecessary views.py file
+    os.unlink(os.path.join(os.getcwd(), options.project_name + "/views.py"))
+
+
+
+    # Tweak the main __init__.py to use the project name and correct models path
+
+    maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
+    maininitpy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + maininitpy + " > /tmp/views.py && mv /tmp/views.py " + maininitpy + ""
+    os.system(maininitpy_modelpath)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
+#    maininitpy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + maininitpy + " > /tmp/maininit.py && mv /tmp/maininit.py " + maininitpy + ""
+#    os.system(maininitpy_projname)
+
+
+    # Tweak the main __init__.py to use the project name and correct models path
+    maininitpy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + maininitpy + " > /tmp/views.py && mv /tmp/views.py " + maininitpy + ""
+    os.system(maininitpy_modelpath)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
+    maininitpy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + maininitpy + " > /tmp/maininit.py && mv /tmp/maininit.py " + maininitpy + ""
+    os.system(maininitpy_projname)
+
+    # Tweak the tests.py to use the project name and correct models path
+
+    testspy = os.path.join(os.getcwd(), options.project_name + "/tests.py")
+    testspy_modelpath = "awk '{ gsub(/from .models import DBSession/, \"from ~~~PROJNAME~~~.models.mymodel import DBSession\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
+    os.system(testspy_modelpath)
+
+    testspy_modelpath = "awk '{ gsub(/from .models import/, \"from ~~~PROJNAME~~~.models.mymodel import\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
+    os.system(testspy_modelpath)
+
+    testspy_viewpath = "awk '{ gsub(/from .views import/, \"from ~~~PROJNAME~~~.views.home import\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
+    os.system(testspy_viewpath)
+
+
+    # Replace ~~~PROJNAME~~~ placeholders in the tests.py code
+    testspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
+    os.system(testspy_projname)
+
+#from .views import
+
+
+    # Copy tests.py to the tests package
+    shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
+
+    # Copy tests to the app
+    tests_dir = os.path.join(os.getcwd(), options.project_name + "/tests")
+    shutil.copytree(base_dir + "/tests", tests_dir)
+
+    # Delete the unnecessary tests.py file
+    os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
+
+
+
     #project_name_placeholder
 
     # Redis is used as a result backend
     subprocess.call(["../bin/pip", "install", "redis"])    
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
+
     subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
     
     # install gunicorn
