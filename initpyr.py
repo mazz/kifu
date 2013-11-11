@@ -109,12 +109,13 @@ def main():
     viewspy_templatepath = "awk '{ gsub(/templates\/mytemplate.pt/, \"~~~PROJNAME~~~:templates/mytemplate.pt\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
     os.system(viewspy_templatepath)
 
+    # Queue a trivial celery task when the default view loads
+    viewspy_importcelery = "awk 'BEGIN{print\"from ~~~PROJNAME~~~.queue import tasks\"}1' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
+    os.system(viewspy_importcelery)
+
     viewspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
     os.system(viewspy_projname)
 
-    # Queue a trivial celery task when the default view loads
-    viewspy_importcelery = "awk 'BEGIN{print\"from foo.queue import tasks\"}1' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
-    os.system(viewspy_importcelery)
     viewspy_celerytask = "awk '{ gsub(/def my_view\(request\):/, \"def my_view\(request\):\\\n    tasks.add.delay\(4,4\)\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
     os.system(viewspy_celerytask)       
 
