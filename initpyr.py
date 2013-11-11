@@ -14,6 +14,7 @@ def main():
     parser = OptionParser()
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
     parser.add_option("-d", "--deploy", dest="deploy_dir", type="string", help="Deploy base directory of webapp.")
+    parser.add_option("-s", "--supervisor-enabled", action="store_true", dest="supervisor_enabled", help="Run gunicorn with supervisor.")
 
     (options, args) = parser.parse_args()
 
@@ -26,6 +27,9 @@ def main():
 
     if options.deploy_dir == None:
         options.deploy_dir = base_dir
+
+    if options.supervisor_enabled == None:
+        options.supervisor_enabled = False
 
     absolute_deploydir = os.path.abspath(options.deploy_dir)
 
@@ -208,7 +212,7 @@ def main():
 #    config = Configurator(settings=settings)
 
     # Help text for configuring nginx
-
+    print ""
     print "add to nginx http {} section:"
     print "upstream "+ options.project_name + "-site {"
     print "     server unix://" + os.path.abspath(unix_app_socket) + " fail_timeout=0;"
@@ -256,12 +260,15 @@ def main():
     print "    }"
     print "}"
 
-    # Install supervisord and run
-    os.system("../bin/pip install supervisor")
+    if options.supervisor_enabled:
+        # Install supervisord and run
+        os.system("../bin/pip install supervisor")
 
-    # Copy supervisord.conf file to new environment
-    shutil.copy(base_dir + "/supervisord.conf", os.getcwd())
-    os.system("../bin/supervisord -n -c supervisord.conf")
+        # Copy supervisord.conf file to new environment
+        shutil.copy(base_dir + "/supervisord.conf", os.getcwd())
+        os.system("../bin/supervisord -n -c supervisord.conf")
+    else:
+        os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
 
 if __name__ == "__main__":
     main()
