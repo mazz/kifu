@@ -11,6 +11,10 @@ Requirements:
 SETUP(Mac OS X)
 ---------------
 
+Install virtualenv:
+
+    pip install virtualenv
+
 Install nginx:
 
     brew install nginx
