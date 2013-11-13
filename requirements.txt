@@ -1,0 +1,6 @@
+alembic
+bcrypt
+celery==3.0.24
+gunicorn
+redis
+SQLAlchemy==0.8.3

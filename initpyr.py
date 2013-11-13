@@ -5,6 +5,8 @@ import shutil
 import subprocess
 from optparse import OptionParser
 import yaml
+import random
+import string
 
 options = {}
 unix_app_socket = "app.sock"
@@ -39,39 +41,31 @@ def main():
     os.chdir(absolute_deploydir)
     
     subprocess.call(["virtualenv", options.project_name + "_env"])
-    #activate = options.project_name + "_env/bin/activate"
-    #print "activate: " + activate
-    #subprocess.call(["source", activate])
     os.chdir(options.project_name + "_env")
 
     subprocess.call(["bin/easy_install", "pyramid"])
     subprocess.call(["bin/pcreate", "-s", "alchemy", options.project_name])
 
     if settings["template"] != "default":
-        subprocess.call(["bin/easy_install", settings["template"]])
+        subprocess.call(["bin/pip", "install", settings["template"]])
 
     os.chdir(options.project_name)
 
+    maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
+    developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
+    productionini = os.path.join(os.getcwd(), "production.ini")
+
     # Add jinja2 if it is in the yaml file
     if settings["template"] == "pyramid_jinja2":
-        #awk 'BEGIN{print""}1' data.txt
-        initpy_importjinja2 = "awk 'BEGIN{print\"import pyramid_jinja2\"}1' " + options.project_name + "/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py " + options.project_name + "/__init__.py"
-        os.system(initpy_importjinja2)
-
-        initpy_jinjarenderer = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.add_renderer(\\\".html\\\", \\\"pyramid_jinja2.renderer_factory\\\")\"); print }' " + options.project_name + "/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py " + options.project_name + "/__init__.py"
-        os.system(initpy_jinjarenderer)
+        jinjarenderer = ("config = Configurator(settings=settings)\\\n"
+        "    config.add_renderer(\\\".html\\\", \\\"pyramid_jinja2.renderer_factory\\\")")
+        substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", jinjarenderer)
         
-        initpy_jinjainclude = "awk '{ gsub(/config = Configurator\(settings=settings\)/, \"config = Configurator(settings=settings)\\\n    config.include(\\\"pyramid_jinja2\\\")\"); print }' " + options.project_name + "/__init__.py > /tmp/__init__.py && mv /tmp/__init__.py " + options.project_name + "/__init__.py"
-        os.system(initpy_jinjainclude)
-
-        developmentini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\"); print }' development.ini > /tmp/development.ini && mv /tmp/development.ini development.ini"
-        os.system(developmentini_jinja2)   
-
-        productionini_jinja2 = "awk '{ gsub(/pyramid.includes =/, \"pyramid.includes =\\\n    pyramid_jinja2\"); print }' production.ini > /tmp/production.ini && mv /tmp/production.ini production.ini"
-        os.system(productionini_jinja2)   
-
-    # Setup Celery
-    subprocess.call(["../bin/easy_install", "celery"])
+        jinjainclude = ("config = Configurator(settings=settings)\\\n"
+        "    config.include(\\\"pyramid_jinja2\\\")")
+        substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", jinjainclude)
+        substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_jinja2")
+        substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_jinja2")
 
     # Copy Celery-related files to the app
     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
@@ -84,44 +78,46 @@ def main():
     models_dir = os.path.join(os.getcwd(), options.project_name + "/models")
     shutil.copytree(base_dir + "/models", models_dir)
 
+    # Replace ~~~PROJNAME~~~ placeholders in the auth code
+    authpy = os.path.join(models_dir, "auth.py")
+    substitute_in_file(authpy, "~~~PROJNAME~~~", options.project_name)
+
     # Delete the unnecessary models.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
 
+    # copy lib to project
+    lib_dir = os.path.join(os.getcwd(), options.project_name + "/lib")
+    shutil.copytree(base_dir + "/lib", lib_dir)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the lib code
+    accesspy = os.path.join(lib_dir, "access.py")
+    substitute_in_file(accesspy, "~~~PROJNAME~~~", options.project_name)
+
     # Replace ~~~PROJNAME~~~ placeholders in the Celery code
     celerypy = os.path.join(celery_dir, "celery.py")
-    celerypy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + celerypy + " > /tmp/celery.py && mv /tmp/celery.py " + celerypy + ""
-    os.system(celerypy_projname)
+    substitute_in_file(celerypy, "~~~PROJNAME~~~", options.project_name)
 
     taskspy = os.path.join(celery_dir, "tasks.py")
-    taskspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + taskspy + " > /tmp/tasks.py && mv /tmp/tasks.py " + taskspy + ""
-    os.system(taskspy_projname)
+    substitute_in_file(taskspy, "~~~PROJNAME~~~", options.project_name)
 
     # Tweak initialize db script to use replacement model hierarchy
     initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
-    initializedbpy_modelpath = "awk '{ gsub(/from ..models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + initializedbpy + " > /tmp/initializedb.py && mv /tmp/initializedb.py " + initializedbpy + ""
-    os.system(initializedbpy_modelpath)
+
+    substitute_in_file(initializedbpy, "from ..models import \(", "from ~~~PROJNAME~~~.models.mymodel import \(")
 
     # Replace ~~~PROJNAME~~~ placeholders in the initializedb.py code
-    initializedbpy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + initializedbpy + " > /tmp/initializedb.py && mv /tmp/initializedb.py " + initializedbpy + ""
-    os.system(initializedbpy_projname)
+    substitute_in_file(initializedbpy, "~~~PROJNAME~~~", options.project_name)
 
     # Tweak the views.py to use the project name and correct models path
     viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
-    viewspy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
-    os.system(viewspy_modelpath)
 
-    viewspy_templatepath = "awk '{ gsub(/templates\/mytemplate.pt/, \"~~~PROJNAME~~~:templates/mytemplate.pt\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
-    os.system(viewspy_templatepath)
+    substitute_in_file(viewspy, "from .models import", "from ~~~PROJNAME~~~.models.mymodel import")
+    substitute_in_file(viewspy, "templates\/mytemplate.pt", "~~~PROJNAME~~~:templates/mytemplate.pt")
 
     # Queue a trivial celery task when the default view loads
-    viewspy_importcelery = "awk 'BEGIN{print\"from ~~~PROJNAME~~~.queue import tasks\"}1' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
-    os.system(viewspy_importcelery)
-
-    viewspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
-    os.system(viewspy_projname)
-
-    viewspy_celerytask = "awk '{ gsub(/def my_view\(request\):/, \"def my_view\(request\):\\\n    tasks.add.delay\(4,4\)\"); print }' " + viewspy + " > /tmp/views.py && mv /tmp/views.py " + viewspy + ""
-    os.system(viewspy_celerytask)       
+    prepend_in_file(viewspy, "from ~~~PROJNAME~~~.queue import tasks")
+    substitute_in_file(viewspy, "~~~PROJNAME~~~", options.project_name)
+    substitute_in_file(viewspy, "def my_view\(request\):", "def my_view\(request\):\\\n    tasks.add.delay\(5,5\)")
 
     # Copy views.py to the views package and rename it home.py
     shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
@@ -134,34 +130,67 @@ def main():
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/views.py"))
 
     # Tweak the main __init__.py to use the project name and correct models path
-    maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
-    maininitpy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + maininitpy + " > /tmp/views.py && mv /tmp/views.py " + maininitpy + ""
-    os.system(maininitpy_modelpath)
+    substitute_in_file(maininitpy, "from .models import \(", "from ~~~PROJNAME~~~.models.mymodel import \(")
 
-    # Tweak the main __init__.py to use the project name and correct models path
-    maininitpy_modelpath = "awk '{ gsub(/from .models import \(/, \"from ~~~PROJNAME~~~.models.mymodel import \(\"); print }' " + maininitpy + " > /tmp/views.py && mv /tmp/views.py " + maininitpy + ""
-    os.system(maininitpy_modelpath)
+    # Add os.path imports to __init__.py
+    mainimports = ("from os.path import abspath\\\n"
+    "from os.path import dirname\\\n"
+    "\\\n"
+    "from pyramid.authentication import AuthTktAuthenticationPolicy\\\n"
+    "from pyramid.authorization import ACLAuthorizationPolicy\\\n"
+    "\\\n"
+    "from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute\\\n"
+    "from ~~~PROJNAME~~~.models.auth import UserMgr\\\n"
+    "\\\n"
+    "from pyramid.security import Allow\\\n"
+    "from pyramid.security import Everyone\\\n"
+    "from pyramid.security import ALL_PERMISSIONS\\\n"
+    "\\\n"
+    "class RootFactory(object):\\\n"
+    "    __acl__ = [(Allow, Everyone, ALL_PERMISSIONS)]\\\n"
+    "\\\n"
+    "    def __init__(self, request):\\\n"
+    "        if request.matchdict:\\\n"
+    "            self.__dict__.update(request.matchdict)\\\n"
+    "\\\n"
+    "\\\n")
+
+    prepend_in_file(maininitpy, mainimports)
+
+    userauth = ("def main\(global_config, \*\*settings\)\:\\\n"
+        "\\\n"
+        "    settings\[\\\"app_root\\\"\] = abspath\(dirname\(dirname\(__file__\)\)\)\\\n"
+        "\\\n"
+        "    authn_policy = AuthTktAuthenticationPolicy(\\\n"
+        "       settings.get(\\\"auth.secret\\\"),\\\n"
+        "       callback=UserMgr.auth_groupfinder)\\\n"
+        "    authz_policy = ACLAuthorizationPolicy()\\\n"
+        "\\\n"
+        "    config = Configurator(settings=settings,\\\n"
+        "        root_factory=\\\"~~~PROJNAME~~~.RootFactory\\\",\\\n"
+        "        authentication_policy=authn_policy,\\\n"
+        "        authorization_policy=authz_policy)\\\n"
+        "\\\n"
+        "\\\n"
+        "    config.set_request_factory(RequestWithUserAttribute)\\\n")
+
+    substitute_in_file(maininitpy, "def main\(global_config, \*\*settings\)\:", userauth)
 
     # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
-    maininitpy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + maininitpy + " > /tmp/maininit.py && mv /tmp/maininit.py " + maininitpy + ""
-    os.system(maininitpy_projname)
+    substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
+
+    authsecret_orig = "sqlalchemy.url = sqlite:\/\/\/%\(here\)s\/" + options.project_name + ".sqlite"
+    authsecret_subst = authsecret_orig + "\\\n\\\nauth.secret=PLEASECHANGEME"
+    substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
+    substitute_in_file(productionini, authsecret_orig, authsecret_subst)
 
     # Tweak the tests.py to use the project name and correct models path
-
     testspy = os.path.join(os.getcwd(), options.project_name + "/tests.py")
-    testspy_modelpath = "awk '{ gsub(/from .models import DBSession/, \"from ~~~PROJNAME~~~.models.mymodel import DBSession\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
-    os.system(testspy_modelpath)
 
-    testspy_modelpath = "awk '{ gsub(/from .models import/, \"from ~~~PROJNAME~~~.models.mymodel import\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
-    os.system(testspy_modelpath)
-
-    testspy_viewpath = "awk '{ gsub(/from .views import/, \"from ~~~PROJNAME~~~.views.home import\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
-    os.system(testspy_viewpath)
-
-
-    # Replace ~~~PROJNAME~~~ placeholders in the tests.py code
-    testspy_projname = "awk '{ gsub(/~~~PROJNAME~~~/, \"" + options.project_name + "\"); print }' " + testspy + " > /tmp/tests.py && mv /tmp/tests.py " + testspy + ""
-    os.system(testspy_projname)
+    substitute_in_file(testspy, "from .models import DBSession", "from ~~~PROJNAME~~~.models.mymodel import DBSession")
+    substitute_in_file(testspy, "from .models import", "from ~~~PROJNAME~~~.models.mymodel import")
+    substitute_in_file(testspy, "from .views import", "from ~~~PROJNAME~~~.views.home import")
+    substitute_in_file(testspy, "~~~PROJNAME~~~", options.project_name)
 
     # Copy tests.py to the tests package
     shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
@@ -173,43 +202,24 @@ def main():
     # Delete the unnecessary tests.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
 
-    # Redis is used as a result backend
-    subprocess.call(["../bin/pip", "install", "redis"])    
+    # Install dependencies in requirements.txt
+    requirements = os.path.join(base_dir, "requirements.txt")
+    os.system("../bin/pip install -r " + requirements)
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
     subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
-    
-    # install gunicorn
-    subprocess.call(["../bin/easy_install", "-U", "gunicorn"])
-
-    # Install alembic
-    subprocess.call(["../bin/pip", "install", "alembic"])
     subprocess.call(["../bin/alembic", "init", "alembic"])
 
-    # edit alembic.ini with `sqlalchemy.url = sqlite:///%(here)s/projname.sqlite`
-    alembicini1_str = "awk '{ gsub(/sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname/, \"sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite\"); print}' alembic.ini > /tmp/alembic.ini && mv /tmp/alembic.ini alembic.ini"
+    alembicini = os.path.join(os.getcwd(), "alembic.ini")
 
-    os.system(alembicini1_str) 
-
-    # edit alembic.ini from `script_location` to 
-    # `script_location = alembic`
-    # `versions = alembic`
-    alembicini2_str = "awk '{ gsub(/script_location.*/,\"script_location = alembic\\\nversions = alembic\\\n\"); print }' alembic.ini > /tmp/alembic.ini && mv /tmp/alembic.ini alembic.ini"
-
-    os.system(alembicini2_str)
-    #alembicenv1_str = "sed -i 's/^target_metadata = None.*/from " + options.project_name + ".models import Base\ntarget_metadata = Base.metadata\n/g' alembic/env.py"
-
-    # edit env.py from `target_metadata = None` to `from projname.models import Base\ntarget_metadata = Base.metadata`
-    alembicenv1_str = "awk '{ gsub(/target_metadata = None.*/,\"from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n\"); print }' alembic/env.py > /tmp/env.py && mv /tmp/env.py alembic/env.py"
-    os.system(alembicenv1_str)
+    substitute_in_file(alembicini, "sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname", "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite")
+    substitute_in_file(alembicini, "script_location.*", "script_location = alembic\\\nversions = alembic\\\n")
+    substitute_in_file(alembicini, "target_metadata = None.*", "from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n")
 
     os.system("../bin/alembic revision --autogenerate -m \"starting\"")
     os.system("../bin/alembic stamp head")
 
-    productionini_socket = "awk '{ gsub(/\[server:main\]/, \"[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n\"); print }' production.ini > /tmp/production.ini && mv /tmp/production.ini production.ini"
-    os.system(productionini_socket)   
-    #unix_socket = %(here)s/app.sock
-#    config = Configurator(settings=settings)
+    substitute_in_file(productionini, "\[server:main\]", "[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n") 
 
     # Help text for configuring nginx
     print ""
@@ -269,6 +279,19 @@ def main():
         os.system("../bin/supervisord -n -c supervisord.conf")
     else:
         os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
+
+def prepend_in_file(filepath, string):
+    tempfile = id_generator()
+    prepend_call = "awk 'BEGIN{print\"" + string + "\"}1' " + filepath + " > /tmp/" +tempfile+ " && mv /tmp/" +tempfile+ " " + filepath
+    os.system(prepend_call)
+
+def substitute_in_file(filepath, original, substitution):
+    tempfile = id_generator()
+    substitution_call = "awk '{ gsub(/" + original + "/, \"" + substitution + "\"); print }' " + filepath + " > /tmp/" + tempfile + " && mv /tmp/" + tempfile + " " + filepath + ""
+    os.system(substitution_call)
+
+def id_generator(size=6, chars=string.ascii_uppercase):
+    return ''.join(random.choice(chars) for x in range(size))
 
 if __name__ == "__main__":
     main()
