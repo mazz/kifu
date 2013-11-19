@@ -6,7 +6,8 @@ Requirements:
 -------------
 
     * Python 2.7
-    * PyYAML libraries
+    * git
+
 
 SETUP(Mac OS X)
 ---------------
@@ -50,8 +51,7 @@ Clone the initpyr repo locally. Run initpyr.py and create a project called `foo`
 The script will in a virtual environment:
 
     * install the Pyramid web framework
-    * install the pyramid_alchemy template scaffolding, installing SQLAlchemy
-    * install the pyramid_jinja2 template scaffolding
+    * install the pyramid_alembic_mako template scaffolding, installing SQLAlchemy
     * install the alembic database migration package, and initialize it
     * install the celery distributed task queue
     * output the necessary changes required to the nginx.conf file to run the foo app

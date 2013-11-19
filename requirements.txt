@@ -1,8 +1,6 @@
-alembic
 bcrypt
 celery==3.0.24
 decorator
 gunicorn
 redis
-pyramid==1.5a2
-SQLAlchemy==0.8.3
+

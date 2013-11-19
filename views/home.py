@@ -1,21 +1,13 @@
+from default.queue import tasks
 from pyramid.response import Response
 from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
 
-from default.models.mymodel import (
-    DBSession,
-    MyModel,
-    )
-
-
-@view_config(route_name='home', renderer='default:templates/mytemplate.pt')
+@view_config(route_name='home', renderer='default:templates/mytemplate.mako')
 def my_view(request):
-    try:
-        one = DBSession.query(MyModel).filter(MyModel.name == 'one').first()
-    except DBAPIError:
-        return Response(conn_err_msg, content_type='text/plain', status_int=500)
-    return {'one': one, 'project': 'default'}
+    tasks.add.delay(5,5)
+    return {'project': 'default'}
 
 conn_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem

@@ -34,24 +34,30 @@ def main():
         options.supervisor_enabled = False
 
     absolute_deploydir = os.path.abspath(options.deploy_dir)
-
-    settingsdict = open(base_dir + "/initpyr.yaml", "r")
-    settings = (yaml.load(settingsdict))
-
     os.chdir(absolute_deploydir)
     
     subprocess.call(["virtualenv", options.project_name + "_env"])
-    os.chdir(options.project_name + "_env")
 
-    #subprocess.call(["bin/easy_install", "pyramid"])
+    envdir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
+    print "envdir: " + envdir
+    os.chdir(envdir)
+
+    # Install pyramid_alembic_mako
+    subprocess.call(["bin/easy_install", "pyramid"])
+    subprocess.call(["bin/easy_install", "setuptools_git"])
+    subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
+    subprocess.call(["cd", "pyramid_alembic_mako"])
+    os.chdir(os.path.abspath(os.path.join(envdir, "pyramid_alembic_mako")))
+    os.system("../bin/pip install .")
+
+    os.chdir(envdir)
+    subprocess.call(["bin/pcreate", "-s", "alembic_mako", options.project_name])
+
     # Install dependencies in requirements.txt
     requirements = os.path.join(base_dir, "requirements.txt")
     os.system("bin/pip install -r " + requirements)
 
-    subprocess.call(["bin/pcreate", "-s", "alchemy", options.project_name])
 
-    if settings["template"] != "default":
-        subprocess.call(["bin/pip", "install", settings["template"]])
 
     os.chdir(options.project_name)
 
@@ -60,12 +66,12 @@ def main():
     productionini = os.path.join(os.getcwd(), "production.ini")
 
     # Add template if it is in the yaml file
-    if settings["template"] != None:        
-        templateinclude = ("config = Configurator(settings=settings)\\\n"
-        "    config.include(\\\"" + settings["template"] +"\\\")")
-        substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", templateinclude)
-        substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\\\n    " + settings["template"])
-        substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\\\n    " + settings["template"])
+    #if settings["template"] != None:        
+    templateinclude = ("config = Configurator(settings=settings)\\\n"
+    "    config.include(\\\"pyramid_mako\\\")")
+    substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", templateinclude)
+    substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_mako")
+    substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_mako")
 
     # Copy Celery-related files to the app
     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
@@ -112,7 +118,6 @@ def main():
     # Replace ~~~PROJNAME~~~ placeholders in the initializedb.py code
     #substitute_in_file(initializedbpy, "~~~PROJNAME~~~", options.project_name)
 
-    # Tweak the views.py to use the project name and correct models path
     viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
 
     # Delete views.py
@@ -122,6 +127,8 @@ def main():
     # Copy views to the app
     homepy = os.path.join(base_dir + "/views/home.py")
     substitute_in_file(homepy, "~~~PROJNAME~~~", options.project_name)
+    substitute_in_file(homepy, "mytemplate.pt", "mytemplate.mako")
+
     views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
     shutil.copytree(base_dir + "/views", views_dir)
 
@@ -208,18 +215,18 @@ def main():
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
     #subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
-    subprocess.call(["../bin/alembic", "init", "alembic"])
+#    subprocess.call(["../bin/alembic", "init", "alembic"])
 
-    alembicini = os.path.join(os.getcwd(), "alembic.ini")
-    envpy = os.path.join(os.getcwd(), "alembic/env.py")
+#    alembicini = os.path.join(os.getcwd(), "alembic.ini")
+    envpy = os.path.join(os.getcwd(), options.project_name +"/alembic/env.py")
 
-    substitute_in_file(alembicini, "sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname", "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite")
-    substitute_in_file(alembicini, "script_location.*", "script_location = alembic\\\nversions = alembic\\\n")
+#    substitute_in_file(alembicini, "sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname", "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite")
+#    substitute_in_file(alembicini, "script_location.*", "script_location = alembic\\\nversions = alembic\\\n")
     substitute_in_file(envpy, "target_metadata = None.*", "from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n")
 
-    os.system("../bin/alembic revision --autogenerate -m \"starting\"")
-    os.system("../bin/alembic stamp head")
-    os.system("../bin/alembic upgrade head")
+    os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
+    os.system("../bin/alembic -c development.ini stamp head")
+    os.system("../bin/alembic -c development.ini upgrade head")
 
     substitute_in_file(productionini, "\[server:main\]", "[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n") 
 
