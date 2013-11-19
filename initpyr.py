@@ -43,7 +43,11 @@ def main():
     subprocess.call(["virtualenv", options.project_name + "_env"])
     os.chdir(options.project_name + "_env")
 
-    subprocess.call(["bin/easy_install", "pyramid"])
+    #subprocess.call(["bin/easy_install", "pyramid"])
+    # Install dependencies in requirements.txt
+    requirements = os.path.join(base_dir, "requirements.txt")
+    os.system("bin/pip install -r " + requirements)
+
     subprocess.call(["bin/pcreate", "-s", "alchemy", options.project_name])
 
     if settings["template"] != "default":
@@ -55,24 +59,20 @@ def main():
     developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
     productionini = os.path.join(os.getcwd(), "production.ini")
 
-    # Add jinja2 if it is in the yaml file
-    if settings["template"] == "pyramid_jinja2":
-        jinjarenderer = ("config = Configurator(settings=settings)\\\n"
-        "    config.add_renderer(\\\".html\\\", \\\"pyramid_jinja2.renderer_factory\\\")")
-        substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", jinjarenderer)
-        
-        jinjainclude = ("config = Configurator(settings=settings)\\\n"
-        "    config.include(\\\"pyramid_jinja2\\\")")
-        substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", jinjainclude)
-        substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_jinja2")
-        substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_jinja2")
+    # Add template if it is in the yaml file
+    if settings["template"] != None:        
+        templateinclude = ("config = Configurator(settings=settings)\\\n"
+        "    config.include(\\\"" + settings["template"] +"\\\")")
+        substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", templateinclude)
+        substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\\\n    " + settings["template"])
+        substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\\\n    " + settings["template"])
 
     # Copy Celery-related files to the app
     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
     shutil.copytree(base_dir + "/queue", celery_dir)
 
     # Copy models.py to the models package and rename it mymodel.py
-    shutil.copy(os.path.join(os.getcwd(), options.project_name + "/models.py"), base_dir + "/models/mymodel.py")
+    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/models.py"), base_dir + "/models/mymodel.py")
 
     # Copy models dir to the app
     models_dir = os.path.join(os.getcwd(), options.project_name + "/models")
@@ -102,35 +102,35 @@ def main():
 
     # Tweak initialize db script to use replacement model hierarchy
     initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
+    substitute_in_file(initializedbpy, "    MyModel,", "#    MyModel,")
+    substitute_in_file(initializedbpy, "    with transaction.manager\:", "#    with transaction.manager\:")
+    substitute_in_file(initializedbpy, "model = MyModel", "#model = MyModel")
+    substitute_in_file(initializedbpy, "DBSession.add", "#DBSession.add")
 
-    substitute_in_file(initializedbpy, "from ..models import \(", "from ~~~PROJNAME~~~.models.mymodel import \(")
+    #substitute_in_file(initializedbpy, "from ..models import \(", "from ~~~PROJNAME~~~.models.mymodel import \(")
 
     # Replace ~~~PROJNAME~~~ placeholders in the initializedb.py code
-    substitute_in_file(initializedbpy, "~~~PROJNAME~~~", options.project_name)
+    #substitute_in_file(initializedbpy, "~~~PROJNAME~~~", options.project_name)
 
     # Tweak the views.py to use the project name and correct models path
     viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
 
-    substitute_in_file(viewspy, "from .models import", "from ~~~PROJNAME~~~.models.mymodel import")
-    substitute_in_file(viewspy, "templates\/mytemplate.pt", "~~~PROJNAME~~~:templates/mytemplate.pt")
-
-    # Queue a trivial celery task when the default view loads
-    prepend_in_file(viewspy, "from ~~~PROJNAME~~~.queue import tasks")
-    substitute_in_file(viewspy, "~~~PROJNAME~~~", options.project_name)
-    substitute_in_file(viewspy, "def my_view\(request\):", "def my_view\(request\):\\\n    tasks.add.delay\(5,5\)")
-
-    # Copy views.py to the views package and rename it home.py
-    shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
+    # Delete views.py
+    os.unlink(viewspy)
+    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
 
     # Copy views to the app
+    homepy = os.path.join(base_dir + "/views/home.py")
+    substitute_in_file(homepy, "~~~PROJNAME~~~", options.project_name)
     views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
     shutil.copytree(base_dir + "/views", views_dir)
 
-    # Delete the unnecessary views.py file
-    os.unlink(os.path.join(os.getcwd(), options.project_name + "/views.py"))
+    # Delete mymodel.py
+    mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
+    os.unlink(mymodelpy)
 
     # Tweak the main __init__.py to use the project name and correct models path
-    substitute_in_file(maininitpy, "from .models import \(", "from ~~~PROJNAME~~~.models.mymodel import \(")
+    substitute_in_file(maininitpy, "from .models import \(", "from ~~~PROJNAME~~~.models import \(")
 
     # Add os.path imports to __init__.py
     mainimports = ("from os.path import abspath\\\n"
@@ -193,31 +193,33 @@ def main():
     substitute_in_file(testspy, "~~~PROJNAME~~~", options.project_name)
 
     # Copy tests.py to the tests package
-    shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
+    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
 
     # Copy tests to the app
-    tests_dir = os.path.join(os.getcwd(), options.project_name + "/tests")
-    shutil.copytree(base_dir + "/tests", tests_dir)
+    #tests_dir = os.path.join(os.getcwd(), options.project_name + "/tests")
+    #shutil.copytree(base_dir + "/tests", tests_dir)
 
     # Delete the unnecessary tests.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
 
-    # Install dependencies in requirements.txt
-    requirements = os.path.join(base_dir, "requirements.txt")
-    os.system("../bin/pip install -r " + requirements)
+#    # Install dependencies in requirements.txt
+#    requirements = os.path.join(base_dir, "requirements.txt")
+#    os.system("../bin/pip install -r " + requirements)
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
-    subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
+    #subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
     subprocess.call(["../bin/alembic", "init", "alembic"])
 
     alembicini = os.path.join(os.getcwd(), "alembic.ini")
+    envpy = os.path.join(os.getcwd(), "alembic/env.py")
 
     substitute_in_file(alembicini, "sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname", "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite")
     substitute_in_file(alembicini, "script_location.*", "script_location = alembic\\\nversions = alembic\\\n")
-    substitute_in_file(alembicini, "target_metadata = None.*", "from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n")
+    substitute_in_file(envpy, "target_metadata = None.*", "from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n")
 
     os.system("../bin/alembic revision --autogenerate -m \"starting\"")
     os.system("../bin/alembic stamp head")
+    os.system("../bin/alembic upgrade head")
 
     substitute_in_file(productionini, "\[server:main\]", "[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n") 
 
