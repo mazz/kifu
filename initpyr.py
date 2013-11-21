@@ -225,7 +225,7 @@ def main():
     substitute_in_file(envpy, "target_metadata = None.*", "from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n")
 
     os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
-    os.system("../bin/alembic -c development.ini stamp head")
+#    os.system("../bin/alembic -c development.ini stamp head")
     os.system("../bin/alembic -c development.ini upgrade head")
 
     substitute_in_file(productionini, "\[server:main\]", "[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n") 
