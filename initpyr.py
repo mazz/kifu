@@ -46,7 +46,7 @@ def main():
     subprocess.call(["bin/easy_install", "pyramid"])
     subprocess.call(["bin/easy_install", "setuptools_git"])
     subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
-    subprocess.call(["cd", "pyramid_alembic_mako"])
+#    subprocess.call(["cd", "pyramid_alembic_mako"])
     os.chdir(os.path.abspath(os.path.join(envdir, "pyramid_alembic_mako")))
     os.system("../bin/pip install .")
 
