@@ -11,8 +11,14 @@ import string
 options = {}
 unix_app_socket = "app.sock"
 project_name_placeholder = "~~~PROJNAME~~~"
+base_dir = None
+env_dir = None
 
 def main():
+    global base_dir
+    global env_dir
+    global options
+
     parser = OptionParser()
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
     parser.add_option("-d", "--deploy", dest="deploy_dir", type="string", help="Deploy base directory of webapp.")
@@ -38,25 +44,12 @@ def main():
     
     subprocess.call(["virtualenv", options.project_name + "_env"])
 
-    envdir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
-    print "envdir: " + envdir
-    os.chdir(envdir)
+    env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
+    print "env_dir: " + env_dir
+    os.chdir(env_dir)
 
-    # Install pyramid_alembic_mako
-    subprocess.call(["bin/easy_install", "pyramid"])
-    subprocess.call(["bin/easy_install", "setuptools_git"])
-    subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
-#    subprocess.call(["cd", "pyramid_alembic_mako"])
-    os.chdir(os.path.abspath(os.path.join(envdir, "pyramid_alembic_mako")))
-    os.system("../bin/pip install .")
 
-    os.chdir(envdir)
-    subprocess.call(["bin/pcreate", "-s", "alembic_mako", options.project_name])
-
-    # Install dependencies in requirements.txt
-    requirements = os.path.join(base_dir, "requirements.txt")
-    os.system("bin/pip install -r " + requirements)
-
+    perform_installs()
 
 
     os.chdir(options.project_name)
@@ -67,11 +60,11 @@ def main():
 
     # Add template if it is in the yaml file
     #if settings["template"] != None:        
-    templateinclude = ("config = Configurator(settings=settings)\\\n"
-    "    config.include(\\\"pyramid_mako\\\")")
-    substitute_in_file(maininitpy, "config = Configurator\(settings=settings\)", templateinclude)
-    substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_mako")
-    substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\\\n    pyramid_mako")
+    templateinclude = ("config = Configurator(settings=settings)\n"
+    "    config.include(\"pyramid_mako\")")
+    substitute_in_file(maininitpy, "config = Configurator(settings=settings)", templateinclude)
+    substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
+    substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
 
     # Copy Celery-related files to the app
     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
@@ -109,7 +102,7 @@ def main():
     # Tweak initialize db script to use replacement model hierarchy
     initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
     substitute_in_file(initializedbpy, "    MyModel,", "#    MyModel,")
-    substitute_in_file(initializedbpy, "    with transaction.manager\:", "#    with transaction.manager\:")
+    substitute_in_file(initializedbpy, "    with transaction.manager:", "#    with transaction.manager:")
     substitute_in_file(initializedbpy, "model = MyModel", "#model = MyModel")
     substitute_in_file(initializedbpy, "DBSession.add", "#DBSession.add")
 
@@ -137,57 +130,57 @@ def main():
     os.unlink(mymodelpy)
 
     # Tweak the main __init__.py to use the project name and correct models path
-    substitute_in_file(maininitpy, "from .models import \(", "from ~~~PROJNAME~~~.models import \(")
+    substitute_in_file(maininitpy, "from .models import (", "from ~~~PROJNAME~~~.models import (")
 
     # Add os.path imports to __init__.py
-    mainimports = ("from os.path import abspath\\\n"
-    "from os.path import dirname\\\n"
-    "\\\n"
-    "from pyramid.authentication import AuthTktAuthenticationPolicy\\\n"
-    "from pyramid.authorization import ACLAuthorizationPolicy\\\n"
-    "\\\n"
-    "from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute\\\n"
-    "from ~~~PROJNAME~~~.models.auth import UserMgr\\\n"
-    "\\\n"
-    "from pyramid.security import Allow\\\n"
-    "from pyramid.security import Everyone\\\n"
-    "from pyramid.security import ALL_PERMISSIONS\\\n"
-    "\\\n"
-    "class RootFactory(object):\\\n"
-    "    __acl__ = [(Allow, Everyone, ALL_PERMISSIONS)]\\\n"
-    "\\\n"
-    "    def __init__(self, request):\\\n"
-    "        if request.matchdict:\\\n"
-    "            self.__dict__.update(request.matchdict)\\\n"
-    "\\\n"
-    "\\\n")
+    mainimports = ("from os.path import abspath\n"
+    "from os.path import dirname\n"
+    "\n"
+    "from pyramid.authentication import AuthTktAuthenticationPolicy\n"
+    "from pyramid.authorization import ACLAuthorizationPolicy\n"
+    "\n"
+    "from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute\n"
+    "from ~~~PROJNAME~~~.models.auth import UserMgr\n"
+    "\n"
+    "from pyramid.security import Allow\n"
+    "from pyramid.security import Everyone\n"
+    "from pyramid.security import ALL_PERMISSIONS\n"
+    "\n"
+    "class RootFactory(object):\n"
+    "    __acl__ = [(Allow, Everyone, ALL_PERMISSIONS)]\n"
+    "\n"
+    "    def __init__(self, request):\n"
+    "        if request.matchdict:\n"
+    "            self.__dict__.update(request.matchdict)\n"
+    "\n"
+    "\n")
 
     prepend_in_file(maininitpy, mainimports)
 
-    userauth = ("def main\(global_config, \*\*settings\)\:\\\n"
-        "\\\n"
-        "    settings\[\\\"app_root\\\"\] = abspath\(dirname\(dirname\(__file__\)\)\)\\\n"
-        "\\\n"
-        "    authn_policy = AuthTktAuthenticationPolicy(\\\n"
-        "       settings.get(\\\"auth.secret\\\"),\\\n"
-        "       callback=UserMgr.auth_groupfinder)\\\n"
-        "    authz_policy = ACLAuthorizationPolicy()\\\n"
-        "\\\n"
-        "    config = Configurator(settings=settings,\\\n"
-        "        root_factory=\\\"~~~PROJNAME~~~.RootFactory\\\",\\\n"
-        "        authentication_policy=authn_policy,\\\n"
-        "        authorization_policy=authz_policy)\\\n"
-        "\\\n"
-        "\\\n"
-        "    config.set_request_factory(RequestWithUserAttribute)\\\n")
+    userauth = ("def main(global_config, **settings):\n"
+        "\n"
+        "    settings[\"app_root\"] = abspath(dirname(dirname(__file__)))\n"
+        "\n"
+        "    authn_policy = AuthTktAuthenticationPolicy(\n"
+        "       settings.get(\"auth.secret\"),\n"
+        "       callback=UserMgr.auth_groupfinder)\n"
+        "    authz_policy = ACLAuthorizationPolicy()\n"
+        "\n"
+        "    config = Configurator(settings=settings,\n"
+        "        root_factory=\"~~~PROJNAME~~~.RootFactory\",\n"
+        "        authentication_policy=authn_policy,\n"
+        "        authorization_policy=authz_policy)\n"
+        "\n"
+        "\n"
+        "    config.set_request_factory(RequestWithUserAttribute)\n")
 
-    substitute_in_file(maininitpy, "def main\(global_config, \*\*settings\)\:", userauth)
+    substitute_in_file(maininitpy, "def main(global_config, **settings):", userauth)
 
     # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
     substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
 
-    authsecret_orig = "sqlalchemy.url = sqlite:\/\/\/%\(here\)s\/" + options.project_name + ".sqlite"
-    authsecret_subst = authsecret_orig + "\\\n\\\nauth.secret=PLEASECHANGEME"
+    authsecret_orig = "sqlalchemy.url = sqlite:///\%(here)s/" + options.project_name + ".sqlite"
+    authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME"
     substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
 
@@ -222,13 +215,13 @@ def main():
 
 #    substitute_in_file(alembicini, "sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname", "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite")
 #    substitute_in_file(alembicini, "script_location.*", "script_location = alembic\\\nversions = alembic\\\n")
-    substitute_in_file(envpy, "target_metadata = None.*", "from " + options.project_name + ".models import Base\\\ntarget_metadata = Base.metadata\\\n")
+    substitute_in_file(envpy, "target_metadata = None.*", "from " + options.project_name + ".models import Base\ntarget_metadata = Base.metadata\n")
 
     os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
 #    os.system("../bin/alembic -c development.ini stamp head")
     os.system("../bin/alembic -c development.ini upgrade head")
 
-    substitute_in_file(productionini, "\[server:main\]", "[server:main]\\\nunix_socket = %(here)s/" + unix_app_socket + "\\\n") 
+    substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = \%(here)s/" + unix_app_socket + "\n") 
 
     # Help text for configuring nginx
     print ""
@@ -290,17 +283,51 @@ def main():
         os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
 
 def prepend_in_file(filepath, string):
-    tempfile = id_generator()
-    prepend_call = "awk 'BEGIN{print\"" + string + "\"}1' " + filepath + " > /tmp/" +tempfile+ " && mv /tmp/" +tempfile+ " " + filepath
-    os.system(prepend_call)
+    with file(filepath, 'r') as original: data = original.read()
+    with file(filepath, 'w') as modified: modified.write(string + data)
+    #tempfile = id_generator()
+    #prepend_call = "awk 'BEGIN{print\"" + string + "\"}1' " + filepath + " > /tmp/" +tempfile+ " && mv /tmp/" +tempfile+ " " + filepath
+    #os.system(prepend_call)
 
-def substitute_in_file(filepath, original, substitution):
-    tempfile = id_generator()
-    substitution_call = "awk '{ gsub(/" + original + "/, \"" + substitution + "\"); print }' " + filepath + " > /tmp/" + tempfile + " && mv /tmp/" + tempfile + " " + filepath + ""
-    os.system(substitution_call)
+def substitute_in_file(filename, old_string, new_string):
+        s=open(filename).read()
+        if old_string in s:
+                print 'Changing {old_string}" to "{new_string}"'.format(**locals())
+                s=s.replace(old_string, new_string)
+                f=open(filename, 'w')
+                f.write(s)
+                f.flush()
+                f.close()
+        else:
+                print 'No occurences of "{old_string}" found.'.format(**locals())
 
-def id_generator(size=6, chars=string.ascii_uppercase):
-    return ''.join(random.choice(chars) for x in range(size))
+#def substitute_in_file(filepath, original, substitution):
+#    tempfile = id_generator()
+#    substitution_call = "awk '{ gsub(/" + original + "/, \"" + substitution + "\"); print }' " + filepath + " > /tmp/" + tempfile + " && mv /tmp/" + tempfile + " " + filepath + ""
+#    os.system(substitution_call)
+
+#def id_generator(size=6, chars=string.ascii_uppercase):
+#    return ''.join(random.choice(chars) for x in range(size))
+
+def perform_installs():
+    global env_dir
+    global options
+
+    # Install pyramid_alembic_mako
+    subprocess.call(["bin/easy_install", "pyramid"])
+    subprocess.call(["bin/easy_install", "setuptools_git"])
+    subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
+#    subprocess.call(["cd", "pyramid_alembic_mako"])
+    print "env_dir: " + env_dir
+    os.chdir(os.path.abspath(os.path.join(env_dir, "pyramid_alembic_mako")))
+    os.system("../bin/pip install .")
+
+    os.chdir(env_dir)
+    subprocess.call(["bin/pcreate", "-s", "alembic_mako", options.project_name])
+
+    # Install dependencies in requirements.txt
+    requirements = os.path.join(base_dir, "requirements.txt")
+    os.system("bin/pip install -r " + requirements)
 
 if __name__ == "__main__":
     main()
