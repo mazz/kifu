@@ -54,19 +54,7 @@ def main():
     os.chdir(options.project_name)
 
     setup_maininitpy()
-
-
-
-
-    developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
-    productionini = os.path.join(os.getcwd(), "production.ini")
-
-    # Add template if it is in the yaml file
-    #if settings["template"] != None:        
-    templateinclude = ("config = Configurator(settings=settings)\n"
-    "    config.include(\"pyramid_mako\")")
-    substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
-    substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
+    setup_dotini()
 
     # Copy Celery-related files to the app
     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
@@ -125,12 +113,6 @@ def main():
     os.unlink(mymodelpy)
 
 
-
-    authsecret_orig = "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite"
-    authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME"
-    substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
-    substitute_in_file(productionini, authsecret_orig, authsecret_subst)
-
     # Tweak the tests.py to use the project name and correct models path
     testspy = os.path.join(os.getcwd(), options.project_name + "/tests.py")
 
@@ -153,9 +135,6 @@ def main():
 
     os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
     os.system("../bin/alembic -c development.ini upgrade head")
-
-    substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\n") 
-
     # Help text for configuring nginx
     print ""
     print "add to nginx http {} section:"
@@ -251,6 +230,8 @@ def perform_installs():
     os.system("bin/pip install -r " + requirements)
 
 def setup_maininitpy():
+    templateinclude = ("config = Configurator(settings=settings)\n"
+    "    config.include(\"pyramid_mako\")")
     maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
     substitute_in_file(maininitpy, "config = Configurator(settings=settings)", templateinclude)
     # Tweak the main __init__.py to use the project name and correct models path
@@ -302,6 +283,22 @@ def setup_maininitpy():
 
     # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
     substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
+
+def setup_dotini():
+    developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
+    productionini = os.path.join(os.getcwd(), "production.ini")
+
+    # Add template if it is in the yaml file
+    #if settings["template"] != None:        
+    
+    substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
+    substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
+    authsecret_orig = "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite"
+    authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME"
+    substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
+    substitute_in_file(productionini, authsecret_orig, authsecret_subst)
+    substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\n") 
+
 
 if __name__ == "__main__":
     main()
