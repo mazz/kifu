@@ -53,7 +53,11 @@ def main():
 
     os.chdir(options.project_name)
 
-    maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
+    setup_maininitpy()
+
+
+
+
     developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
     productionini = os.path.join(os.getcwd(), "production.ini")
 
@@ -61,7 +65,6 @@ def main():
     #if settings["template"] != None:        
     templateinclude = ("config = Configurator(settings=settings)\n"
     "    config.include(\"pyramid_mako\")")
-    substitute_in_file(maininitpy, "config = Configurator(settings=settings)", templateinclude)
     substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
     substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
 
@@ -121,55 +124,7 @@ def main():
     mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
     os.unlink(mymodelpy)
 
-    # Tweak the main __init__.py to use the project name and correct models path
-    substitute_in_file(maininitpy, "from .models import (", "from ~~~PROJNAME~~~.models import (")
 
-    # Add os.path imports to __init__.py
-    mainimports = ("from os.path import abspath\n"
-    "from os.path import dirname\n"
-    "\n"
-    "from pyramid.authentication import AuthTktAuthenticationPolicy\n"
-    "from pyramid.authorization import ACLAuthorizationPolicy\n"
-    "\n"
-    "from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute\n"
-    "from ~~~PROJNAME~~~.models.auth import UserMgr\n"
-    "\n"
-    "from pyramid.security import Allow\n"
-    "from pyramid.security import Everyone\n"
-    "from pyramid.security import ALL_PERMISSIONS\n"
-    "\n"
-    "class RootFactory(object):\n"
-    "    __acl__ = [(Allow, Everyone, ALL_PERMISSIONS)]\n"
-    "\n"
-    "    def __init__(self, request):\n"
-    "        if request.matchdict:\n"
-    "            self.__dict__.update(request.matchdict)\n"
-    "\n"
-    "\n")
-
-    prepend_in_file(maininitpy, mainimports)
-
-    userauth = ("def main(global_config, **settings):\n"
-        "\n"
-        "    settings[\"app_root\"] = abspath(dirname(dirname(__file__)))\n"
-        "\n"
-        "    authn_policy = AuthTktAuthenticationPolicy(\n"
-        "       settings.get(\"auth.secret\"),\n"
-        "       callback=UserMgr.auth_groupfinder)\n"
-        "    authz_policy = ACLAuthorizationPolicy()\n"
-        "\n"
-        "    config = Configurator(settings=settings,\n"
-        "        root_factory=\"~~~PROJNAME~~~.RootFactory\",\n"
-        "        authentication_policy=authn_policy,\n"
-        "        authorization_policy=authz_policy)\n"
-        "\n"
-        "\n"
-        "    config.set_request_factory(RequestWithUserAttribute)\n")
-
-    substitute_in_file(maininitpy, "def main(global_config, **settings):", userauth)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
-    substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
 
     authsecret_orig = "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite"
     authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME"
@@ -294,6 +249,59 @@ def perform_installs():
     # Install dependencies in requirements.txt
     requirements = os.path.join(base_dir, "requirements.txt")
     os.system("bin/pip install -r " + requirements)
+
+def setup_maininitpy():
+    maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
+    substitute_in_file(maininitpy, "config = Configurator(settings=settings)", templateinclude)
+    # Tweak the main __init__.py to use the project name and correct models path
+    substitute_in_file(maininitpy, "from .models import (", "from ~~~PROJNAME~~~.models import (")
+
+    # Add os.path imports to __init__.py
+    mainimports = ("from os.path import abspath\n"
+    "from os.path import dirname\n"
+    "\n"
+    "from pyramid.authentication import AuthTktAuthenticationPolicy\n"
+    "from pyramid.authorization import ACLAuthorizationPolicy\n"
+    "\n"
+    "from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute\n"
+    "from ~~~PROJNAME~~~.models.auth import UserMgr\n"
+    "\n"
+    "from pyramid.security import Allow\n"
+    "from pyramid.security import Everyone\n"
+    "from pyramid.security import ALL_PERMISSIONS\n"
+    "\n"
+    "class RootFactory(object):\n"
+    "    __acl__ = [(Allow, Everyone, ALL_PERMISSIONS)]\n"
+    "\n"
+    "    def __init__(self, request):\n"
+    "        if request.matchdict:\n"
+    "            self.__dict__.update(request.matchdict)\n"
+    "\n"
+    "\n")
+
+    prepend_in_file(maininitpy, mainimports)
+
+    userauth = ("def main(global_config, **settings):\n"
+        "\n"
+        "    settings[\"app_root\"] = abspath(dirname(dirname(__file__)))\n"
+        "\n"
+        "    authn_policy = AuthTktAuthenticationPolicy(\n"
+        "       settings.get(\"auth.secret\"),\n"
+        "       callback=UserMgr.auth_groupfinder)\n"
+        "    authz_policy = ACLAuthorizationPolicy()\n"
+        "\n"
+        "    config = Configurator(settings=settings,\n"
+        "        root_factory=\"~~~PROJNAME~~~.RootFactory\",\n"
+        "        authentication_policy=authn_policy,\n"
+        "        authorization_policy=authz_policy)\n"
+        "\n"
+        "\n"
+        "    config.set_request_factory(RequestWithUserAttribute)\n")
+
+    substitute_in_file(maininitpy, "def main(global_config, **settings):", userauth)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
+    substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
 
 if __name__ == "__main__":
     main()
