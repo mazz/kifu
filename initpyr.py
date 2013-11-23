@@ -55,62 +55,9 @@ def main():
 
     setup_maininitpy()
     setup_dotini()
+    setup_packages()
 
-    # Copy Celery-related files to the app
-    celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
-    shutil.copytree(base_dir + "/queue", celery_dir)
 
-    # Copy models.py to the models package and rename it mymodel.py
-    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/models.py"), base_dir + "/models/mymodel.py")
-
-    # Copy models dir to the app
-    models_dir = os.path.join(os.getcwd(), options.project_name + "/models")
-    shutil.copytree(base_dir + "/models", models_dir)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the auth code
-    authpy = os.path.join(models_dir, "auth.py")
-    substitute_in_file(authpy, "~~~PROJNAME~~~", options.project_name)
-
-    # Delete the unnecessary models.py file
-    os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
-
-    # copy lib to project
-    lib_dir = os.path.join(os.getcwd(), options.project_name + "/lib")
-    shutil.copytree(base_dir + "/lib", lib_dir)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the lib code
-    accesspy = os.path.join(lib_dir, "access.py")
-    substitute_in_file(accesspy, "~~~PROJNAME~~~", options.project_name)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the Celery code
-    celerypy = os.path.join(celery_dir, "celery.py")
-    substitute_in_file(celerypy, "~~~PROJNAME~~~", options.project_name)
-
-    taskspy = os.path.join(celery_dir, "tasks.py")
-    substitute_in_file(taskspy, "~~~PROJNAME~~~", options.project_name)
-
-    # Tweak initialize db script to use replacement model hierarchy
-    initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
-    substitute_in_file(initializedbpy, "    MyModel,", "#    MyModel,")
-    substitute_in_file(initializedbpy, "    with transaction.manager:", "#    with transaction.manager:")
-    substitute_in_file(initializedbpy, "model = MyModel", "#model = MyModel")
-    substitute_in_file(initializedbpy, "DBSession.add", "#DBSession.add")
-
-    viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
-
-    # Delete views.py
-    os.unlink(viewspy)
-    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
-
-    # Copy views to the app
-    views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
-    shutil.copytree(base_dir + "/views", views_dir)
-    homepy = os.path.join(views_dir, "home.py")
-    substitute_in_file(homepy, "~~~PROJNAME~~~", options.project_name)
-
-    # Delete mymodel.py
-    mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
-    os.unlink(mymodelpy)
 
 
     # Tweak the tests.py to use the project name and correct models path
@@ -135,54 +82,6 @@ def main():
 
     os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
     os.system("../bin/alembic -c development.ini upgrade head")
-    # Help text for configuring nginx
-    print ""
-    print "add to nginx http {} section:"
-    print "upstream "+ options.project_name + "-site {"
-    print "     server unix://" + os.path.abspath(unix_app_socket) + " fail_timeout=0;"
-    print "}"
-    print ""
-    print "add to nginx server {} section:"
-    print "server {"
-    print ""
-    print "    # optional ssl configuration"
-    print ""
-    print "    #listen 443 ssl;"
-    print "    #ssl_certificate /path/to/ssl/pem_file;"
-    print "    #ssl_certificate_key /path/to/ssl/certificate_key;"
-    print ""
-    print "    # end of optional ssl configuration"
-    print "    listen 80;"
-    print "    server_name _;"
-    print ""
-    print "    access_log  " + os.getcwd() + "/access.log;"
-    print "    error_log   " + os.getcwd() + "/error.log;"
-    print "" 
-    print "    location /static/ {"
-    print "        root                    " + os.getcwd() + "/" + options.project_name + "/;"
-    print "        expires                 30d;"
-    print "        add_header              Cache-Control public;"
-    print "        access_log              off;"
-    print "    }"
-    print ""
-    print ""
-    print "    location / {"
-    print "        proxy_set_header        Host $http_host;"
-    print "        proxy_set_header        X-Real-IP $remote_addr;"
-    print "        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;"
-    print "        proxy_set_header        X-Forwarded-Proto $scheme;"
-    print ""
-    print "        client_max_body_size    10m;"
-    print "        client_body_buffer_size 128k;"
-    print "        proxy_connect_timeout   60s;"
-    print "        proxy_send_timeout      90s;"
-    print "        proxy_read_timeout      90s;"
-    print "        proxy_buffering         off;"
-    print "        proxy_temp_file_write_size 64k;"
-    print "        proxy_pass http://" + options.project_name + "-site;"
-    print "        proxy_redirect          off;"
-    print "    }"
-    print "}"
 
     if options.supervisor_enabled:
         # Install supervisord and run
@@ -191,6 +90,7 @@ def main():
         # Copy supervisord.conf file to new environment
         shutil.copy(base_dir + "/supervisord.conf", os.getcwd())
         os.system("../bin/supervisord -n -c supervisord.conf")
+        output_nginx_help()
     else:
         os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
 
@@ -299,6 +199,117 @@ def setup_dotini():
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\n") 
 
+def setup_packages():
+    global options
+    global base_dir
+    # Copy Celery-related files to the app
+    celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
+    shutil.copytree(base_dir + "/queue", celery_dir)
+
+    # Copy models.py to the models package and rename it mymodel.py
+    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/models.py"), base_dir + "/models/mymodel.py")
+
+    # Copy models dir to the app
+    models_dir = os.path.join(os.getcwd(), options.project_name + "/models")
+    shutil.copytree(base_dir + "/models", models_dir)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the auth code
+    authpy = os.path.join(models_dir, "auth.py")
+    substitute_in_file(authpy, "~~~PROJNAME~~~", options.project_name)
+
+    # Delete the unnecessary models.py file
+    os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
+
+    # copy lib to project
+    lib_dir = os.path.join(os.getcwd(), options.project_name + "/lib")
+    shutil.copytree(base_dir + "/lib", lib_dir)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the lib code
+    accesspy = os.path.join(lib_dir, "access.py")
+    substitute_in_file(accesspy, "~~~PROJNAME~~~", options.project_name)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the Celery code
+    celerypy = os.path.join(celery_dir, "celery.py")
+    substitute_in_file(celerypy, "~~~PROJNAME~~~", options.project_name)
+
+    taskspy = os.path.join(celery_dir, "tasks.py")
+    substitute_in_file(taskspy, "~~~PROJNAME~~~", options.project_name)
+
+    # Tweak initialize db script to use replacement model hierarchy
+    initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
+    substitute_in_file(initializedbpy, "    MyModel,", "#    MyModel,")
+    substitute_in_file(initializedbpy, "    with transaction.manager:", "#    with transaction.manager:")
+    substitute_in_file(initializedbpy, "model = MyModel", "#model = MyModel")
+    substitute_in_file(initializedbpy, "DBSession.add", "#DBSession.add")
+
+    viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
+
+    # Delete views.py
+    os.unlink(viewspy)
+    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
+
+    # Copy views to the app
+    views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
+    shutil.copytree(base_dir + "/views", views_dir)
+    homepy = os.path.join(views_dir, "home.py")
+    substitute_in_file(homepy, "~~~PROJNAME~~~", options.project_name)
+
+    # Delete mymodel.py
+    mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
+    os.unlink(mymodelpy)
+
+def output_nginx_help():
+    global options
+    global unix_app_socket
+
+    # Help text for configuring nginx
+    print ""
+    print "add to nginx http {} section:"
+    print "upstream "+ options.project_name + "-site {"
+    print "     server unix://" + os.path.abspath(unix_app_socket) + " fail_timeout=0;"
+    print "}"
+    print ""
+    print "add to nginx server {} section:"
+    print "server {"
+    print ""
+    print "    # optional ssl configuration"
+    print ""
+    print "    #listen 443 ssl;"
+    print "    #ssl_certificate /path/to/ssl/pem_file;"
+    print "    #ssl_certificate_key /path/to/ssl/certificate_key;"
+    print ""
+    print "    # end of optional ssl configuration"
+    print "    listen 80;"
+    print "    server_name _;"
+    print ""
+    print "    access_log  " + os.getcwd() + "/access.log;"
+    print "    error_log   " + os.getcwd() + "/error.log;"
+    print "" 
+    print "    location /static/ {"
+    print "        root                    " + os.getcwd() + "/" + options.project_name + "/;"
+    print "        expires                 30d;"
+    print "        add_header              Cache-Control public;"
+    print "        access_log              off;"
+    print "    }"
+    print ""
+    print ""
+    print "    location / {"
+    print "        proxy_set_header        Host $http_host;"
+    print "        proxy_set_header        X-Real-IP $remote_addr;"
+    print "        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;"
+    print "        proxy_set_header        X-Forwarded-Proto $scheme;"
+    print ""
+    print "        client_max_body_size    10m;"
+    print "        client_body_buffer_size 128k;"
+    print "        proxy_connect_timeout   60s;"
+    print "        proxy_send_timeout      90s;"
+    print "        proxy_read_timeout      90s;"
+    print "        proxy_buffering         off;"
+    print "        proxy_temp_file_write_size 64k;"
+    print "        proxy_pass http://" + options.project_name + "-site;"
+    print "        proxy_redirect          off;"
+    print "    }"
+    print "}"
 
 if __name__ == "__main__":
     main()
