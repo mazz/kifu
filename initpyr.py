@@ -45,7 +45,6 @@ def main():
     subprocess.call(["virtualenv", options.project_name + "_env"])
 
     env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
-    print "env_dir: " + env_dir
     os.chdir(env_dir)
 
 
@@ -106,11 +105,6 @@ def main():
     substitute_in_file(initializedbpy, "model = MyModel", "#model = MyModel")
     substitute_in_file(initializedbpy, "DBSession.add", "#DBSession.add")
 
-    #substitute_in_file(initializedbpy, "from ..models import \(", "from ~~~PROJNAME~~~.models.mymodel import \(")
-
-    # Replace ~~~PROJNAME~~~ placeholders in the initializedb.py code
-    #substitute_in_file(initializedbpy, "~~~PROJNAME~~~", options.project_name)
-
     viewspy = os.path.join(os.getcwd(), options.project_name + "/views.py")
 
     # Delete views.py
@@ -118,12 +112,10 @@ def main():
     #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/views.py"), base_dir + "/views/home.py")
 
     # Copy views to the app
-    homepy = os.path.join(base_dir + "/views/home.py")
-    substitute_in_file(homepy, "~~~PROJNAME~~~", options.project_name)
-    substitute_in_file(homepy, "mytemplate.pt", "mytemplate.mako")
-
     views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
     shutil.copytree(base_dir + "/views", views_dir)
+    homepy = os.path.join(views_dir, "home.py")
+    substitute_in_file(homepy, "~~~PROJNAME~~~", options.project_name)
 
     # Delete mymodel.py
     mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
@@ -179,7 +171,7 @@ def main():
     # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
     substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
 
-    authsecret_orig = "sqlalchemy.url = sqlite:///\%(here)s/" + options.project_name + ".sqlite"
+    authsecret_orig = "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite"
     authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME"
     substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
@@ -202,26 +194,12 @@ def main():
     # Delete the unnecessary tests.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
 
-#    # Install dependencies in requirements.txt
-#    requirements = os.path.join(base_dir, "requirements.txt")
-#    os.system("../bin/pip install -r " + requirements)
-
     subprocess.call(["../bin/python", "setup.py", "develop"])
-    #subprocess.call(["../bin/initialize_" + options.project_name + "_db", "development.ini"])
-#    subprocess.call(["../bin/alembic", "init", "alembic"])
-
-#    alembicini = os.path.join(os.getcwd(), "alembic.ini")
-    envpy = os.path.join(os.getcwd(), options.project_name +"/alembic/env.py")
-
-#    substitute_in_file(alembicini, "sqlalchemy.url = driver:\/\/user:pass@localhost\/dbname", "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite")
-#    substitute_in_file(alembicini, "script_location.*", "script_location = alembic\\\nversions = alembic\\\n")
-    substitute_in_file(envpy, "target_metadata = None.*", "from " + options.project_name + ".models import Base\ntarget_metadata = Base.metadata\n")
 
     os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
-#    os.system("../bin/alembic -c development.ini stamp head")
     os.system("../bin/alembic -c development.ini upgrade head")
 
-    substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = \%(here)s/" + unix_app_socket + "\n") 
+    substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\n") 
 
     # Help text for configuring nginx
     print ""
@@ -285,29 +263,18 @@ def main():
 def prepend_in_file(filepath, string):
     with file(filepath, 'r') as original: data = original.read()
     with file(filepath, 'w') as modified: modified.write(string + data)
-    #tempfile = id_generator()
-    #prepend_call = "awk 'BEGIN{print\"" + string + "\"}1' " + filepath + " > /tmp/" +tempfile+ " && mv /tmp/" +tempfile+ " " + filepath
-    #os.system(prepend_call)
 
 def substitute_in_file(filename, old_string, new_string):
         s=open(filename).read()
         if old_string in s:
-                print 'Changing {old_string}" to "{new_string}"'.format(**locals())
+                print 'Changing "{old_string}" to "{new_string}" in "{filename}"'.format(**locals())
                 s=s.replace(old_string, new_string)
                 f=open(filename, 'w')
                 f.write(s)
                 f.flush()
                 f.close()
         else:
-                print 'No occurences of "{old_string}" found.'.format(**locals())
-
-#def substitute_in_file(filepath, original, substitution):
-#    tempfile = id_generator()
-#    substitution_call = "awk '{ gsub(/" + original + "/, \"" + substitution + "\"); print }' " + filepath + " > /tmp/" + tempfile + " && mv /tmp/" + tempfile + " " + filepath + ""
-#    os.system(substitution_call)
-
-#def id_generator(size=6, chars=string.ascii_uppercase):
-#    return ''.join(random.choice(chars) for x in range(size))
+                print 'No occurences of "{old_string}" found in "{filename}" '.format(**locals())
 
 def perform_installs():
     global env_dir
@@ -317,7 +284,6 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "pyramid"])
     subprocess.call(["bin/easy_install", "setuptools_git"])
     subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
-#    subprocess.call(["cd", "pyramid_alembic_mako"])
     print "env_dir: " + env_dir
     os.chdir(os.path.abspath(os.path.join(env_dir, "pyramid_alembic_mako")))
     os.system("../bin/pip install .")
