@@ -50,38 +50,16 @@ def main():
 
     perform_installs()
 
-
     os.chdir(options.project_name)
 
     setup_maininitpy()
     setup_dotini()
     setup_packages()
-
-
-
-
-    # Tweak the tests.py to use the project name and correct models path
-    testspy = os.path.join(os.getcwd(), options.project_name + "/tests.py")
-
-    substitute_in_file(testspy, "from .models import DBSession", "from ~~~PROJNAME~~~.models.mymodel import DBSession")
-    substitute_in_file(testspy, "from .models import", "from ~~~PROJNAME~~~.models.mymodel import")
-    substitute_in_file(testspy, "from .views import", "from ~~~PROJNAME~~~.views.home import")
-    substitute_in_file(testspy, "~~~PROJNAME~~~", options.project_name)
-
-    # Copy tests.py to the tests package
-    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
-
-    # Copy tests to the app
-    #tests_dir = os.path.join(os.getcwd(), options.project_name + "/tests")
-    #shutil.copytree(base_dir + "/tests", tests_dir)
-
-    # Delete the unnecessary tests.py file
-    os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
+    setup_tests()
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
 
-    os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
-    os.system("../bin/alembic -c development.ini upgrade head")
+    setup_alembic()
 
     if options.supervisor_enabled:
         # Install supervisord and run
@@ -118,7 +96,6 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "pyramid"])
     subprocess.call(["bin/easy_install", "setuptools_git"])
     subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
-    print "env_dir: " + env_dir
     os.chdir(os.path.abspath(os.path.join(env_dir, "pyramid_alembic_mako")))
     os.system("../bin/pip install .")
 
@@ -310,6 +287,31 @@ def output_nginx_help():
     print "        proxy_redirect          off;"
     print "    }"
     print "}"
+
+def setup_tests():
+    global options
+
+    # Tweak the tests.py to use the project name and correct models path
+    testspy = os.path.join(os.getcwd(), options.project_name + "/tests.py")
+
+    substitute_in_file(testspy, "from .models import DBSession", "from ~~~PROJNAME~~~.models.mymodel import DBSession")
+    substitute_in_file(testspy, "from .models import", "from ~~~PROJNAME~~~.models.mymodel import")
+    substitute_in_file(testspy, "from .views import", "from ~~~PROJNAME~~~.views.home import")
+    substitute_in_file(testspy, "~~~PROJNAME~~~", options.project_name)
+
+    # Copy tests.py to the tests package
+    #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
+
+    # Copy tests to the app
+    #tests_dir = os.path.join(os.getcwd(), options.project_name + "/tests")
+    #shutil.copytree(base_dir + "/tests", tests_dir)
+
+    # Delete the unnecessary tests.py file
+    os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
+
+def setup_alembic():
+    os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
+    os.system("../bin/alembic -c development.ini upgrade head")
 
 if __name__ == "__main__":
     main()
