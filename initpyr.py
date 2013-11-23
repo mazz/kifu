@@ -13,11 +13,13 @@ unix_app_socket = "app.sock"
 project_name_placeholder = "~~~PROJNAME~~~"
 base_dir = None
 env_dir = None
+settings = None
 
 def main():
     global base_dir
     global env_dir
     global options
+    global settings
 
     parser = OptionParser()
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
@@ -39,6 +41,9 @@ def main():
     if options.supervisor_enabled == None:
         options.supervisor_enabled = False
 
+    with open('initpyr.yaml') as f:
+        settings = yaml.load(f)
+
     absolute_deploydir = os.path.abspath(options.deploy_dir)
     os.chdir(absolute_deploydir)
     
@@ -46,7 +51,6 @@ def main():
 
     env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
     os.chdir(env_dir)
-
 
     perform_installs()
 
@@ -107,6 +111,10 @@ def perform_installs():
     os.system("bin/pip install -r " + requirements)
 
 def setup_maininitpy():
+    global settings
+
+    maininitpy_map = settings["maininitpy"]
+
     templateinclude = ("config = Configurator(settings=settings)\n"
     "    config.include(\"pyramid_mako\")")
     maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
@@ -115,48 +123,9 @@ def setup_maininitpy():
     substitute_in_file(maininitpy, "from .models import (", "from ~~~PROJNAME~~~.models import (")
 
     # Add os.path imports to __init__.py
-    mainimports = ("from os.path import abspath\n"
-    "from os.path import dirname\n"
-    "\n"
-    "from pyramid.authentication import AuthTktAuthenticationPolicy\n"
-    "from pyramid.authorization import ACLAuthorizationPolicy\n"
-    "\n"
-    "from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute\n"
-    "from ~~~PROJNAME~~~.models.auth import UserMgr\n"
-    "\n"
-    "from pyramid.security import Allow\n"
-    "from pyramid.security import Everyone\n"
-    "from pyramid.security import ALL_PERMISSIONS\n"
-    "\n"
-    "class RootFactory(object):\n"
-    "    __acl__ = [(Allow, Everyone, ALL_PERMISSIONS)]\n"
-    "\n"
-    "    def __init__(self, request):\n"
-    "        if request.matchdict:\n"
-    "            self.__dict__.update(request.matchdict)\n"
-    "\n"
-    "\n")
 
-    prepend_in_file(maininitpy, mainimports)
-
-    userauth = ("def main(global_config, **settings):\n"
-        "\n"
-        "    settings[\"app_root\"] = abspath(dirname(dirname(__file__)))\n"
-        "\n"
-        "    authn_policy = AuthTktAuthenticationPolicy(\n"
-        "       settings.get(\"auth.secret\"),\n"
-        "       callback=UserMgr.auth_groupfinder)\n"
-        "    authz_policy = ACLAuthorizationPolicy()\n"
-        "\n"
-        "    config = Configurator(settings=settings,\n"
-        "        root_factory=\"~~~PROJNAME~~~.RootFactory\",\n"
-        "        authentication_policy=authn_policy,\n"
-        "        authorization_policy=authz_policy)\n"
-        "\n"
-        "\n"
-        "    config.set_request_factory(RequestWithUserAttribute)\n")
-
-    substitute_in_file(maininitpy, "def main(global_config, **settings):", userauth)
+    substitute_in_file(maininitpy, "def main(global_config, **settings):", maininitpy_map["userauth"])
+    prepend_in_file(maininitpy, maininitpy_map["mainimports"])
 
     # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
     substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
