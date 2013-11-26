@@ -7,6 +7,15 @@ from optparse import OptionParser
 import yaml
 import random
 import string
+import logging
+
+logger = logging.getLogger('initpyr')
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 options = {}
 unix_app_socket = "app.sock"
@@ -81,16 +90,16 @@ def prepend_in_file(filepath, string):
     with file(filepath, 'w') as modified: modified.write(string + data)
 
 def substitute_in_file(filename, old_string, new_string):
-        s=open(filename).read()
-        if old_string in s:
-                print 'Changing "{old_string}" to "{new_string}" in "{filename}"'.format(**locals())
-                s=s.replace(old_string, new_string)
-                f=open(filename, 'w')
-                f.write(s)
-                f.flush()
-                f.close()
-        else:
-                print 'No occurences of "{old_string}" found in "{filename}" '.format(**locals())
+    s=open(filename).read()
+    if old_string in s:
+            logger.info('Changing "{old_string}" to "{new_string}" in "{filename}"'.format(**locals()))
+            s=s.replace(old_string, new_string)
+            f=open(filename, 'w')
+            f.write(s)
+            f.flush()
+            f.close()
+    else:
+            logger.info('No occurences of "{old_string}" found in "{filename}" '.format(**locals()))
 
 def perform_installs():
     global env_dir

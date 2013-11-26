@@ -2,7 +2,8 @@ maininitpy:
     userauth: |
         def main(global_config, **settings):
             settings["app_root"] = abspath(dirname(dirname(__file__)))
-
+            initialize_sql(settings)
+            
             authn_policy = AuthTktAuthenticationPolicy(
                 settings.get("auth.secret"),
                 callback=UserMgr.auth_groupfinder)
@@ -23,6 +24,7 @@ maininitpy:
         
         from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute
         from ~~~PROJNAME~~~.models.auth import UserMgr
+        from ~~~PROJNAME~~~.models import initialize_sql
         
         from pyramid.security import Allow
         from pyramid.security import Everyone
