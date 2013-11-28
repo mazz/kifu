@@ -1,6 +1,6 @@
 bcrypt
 celery==3.0.24
-decorator
+#decorator
 gunicorn
 redis
 
