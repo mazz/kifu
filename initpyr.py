@@ -115,11 +115,15 @@ def perform_installs():
     os.chdir(env_dir)
     subprocess.call(["bin/pcreate", "-s", "alembic_mako", options.project_name])
 
+    subprocess.call(["bin/easy_install", "bcrypt"])
+    subprocess.call(["bin/easy_install", "celery"])
     subprocess.call(["bin/easy_install", "decorator"])
+    subprocess.call(["bin/easy_install", "gunicorn"])
+    subprocess.call(["bin/easy_install", "redis"])
 
     # Install dependencies in requirements.txt
-    requirements = os.path.join(base_dir, "requirements.txt")
-    os.system("bin/pip install -r " + requirements)
+    #requirements = os.path.join(base_dir, "requirements.txt")
+    #os.system("bin/pip install -r " + requirements)
 
 def setup_maininitpy():
     global settings
