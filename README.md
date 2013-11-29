@@ -1,16 +1,54 @@
 initpyr
 =======
-Deploys a pyramid project that includes SQLAlchemy, alembic, gunicorn, supervisor, celery, RabbitMQ, redis(result backend). A python script that is based on the pyramid_alchemy scaffold.
+Deploys a pyramid project that includes SQLAlchemy, alembic, gunicorn, supervisor, celery, RabbitMQ, redis(result backend). A python script that is based on the pyramid_alembic_mako scaffold.
 
 Requirements:
 -------------
 
     * Python 2.7
-    * git
+
+
+SETUP(Ubuntu Linux)
+-------------------
+
+Update your system:
+
+    sudo apt-get update
+
+Install your compiler:
+
+    sudo apt-get install gcc
+
+Install git:
+
+    sudo apt-get install git
+
+Install virtualenv:
+
+    curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.10.1.tar.gz
+    tar zxvf virtualenv-1.10.1.tar.gz
+    cd virtualenv-1.10.1/
+    sudo python setup.py install
+
+Install Python headers:
+
+    sudo apt-get install python-dev
+
+Install bcrypt dependencies:
+
+    sudo apt-get install libffi-dev
+    git clone https://github.com/wcdolphin/python-bcrypt.git
+    sudo python setup.py install
+
+Install this script:
+
+    git clone https://github.com/mazzaroth/initpyr.git
 
 
 SETUP(Mac OS X)
 ---------------
+
+Install developer tools from http://apple.com/developer
 
 Install virtualenv:
 
@@ -27,6 +65,10 @@ Install redis:
 Install rabbitMQ:
 
     brew install rabbitmq
+
+
+Continue Setup(All platforms)
+-----------------------------
 
 Edit the nginx.conf file in /usr/local/etc/nginx. Use the checked-in nginx.conf.sample file as a starting point. You can do `nginx -t` at any time to confirm the nginx.conf file is valid.
 
