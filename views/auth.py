@@ -1,6 +1,6 @@
 import logging
 
-from default.queue import tasks
+from ~~~PROJNAME~~~.queue import tasks
 
 from datetime import datetime
 from pyramid.httpexceptions import HTTPFound
@@ -14,18 +14,18 @@ from pyramid.response import Response
 from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
-from default.models import Base
-from default.models import DBSession
+from ~~~PROJNAME~~~.models import Base
+from ~~~PROJNAME~~~.models import DBSession
 
-from default.models.auth import User
-from default.models.auth import UserMgr
+from ~~~PROJNAME~~~.models.auth import User
+from ~~~PROJNAME~~~.models.auth import UserMgr
 
-from default.models.auth import Activation
-from default.models.auth import ActivationMgr
+from ~~~PROJNAME~~~.models.auth import Activation
+from ~~~PROJNAME~~~.models.auth import ActivationMgr
 
 LOG = logging.getLogger(__name__)
 
-@view_config(route_name='list_users', renderer='default:templates/list_users.mako')
+@view_config(route_name='list_users', renderer='~~~PROJNAME~~~:templates/list_users.mako')
 def my_view(request):
     try:
         users = DBSession.query(User)
@@ -33,7 +33,7 @@ def my_view(request):
         return Response(conn_err_msg, content_type='text/plain', status_int=500)
     return {'users': users}
 
-@view_config(route_name="signup_process", renderer="default:templates/signup.mako")
+@view_config(route_name="signup_process", renderer="~~~PROJNAME~~~:templates/auth/signup.mako")
 def signup_process(request):
     """Process the signup request
 
@@ -95,7 +95,7 @@ def signup_process(request):
             }
         }
 
-@view_config(route_name="reset", renderer="default:templates/reset.mako")
+@view_config(route_name="reset", renderer="~~~PROJNAME~~~:templates/auth/reset.mako")
 def reset(request):
     """Once deactivated, allow for changing the password via activation key"""
     rdict = request.matchdict
