@@ -15,6 +15,7 @@ maininitpy:
                 authorization_policy=authz_policy)
 
             config.set_request_factory(RequestWithUserAttribute)
+            config = build_routes(config)
     mainimports: |
         from os.path import abspath
         from os.path import dirname
@@ -25,6 +26,7 @@ maininitpy:
         from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute
         from ~~~PROJNAME~~~.models.auth import UserMgr
         from ~~~PROJNAME~~~.models import initialize_sql
+        from ~~~PROJNAME~~~.routes import build_routes
         
         from pyramid.security import Allow
         from pyramid.security import Everyone

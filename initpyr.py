@@ -130,8 +130,7 @@ def setup_maininitpy():
 
     maininitpy_map = settings["maininitpy"]
 
-    templateinclude = ("config = Configurator(settings=settings)\n"
-    "    config.include(\"pyramid_mako\")")
+    templateinclude = ("config.include(\"pyramid_mako\")")
     maininitpy = os.path.join(os.getcwd(), options.project_name + "/__init__.py")
     substitute_in_file(maininitpy, "config = Configurator(settings=settings)", templateinclude)
     # Tweak the main __init__.py to use the project name and correct models path
@@ -142,8 +141,13 @@ def setup_maininitpy():
     substitute_in_file(maininitpy, "def main(global_config, **settings):", maininitpy_map["userauth"])
     prepend_in_file(maininitpy, maininitpy_map["mainimports"])
 
+    substitute_in_file(maininitpy, "    config.scan()", "    config.scan(\"~~~PROJNAME~~~.views\")")
+
     # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
     substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
+
+    # We add routes via routes.py now, so remove this template code
+    substitute_in_file(maininitpy, "    config.add_route(\'home\', \'/\')", "")
 
 def setup_dotini():
     developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
@@ -218,6 +222,29 @@ def setup_packages():
     # Delete mymodel.py
     mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
     os.unlink(mymodelpy)
+
+    # Copy over templates
+    auth_dir = os.path.join(os.getcwd(), options.project_name + "/templates/auth")
+    shutil.copytree(base_dir + "/templates/auth", auth_dir)
+    layoutmako = base_dir + "/templates/layout.mako"
+    list_usersmako = base_dir + "/templates/list_users.mako"
+
+    # Copy over layout.mako
+    shutil.copy(layoutmako, os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"))
+
+    # Copy over list_users.mako
+    shutil.copy(list_usersmako, os.path.join(os.getcwd(), options.project_name + "/templates/list_users.mako"))
+
+    # Copy over routes.py
+    routespy = base_dir + "/routes.py"
+    shutil.copy(routespy, os.path.join(os.getcwd(), options.project_name + "/routes.py"))
+
+    # Replace ~~~PROJNAME~~~ placeholders in the auth code
+    viewsauthpy = base_dir + "/views/auth.py"
+    substitute_in_file(viewsauthpy, "~~~PROJNAME~~~", options.project_name)
+
+    # Copy over views auth.py
+    shutil.copy(viewsauthpy, os.path.join(os.getcwd(), options.project_name + "/views/auth.py"))
 
 def output_nginx_help():
     global options
