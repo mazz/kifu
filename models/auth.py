@@ -27,6 +27,7 @@ from sqlalchemy.orm import synonym
 from ~~~PROJNAME~~~.models import Base
 from ~~~PROJNAME~~~.models import DBSession
 
+import pdb 
 
 LOG = logging.getLogger(__name__)
 GROUPS = ['admin', 'user']
@@ -301,7 +302,7 @@ class User(Base):
         # incorrect login
         if self.password:
             salt = self.password[:29]
-            return self.password == bcrypt.hashpw(password, salt)
+            return self.password == bcrypt.hashpw(password.encode("UTF-8"), salt.encode("UTF-8"))
         else:
             return False
 

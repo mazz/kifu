@@ -25,6 +25,90 @@ from ~~~PROJNAME~~~.models.auth import ActivationMgr
 
 LOG = logging.getLogger(__name__)
 
+@view_config(route_name="login", renderer="~~~PROJNAME~~~:templates/auth/login.mako")
+def login(request):
+    """Login the user to the system
+
+    If not POSTed then show the form
+    If error, display the form with the error message
+    If successful, forward the user to their /recent
+
+    Note: the came_from stuff we're not using atm. We'll clean out if we keep
+    things this way
+
+    """
+    login_url = route_url('login', request)
+    referrer = request.url
+    if referrer == login_url:
+        referrer = '/'  # never use the login form itself as came_from
+
+    came_from = request.params.get('came_from', referrer)
+
+    message = ''
+    login = ''
+    password = ''
+
+    if 'form.submitted' in request.params:
+        login = request.params['login']
+        password = request.params['password']
+
+        LOG.debug(login)
+        auth = UserMgr.get(username=login)
+        LOG.debug(auth)
+        LOG.debug(UserMgr.get_list())
+
+        if auth and auth.validate_password(password) and auth.activated:
+            # We use the Primary Key as our identifier once someone has
+            # authenticated rather than the username.  You can change what is
+            # returned as the userid by altering what is passed to remember.
+            headers = remember(request, auth.id, max_age=60 * 60 * 24 * 30)
+            auth.last_login = datetime.utcnow()
+
+            # log the successful login
+#            AuthLog.login(login, True)
+
+            # we're always going to return a user to their own /recent after a
+            # login
+#             return HTTPFound(
+#                 location=request.route_url(
+#                     'user_bmark_recent',
+#                     username=auth.username),
+#                 headers=headers)
+
+            return HTTPFound(
+                location=request.route_url(
+                    'list_users',
+                    username=auth.username),
+                headers=headers)
+
+        # log the right level of problem
+        if auth and not auth.validate_password(password):
+            message = "Your login attempt has failed."
+            #AuthLog.login(login, False, password=password)
+
+        elif auth and not auth.activated:
+            message = "User account deactivated. Please check your email."
+            #AuthLog.login(login, False, password=password)
+            #AuthLog.disabled(login)
+
+        elif auth is None:
+            message = "Failed login"
+            #AuthLog.login(login, False, password=password)
+
+    return {
+        'message': message,
+        'came_from': came_from,
+        'login': login,
+        'password': password,
+    }
+
+
+@view_config(route_name="logout", renderer="/auth/login.mako")
+def logout(request):
+    headers = forget(request)
+    return HTTPFound(location=route_url('home', request),
+                     headers=headers)
+
 @view_config(route_name='list_users', renderer='~~~PROJNAME~~~:templates/list_users.mako')
 def my_view(request):
     try:
@@ -67,22 +151,22 @@ def signup_process(request):
         # then this user is able to invite someone
         # log it
 #        AuthLog.reactivate(new_user.username)
-
+#        pdb.set_trace()
         # and then send an email notification
         # @todo the email side of things
         settings = request.registry.settings
 
         # Add a queue job to send the user a notification email.
-#        tasks.email_signup_user.delay(
-#            new_user.email,
-#            "Enable your Bookie account",
-#            settings,
-#            request.route_url(
-#                'reset',
-#                username=new_user.username,
-#                reset_key=new_user.activation.code
-#            )
-#        )
+        tasks.email_signup_user.delay(
+           new_user.email,
+           "Enable your account",
+           settings,
+           request.route_url(
+               'reset',
+               username=new_user.username,
+               reset_key=new_user.activation.code
+           )
+        )
 
         # And let the user know they're signed up.
         return {

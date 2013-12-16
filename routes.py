@@ -13,5 +13,6 @@ def build_routes(config):
     config.add_route("signup_process", "signup_process")
     config.add_route('list_users', '/list_users')
 
+    config.add_route("user_account", "{username}/account")
 
     return config

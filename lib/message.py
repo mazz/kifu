@@ -9,8 +9,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pyramid.settings import asbool
 
+#import pdb
 
 LOG = logging.getLogger(__name__)
+
 # notification statuses
 # might have pending, sent, failed
 MSG_STATUS = {
@@ -23,7 +25,7 @@ MSG_STATUS = {
 
 
 def sendmail(to, from_addr, subject, body):
-    sendmail_location = "/usr/sbin/sendmail"
+    sendmail_location = "/usr/local/bin/msmtp"
     p = os.popen("{0} -t".format(sendmail_location), "w")
     p.write("From: {0}\n".format(from_addr))
     p.write("To: {0}\n".format(to))
@@ -71,6 +73,8 @@ class Message(object):
         msg.body = "xxx"
 
         """
+
+#        pdb.set_trace()
         self.body = self._get_message_body(self.message_file, message_data)
 
         msg = MIMEMultipart('related')
