@@ -329,8 +329,21 @@ def setup_tests():
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/tests.py"))
 
 def setup_alembic():
-    os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
+    global base_dir
+    global options
+
+    initdb = "4f3b93305fe8_initializedb.py"
+    initdbpy = base_dir + "/alembic_versions/" + initdb
+
+    seedinitialdata = "1bc0be10afc1_seed_initial_data.py"
+    seedinitialdatapy = base_dir + "/alembic_versions/" + seedinitialdata
+
+    shutil.copy(initdbpy, os.path.join(os.getcwd(), options.project_name + "/alembic/versions/" + initdb))
+    shutil.copy(seedinitialdatapy, os.path.join(os.getcwd(), options.project_name + "/alembic/versions/" + seedinitialdata))
+
+#    os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
     os.system("../bin/alembic -c development.ini upgrade head")
+
 
 if __name__ == "__main__":
     main()
