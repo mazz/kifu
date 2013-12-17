@@ -246,6 +246,14 @@ def setup_packages():
     # Copy over views auth.py
     shutil.copy(viewsauthpy, os.path.join(os.getcwd(), options.project_name + "/views/auth.py"))
 
+    # Replace ~~~PROJNAME~~~ placeholders in the accounts code
+    viewsaccountspy = base_dir + "/views/accounts.py"
+    substitute_in_file(viewsaccountspy, "~~~PROJNAME~~~", options.project_name)
+
+    # Copy over views accounts.py
+    shutil.copy(viewsaccountspy, os.path.join(os.getcwd(), options.project_name + "/views/accounts.py"))
+
+
 def output_nginx_help():
     global options
     global unix_app_socket
