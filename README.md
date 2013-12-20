@@ -30,6 +30,13 @@ Install virtualenv:
     cd virtualenv-1.10.1/
     sudo python setup.py install
 
+Install pyyaml:
+
+    curl -O http://pyyaml.org/download/pyyaml/PyYAML-3.10.tar.gz
+    tar zxvf PyYAML-3.10.tar.gz
+    cd PyYAML-3.10.tar.gz/
+    sudo python setup.py install
+
 Install Python headers:
 
     sudo apt-get install python-dev
@@ -39,6 +46,14 @@ Install bcrypt dependencies:
     sudo apt-get install libffi-dev
     git clone https://github.com/wcdolphin/python-bcrypt.git
     sudo python setup.py install
+
+Install linuxbrew
+
+    sudo apt-get install build-essential curl git ruby libbz2-dev libexpat-dev
+
+    Add to your .bashrc or .zshrc:
+        export PATH="$HOME/.linuxbrew/bin:$PATH"
+        export LD_LIBRARY_PATH="$HOME/.linuxbrew/lib:$LD_LIBRARY_PATH"
 
 Install this script:
 
@@ -52,7 +67,21 @@ Install developer tools from http://apple.com/developer
 
 Install virtualenv:
 
-    pip install virtualenv
+    curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.10.1.tar.gz
+    tar zxvf virtualenv-1.10.1.tar.gz
+    cd virtualenv-1.10.1/
+    sudo python setup.py install
+
+Install pyyaml:
+
+    curl -O http://pyyaml.org/download/pyyaml/PyYAML-3.10.tar.gz
+    tar zxvf PyYAML-3.10.tar.gz
+    cd PyYAML-3.10.tar.gz/
+    sudo python setup.py install
+
+
+Continue Setup(All platforms)
+-----------------------------
 
 Install nginx:
 
@@ -66,9 +95,17 @@ Install rabbitMQ:
 
     brew install rabbitmq
 
+Install msmtp
 
-Continue Setup(All platforms)
------------------------------
+    brew install msmtp
+
+Configure msmtp
+---------------
+
+Create a .msmtprc file in $HOME. Use the checked-in msmtprc.sample file as a starting point.
+
+Configure nginx
+---------------
 
 Edit the nginx.conf file in /usr/local/etc/nginx. Use the checked-in nginx.conf.sample file as a starting point. You can do `nginx -t` at any time to confirm the nginx.conf file is valid.
 
@@ -123,7 +160,7 @@ Launching in Production Mode
 
 In another terminal window, cd to path/to/foo_env/foo and launch in production mode by doing:
     
-    ../bin/supervisord -n -c supervisor.conf
+    ../bin/supervisord -n -c supervisord.conf
 
 Launching in Development Mode
 ----------------------------
