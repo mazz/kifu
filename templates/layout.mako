@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*- 
 <!DOCTYPE html>  
-<html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" >
 <head>
-    
-  <meta charset="utf-8">
-  <title>Pyramid Task's List Tutorial</title>
-  <meta name="author" content="Pylons Project">
-  <link rel="shortcut icon" href="/static/favicon.ico">
-  <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>app</title>
 
+    <!-- If you are using CSS version, only link these 2 files, you may add app.css to use for your overrides if you like. -->
+    <link rel="stylesheet" href="/static/css/normalize.css">
+    <link rel="stylesheet" href="/static/css/foundation.css">
+    <script src="/static/js/vendor/custom.modernizr.js"></script>
 </head>
 
 <body>
@@ -18,6 +19,11 @@
     ${next.body()}
 
   </div>
-  
+
+  <script src="/static/js/vendor/jquery.js"></script>
+  <script src="/static/js/foundation.min.js"></script>
+  <script>
+    $(document).foundation();
+  </script>
 </body>
 </html>

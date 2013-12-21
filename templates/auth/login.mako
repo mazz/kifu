@@ -3,43 +3,73 @@
 
 <div class="login_form" class="block">
     <form action="${request.route_url('login')}" method="post" class="login form">
-        <div class="heading">Log In</div>
-        <p class="error">${message}</p>
-        <input type="hidden" name="came_from" value="${came_from}"/>
-        <ul>
-            <li>
-                <label>Username</label>
-                <input type="text" name="login" value="${login}"/>
-            </li>
-            <li>
-                <label>Password</label>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <div class="panel">
+            <div class="row">
+                <div class="large-12 columns">
+                    <h1>Log In</h1>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-12 columns">
+                    <p class="error">${message}</p>
+                    <input type="hidden" name="came_from" value="${came_from}"/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-12 columns">
+                    <h5>Username</h5>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-12 columns">
+                    <input type="text" name="login" value="${login}"/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-12 columns">
+                    <h5>Password</h5>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="large-12 columns">
                     <input type="password" name="password" value="${password}"/>
-            </li>
-            <li>
-                <label></label>
-                <input type="submit" name="form.submitted" value="Log In"/>
-            </li>
-        </ul>
-    </form>
-</div>
+                </div>
+            </div>
 
-<div class="block form">
-    <a href="" id="show_forgotten" class="heading">Forgotten Password</a>
-    <div id="forgotten_password" style="display: none; opacity: 0;">
-        <%include file="forgot.mako"/>
+            <div class="row">
+                <div class="small-3 columns">
+                    <input type="submit" name="form.submitted" class="postfix small button expand" value="Log In"/>
+                </div>
+            </div>
+
+        </form>
+        </div>
+      </div>
     </div>
-</div>
 
-<%def name="add_js()">
-    <script type="text/javascript">
-        YUI().use('node', 'bookie-view', 'console', function (Y) {
-            Y.on('domready', function () {
-                var login_view = new Y.bookie.LoginView({
-                    api_cfg: {
-                        url: APP_URL + '/api/v1'
-                    }
-                });
-            });
-        });
-    </script>
-</%def>
+    <div class="row">
+        <div class="large-12 columns">
+            <div class="row">
+                <div class="large-12 columns">
+                <a href="#" data-dropdown="drop2">Forgot Password</a>
+                <div id="drop2" data-dropdown-content class="f-dropdown content">
+                <form action="${request.route_url('login')}" method="post" class="forgot password form" id="drop" class="[tiny small medium large content]f-dropdown" data-dropdown-content>
+                <h5>Enter the email you signed-up with to reset your password:</h5>
+                <input type="text" name="forgot_password_email" value="forgot_password_email"/>
+                <input type="submit" name="form.submitted" class="postfix small button expand" value="Reset Password"/>
+                </form>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+

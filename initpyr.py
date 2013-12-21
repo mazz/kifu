@@ -224,6 +224,14 @@ def setup_packages():
     mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
     os.unlink(mymodelpy)
 
+    # Copy over Foundation 5.02 static css/js resources 
+    css_dir = os.path.join(os.getcwd(), options.project_name + "/static/css")
+    shutil.copytree(base_dir + "/static/css", css_dir)
+    img_dir = os.path.join(os.getcwd(), options.project_name + "/static/img")
+    shutil.copytree(base_dir + "/static/img", img_dir)
+    js_dir = os.path.join(os.getcwd(), options.project_name + "/static/js")
+    shutil.copytree(base_dir + "/static/js", js_dir)
+
     # Copy over templates
     auth_dir = os.path.join(os.getcwd(), options.project_name + "/templates/auth")
     shutil.copytree(base_dir + "/templates/auth", auth_dir)
