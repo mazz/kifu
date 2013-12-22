@@ -86,8 +86,8 @@ def main():
         os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
 
 def prepend_in_file(filepath, string):
-    with file(filepath, 'r') as original: data = original.read()
-    with file(filepath, 'w') as modified: modified.write(string + data)
+    with open(filepath, 'r') as original: data = original.read()
+    with open(filepath, 'w') as modified: modified.write(string + data)
 
 def substitute_in_file(filename, old_string, new_string):
     s=open(filename).read()
@@ -233,6 +233,9 @@ def setup_packages():
     shutil.copytree(base_dir + "/static/js", js_dir)
 
     # Copy over templates
+    accounts_dir = os.path.join(os.getcwd(), options.project_name + "/templates/accounts")
+    shutil.copytree(base_dir + "/templates/accounts", accounts_dir)
+
     auth_dir = os.path.join(os.getcwd(), options.project_name + "/templates/auth")
     shutil.copytree(base_dir + "/templates/auth", auth_dir)
     layoutmako = base_dir + "/templates/layout.mako"
@@ -268,53 +271,53 @@ def output_nginx_help():
     global unix_app_socket
 
     # Help text for configuring nginx
-    print ""
-    print "add to nginx http {} section:"
-    print "upstream "+ options.project_name + "-site {"
-    print "     server unix://" + os.path.abspath(unix_app_socket) + " fail_timeout=0;"
-    print "}"
-    print ""
-    print "add to nginx server {} section:"
-    print "server {"
-    print ""
-    print "    # optional ssl configuration"
-    print ""
-    print "    #listen 443 ssl;"
-    print "    #ssl_certificate /path/to/ssl/pem_file;"
-    print "    #ssl_certificate_key /path/to/ssl/certificate_key;"
-    print ""
-    print "    # end of optional ssl configuration"
-    print "    listen 80;"
-    print "    server_name _;"
-    print ""
-    print "    access_log  " + os.getcwd() + "/access.log;"
-    print "    error_log   " + os.getcwd() + "/error.log;"
-    print "" 
-    print "    location /static/ {"
-    print "        root                    " + os.getcwd() + "/" + options.project_name + "/;"
-    print "        expires                 30d;"
-    print "        add_header              Cache-Control public;"
-    print "        access_log              off;"
-    print "    }"
-    print ""
-    print ""
-    print "    location / {"
-    print "        proxy_set_header        Host $http_host;"
-    print "        proxy_set_header        X-Real-IP $remote_addr;"
-    print "        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;"
-    print "        proxy_set_header        X-Forwarded-Proto $scheme;"
-    print ""
-    print "        client_max_body_size    10m;"
-    print "        client_body_buffer_size 128k;"
-    print "        proxy_connect_timeout   60s;"
-    print "        proxy_send_timeout      90s;"
-    print "        proxy_read_timeout      90s;"
-    print "        proxy_buffering         off;"
-    print "        proxy_temp_file_write_size 64k;"
-    print "        proxy_pass http://" + options.project_name + "-site;"
-    print "        proxy_redirect          off;"
-    print "    }"
-    print "}"
+    print ("")
+    print ("add to nginx http {} section:")
+    print ("upstream "+ options.project_name + "-site {")
+    print ("     server unix://" + os.path.abspath(unix_app_socket) + " fail_timeout=0;")
+    print ("}")
+    print ("")
+    print ("add to nginx server {} section:")
+    print ("server {")
+    print ("")
+    print ("    # optional ssl configuration")
+    print ("")
+    print ("    #listen 443 ssl;")
+    print ("    #ssl_certificate /path/to/ssl/pem_file;")
+    print ("    #ssl_certificate_key /path/to/ssl/certificate_key;")
+    print ("")
+    print ("    # end of optional ssl configuration")
+    print ("    listen 80;")
+    print ("    server_name _;")
+    print ("")
+    print ("    access_log  " + os.getcwd() + "/access.log;")
+    print ("    error_log   " + os.getcwd() + "/error.log;")
+    print ("")
+    print ("    location /static/ {")
+    print ("        root                    " + os.getcwd() + "/" + options.project_name + "/;")
+    print ("        expires                 30d;")
+    print ("        add_header              Cache-Control public;")
+    print ("        access_log              off;")
+    print ("    }")
+    print ("")
+    print ("")
+    print ("    location / {")
+    print ("        proxy_set_header        Host $http_host;")
+    print ("        proxy_set_header        X-Real-IP $remote_addr;")
+    print ("        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;")
+    print ("        proxy_set_header        X-Forwarded-Proto $scheme;")
+    print ("")
+    print ("        client_max_body_size    10m;")
+    print ("        client_body_buffer_size 128k;")
+    print ("        proxy_connect_timeout   60s;")
+    print ("        proxy_send_timeout      90s;")
+    print ("        proxy_read_timeout      90s;")
+    print ("        proxy_buffering         off;")
+    print ("        proxy_temp_file_write_size 64k;")
+    print ("        proxy_pass http://" + options.project_name + "-site;")
+    print ("        proxy_redirect          off;")
+    print ("    }")
+    print ("}")
 
 def setup_tests():
     global options
