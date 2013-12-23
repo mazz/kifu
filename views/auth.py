@@ -77,7 +77,7 @@ def login(request):
 
             return HTTPFound(
                 location=request.route_url(
-                    'list_users',
+                    'user_account',
                     username=auth.username),
                 headers=headers)
 
@@ -103,10 +103,10 @@ def login(request):
     }
 
 
-@view_config(route_name="logout", renderer="/auth/login.mako")
+@view_config(route_name="logout", renderer="~~~PROJNAME~~~:templates/auth/login.mako")
 def logout(request):
     headers = forget(request)
-    return HTTPFound(location=route_url('home', request),
+    return HTTPFound(location=route_url('signup_process', request),
                      headers=headers)
 
 @view_config(route_name='list_users', renderer='~~~PROJNAME~~~:templates/list_users.mako')
@@ -241,7 +241,7 @@ def reset(request):
             # login
             return HTTPFound(
                 location=request.route_url(
-                    'list_users',
+                    'user_account',
                     username=user.username),
                 headers=headers)
 

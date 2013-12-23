@@ -15,7 +15,33 @@
 <body>
 
   <div id="page">
-    
+
+    <nav class="top-bar" data-topbar>
+  <ul class="title-area">
+    <li class="name">
+      <h1><a href="#">baz</a></h1>
+    </li>
+    <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+  </ul>
+
+  <section class="top-bar-section">
+    <!-- Right Nav Section -->
+    <ul class="right">
+        % if request.user and request.user.username:
+            <li class="active"><a href="${request.route_url('user_account', username=request.user.username)}">Account</a></li>
+        % else:
+            <li class="active"><a href="${request.route_url('login')}">Sign In</a></li>
+        % endif
+
+    </ul>
+
+    <!-- Left Nav Section -->
+    <ul class="left">
+      <!--li><a href="#">Left Nav Button</a></li-->
+    </ul>
+  </section>
+</nav>
+
     ${next.body()}
 
   </div>

@@ -2,18 +2,27 @@
     <%
         route_name = request.matched_route.name
     %>
-    <ul class="tabs">
-        <li ${check_selected('user_account', route_name)} class="details"><a href="${request.route_url('user_account', username=request.user.username)}">Details</a></li>
-        <li ${check_selected('stats', route_name)}><a href="#">Stats</a></li>
-        <li class="export"><a href="${request.route_url('user_export', username=request.user.username)}">Export</a></li>
-        <li ${check_selected('user_import', route_name)}><a href="${request.route_url('user_import', username=request.user.username)}">Import</a></li>
-        <li class="logout"><a href="${request.route_url('logout')}">Logout</a></li>
-    </ul>
+
+    <div class="row">
+        <div class="large-12 columns">
+            <br/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="large-12 columns">
+
+    <dl class="sub-nav">
+        <dd ${check_selected('user_account', route_name)} class="details"><a href="${request.route_url('user_account', username=request.user.username)}">Details</a></dd>
+        <dd class="logout"><a href="${request.route_url('logout')}">Logout</a></dd>
+    </dl>
+    </div>
+    </div>
 </%def>
 
 <%def name="check_selected(nav_page, route_name)">
     % if nav_page == route_name:
-        class="selected ${nav_page}"
+        class="active ${nav_page}"
     % else:
         class="${nav_page}"
     % endif

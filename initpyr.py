@@ -236,12 +236,17 @@ def setup_packages():
     accounts_dir = os.path.join(os.getcwd(), options.project_name + "/templates/accounts")
     shutil.copytree(base_dir + "/templates/accounts", accounts_dir)
 
+    signupmako = base_dir + "/templates/auth/signup.mako"
+    substitute_in_file(signupmako, "~~~PROJNAME~~~", options.project_name)
+
     auth_dir = os.path.join(os.getcwd(), options.project_name + "/templates/auth")
     shutil.copytree(base_dir + "/templates/auth", auth_dir)
+
     layoutmako = base_dir + "/templates/layout.mako"
     list_usersmako = base_dir + "/templates/list_users.mako"
 
     # Copy over layout.mako
+    substitute_in_file(layoutmako, "~~~PROJNAME~~~", options.project_name)
     shutil.copy(layoutmako, os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"))
 
     # Copy over list_users.mako
