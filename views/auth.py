@@ -110,7 +110,7 @@ def logout(request):
                      headers=headers)
 
 @view_config(route_name='list_users', renderer='~~~PROJNAME~~~:templates/list_users.mako')
-def my_view(request):
+def list_users(request):
     try:
         users = DBSession.query(User)
     except DBAPIError:

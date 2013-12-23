@@ -4,7 +4,7 @@ from pyramid.view import view_config
 
 from sqlalchemy.exc import DBAPIError
 
-#@view_config(route_name='home', renderer='~~~PROJNAME~~~:templates/mytemplate.mako')
-#def my_view(request):
+@view_config(route_name='home', renderer='~~~PROJNAME~~~:templates/auth/signup.mako')
+def my_view(request):
 #    tasks.add.delay(5,5)
-#    return {'project': '~~~PROJNAME~~~'}
+    return {'project': '~~~PROJNAME~~~'}
