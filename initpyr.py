@@ -246,8 +246,8 @@ def setup_packages():
     list_usersmako = base_dir + "/templates/list_users.mako"
 
     # Copy over layout.mako
-    substitute_in_file(layoutmako, "~~~PROJNAME~~~", options.project_name)
     shutil.copy(layoutmako, os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"))
+    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"), "~~~PROJNAME~~~", options.project_name)
 
     # Copy over list_users.mako
     shutil.copy(list_usersmako, os.path.join(os.getcwd(), options.project_name + "/templates/list_users.mako"))
@@ -256,19 +256,20 @@ def setup_packages():
     routespy = base_dir + "/routes.py"
     shutil.copy(routespy, os.path.join(os.getcwd(), options.project_name + "/routes.py"))
 
-    # Replace ~~~PROJNAME~~~ placeholders in the auth code
     viewsauthpy = base_dir + "/views/auth.py"
-    substitute_in_file(viewsauthpy, "~~~PROJNAME~~~", options.project_name)
 
     # Copy over views auth.py
     shutil.copy(viewsauthpy, os.path.join(os.getcwd(), options.project_name + "/views/auth.py"))
+    # Replace ~~~PROJNAME~~~ placeholders in the auth code
+    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/views/auth.py"), "~~~PROJNAME~~~", options.project_name)
 
-    # Replace ~~~PROJNAME~~~ placeholders in the accounts code
     viewsaccountspy = base_dir + "/views/accounts.py"
-    substitute_in_file(viewsaccountspy, "~~~PROJNAME~~~", options.project_name)
 
     # Copy over views accounts.py
     shutil.copy(viewsaccountspy, os.path.join(os.getcwd(), options.project_name + "/views/accounts.py"))
+    # Replace ~~~PROJNAME~~~ placeholders in the accounts code
+    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/views/accounts.py"), "~~~PROJNAME~~~", options.project_name)
+
 
 
 def output_nginx_help():
