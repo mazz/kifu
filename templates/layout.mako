@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="/static/css/normalize.css">
     <link rel="stylesheet" href="/static/css/foundation.css">
     <script src="/static/js/vendor/custom.modernizr.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 </head>
 
 <body>
@@ -51,5 +53,10 @@
   <script>
     $(document).foundation();
   </script>
+
+  % if hasattr(self, 'add_js'):
+            ${self.add_js()}
+  % endif
+
 </body>
 </html>

@@ -45,8 +45,8 @@
             </div>
 
             <div class="row">
-                <div class="small-3 columns">
-                    <input type="submit" name="form.submitted" class="postfix small button expand" value="Log In"/>
+                <div class="small-4 columns">
+                    <input type="submit" name="form.submitted" class="small button expand" value="Log In"/>
                 </div>
             </div>
 
@@ -57,19 +57,29 @@
 
     <div class="row">
         <div class="large-12 columns">
-            <div class="row">
-                <div class="large-12 columns">
-                <a href="#" data-dropdown="drop2">Forgot Password</a>
-                <div id="drop2" data-dropdown-content class="f-dropdown content">
-                <form action="${request.route_url('login')}" method="post" class="forgot password form" id="drop" class="[tiny small medium large content]f-dropdown" data-dropdown-content>
-                <h5>Enter the email you signed-up with to reset your password:</h5>
-                <input type="text" name="forgot_password_email" value="forgot_password_email"/>
-                <input type="submit" name="form.submitted" class="postfix small button expand" value="Reset Password"/>
-                </form>
-                </div>
+            <div class="panel callout radius" id="Content">
+                <div class="row">
+                    <div class="large-12 columns">
+                        <a href="#" id="forgotten_password" class="toggle_forgotten">Forgotten Password</a>
+
+                        <div id="forgotten_password_panel" style="display: none; opacity: 0;">
+                            <%include file="forgot.mako"/>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <%def name="add_js()">
+    <script type="text/javascript">
 
+    $(function() {
+        $('#forgotten_password').click(function() {
+            $('#forgotten_password_panel').slideToggle();
+            $("#forgotten_password_panel").css({ opacity: 1. });
+        });
+    });
+
+    </script>
+    </%def>
