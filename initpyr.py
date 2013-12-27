@@ -75,13 +75,19 @@ def main():
     setup_alembic()
 
     if options.supervisor_enabled:
+
+        output_nginx_help()
         # Install supervisord and run
         os.system("../bin/pip install supervisor")
 
+        # Copy rabbitmq reset script to /scripts
+        shutil.copy(base_dir + "/scripts/rabbitmq.sh", os.path.join(os.getcwd(), "foo/scripts/rabbitmq.sh"))
+
         # Copy supervisord.conf file to new environment
         shutil.copy(base_dir + "/supervisord.conf", os.getcwd())
+        substitute_in_file(os.path.join(os.getcwd(), "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
+
         os.system("../bin/supervisord -n -c supervisord.conf")
-        output_nginx_help()
     else:
         os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
 
