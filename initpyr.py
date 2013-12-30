@@ -186,6 +186,10 @@ def setup_packages():
     authpy = os.path.join(models_dir, "auth.py")
     substitute_in_file(authpy, "~~~PROJNAME~~~", options.project_name)
 
+    # Replace ~~~PROJNAME~~~ placeholders in the applog code
+    applogpy = os.path.join(models_dir, "applog.py")
+    substitute_in_file(applogpy, "~~~PROJNAME~~~", options.project_name)
+
     # Delete the unnecessary models.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
 
@@ -196,6 +200,10 @@ def setup_packages():
     # Replace ~~~PROJNAME~~~ placeholders in the lib code
     accesspy = os.path.join(lib_dir, "access.py")
     substitute_in_file(accesspy, "~~~PROJNAME~~~", options.project_name)
+
+    # Replace ~~~PROJNAME~~~ placeholders in the lib code
+    libapplogpy = os.path.join(lib_dir, "applog.py")
+    substitute_in_file(libapplogpy, "~~~PROJNAME~~~", options.project_name)
 
     # Replace ~~~PROJNAME~~~ placeholders in the Celery code
     celerypy = os.path.join(celery_dir, "celery.py")

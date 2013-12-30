@@ -17,6 +17,7 @@ from sqlalchemy.exc import DBAPIError
 from ~~~PROJNAME~~~.models import Base
 from ~~~PROJNAME~~~.models import DBSession
 
+from ~~~PROJNAME~~~.lib.applog import AuthLog
 from ~~~PROJNAME~~~.models.auth import User
 from ~~~PROJNAME~~~.models.auth import UserMgr
 
@@ -65,7 +66,7 @@ def login(request):
             auth.last_login = datetime.utcnow()
 
             # log the successful login
-#            AuthLog.login(login, True)
+            AuthLog.login(login, True)
 
             # we're always going to return a user to their own /recent after a
             # login
@@ -84,16 +85,16 @@ def login(request):
         # log the right level of problem
         if auth and not auth.validate_password(password):
             message = "Your login attempt has failed."
-            #AuthLog.login(login, False, password=password)
+            AuthLog.login(login, False, password=password)
 
         elif auth and not auth.activated:
             message = "User account deactivated. Please check your email."
-            #AuthLog.login(login, False, password=password)
-            #AuthLog.disabled(login)
+            AuthLog.login(login, False, password=password)
+            AuthLog.disabled(login)
 
         elif auth is None:
             message = "Failed login"
-            #AuthLog.login(login, False, password=password)
+            AuthLog.login(login, False, password=password)
 
     return {
         'message': message,
@@ -150,7 +151,7 @@ def signup_process(request):
     if new_user:
         # then this user is able to invite someone
         # log it
-#        AuthLog.reactivate(new_user.username)
+        AuthLog.reactivate(new_user.username)
 #        pdb.set_trace()
         # and then send an email notification
         # @todo the email side of things
@@ -210,7 +211,7 @@ def reset(request):
             res = ActivationMgr.activate_user(username, activation, password)
             if res:
                 # success so respond nicely
-                #AuthLog.reactivate(username, success=True, code=activation)
+                AuthLog.reactivate(username, success=True, code=activation)
 
                 # if there's a new username and it's not the same as our current
                 # username, update it
@@ -221,7 +222,7 @@ def reset(request):
                     except IntegrityError, exc:
                         error = 'There was an issue setting your new username'
             else:
-                #AuthLog.reactivate(username, success=False, code=activation)
+                AuthLog.reactivate(username, success=False, code=activation)
                 error = 'There was an issue attempting to activate this account.'
 
         if error:
@@ -235,7 +236,7 @@ def reset(request):
             user.last_login = datetime.utcnow()
 
             # log the successful login
-            #AuthLog.login(user.username, True)
+            AuthLog.login(user.username, True)
 
             # we're always going to return a user to their own /recent after a
             # login

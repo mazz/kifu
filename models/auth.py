@@ -19,6 +19,7 @@ from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import Unicode
+from sqlalchemy import UnicodeText
 from sqlalchemy import Boolean
 
 from sqlalchemy.orm import relation
