@@ -16,13 +16,16 @@ maininitpy:
 
             config.set_request_factory(RequestWithUserAttribute)
             config = build_routes(config)
+            config.add_renderer('jsonp', JSONP(param_name='callback'))
     mainimports: |
         from os.path import abspath
         from os.path import dirname
         
         from pyramid.authentication import AuthTktAuthenticationPolicy
         from pyramid.authorization import ACLAuthorizationPolicy
-        
+
+        from pyramid.renderers import JSONP
+
         from ~~~PROJNAME~~~.lib.access import RequestWithUserAttribute
         from ~~~PROJNAME~~~.models.auth import UserMgr
         from ~~~PROJNAME~~~.models import initialize_sql

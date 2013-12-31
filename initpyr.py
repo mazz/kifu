@@ -123,6 +123,8 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "decorator"])
     subprocess.call(["bin/easy_install", "gunicorn"])
     subprocess.call(["bin/easy_install", "redis"])
+    subprocess.call(["bin/easy_install", "breadability"])
+    subprocess.call(["bin/easy_install", "lxml"])
 
     # Install dependencies in requirements.txt
     #requirements = os.path.join(base_dir, "requirements.txt")
@@ -193,6 +195,8 @@ def setup_packages():
     # Delete the unnecessary models.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
 
+    ### lib ###
+
     # copy lib to project
     lib_dir = os.path.join(os.getcwd(), options.project_name + "/lib")
     shutil.copytree(base_dir + "/lib", lib_dir)
@@ -204,6 +208,11 @@ def setup_packages():
     # Replace ~~~PROJNAME~~~ placeholders in the lib code
     libapplogpy = os.path.join(lib_dir, "applog.py")
     substitute_in_file(libapplogpy, "~~~PROJNAME~~~", options.project_name)
+
+    libreadablepy = os.path.join(lib_dir, "readable.py")
+    substitute_in_file(libreadablepy, "~~~PROJNAME~~~", options.project_name)
+
+    ### celery ###
 
     # Replace ~~~PROJNAME~~~ placeholders in the Celery code
     celerypy = os.path.join(celery_dir, "celery.py")
@@ -267,6 +276,8 @@ def setup_packages():
     routespy = base_dir + "/routes.py"
     shutil.copy(routespy, os.path.join(os.getcwd(), options.project_name + "/routes.py"))
 
+    ### views ###
+
     viewsauthpy = base_dir + "/views/auth.py"
 
     # Copy over views auth.py
@@ -281,6 +292,12 @@ def setup_packages():
     # Replace ~~~PROJNAME~~~ placeholders in the accounts code
     substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/views/accounts.py"), "~~~PROJNAME~~~", options.project_name)
 
+    viewsapipy = base_dir + "/views/api.py"
+
+    # Copy over views api.py
+    shutil.copy(viewsapipy, os.path.join(os.getcwd(), options.project_name + "/views/api.py"))
+    # Replace ~~~PROJNAME~~~ placeholders in the accounts code
+    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/views/api.py"), "~~~PROJNAME~~~", options.project_name)
 
 
 def output_nginx_help():

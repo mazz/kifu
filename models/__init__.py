@@ -94,3 +94,46 @@ Base.query = DBSession.query_property(Query)
 Base.__todict__ = todict
 Base.__iter__ = iterfunc
 Base.fromdict = fromdict
+
+
+# class ReadableMgr(object):
+#     """Handle non-instance model issues for readable"""
+#     pass
+#
+#
+# class Readable(Base):
+#     """Handle the storing of the readable version of the page content"""
+#     __tablename__ = 'bmark_readable'
+#
+#     bid = Column(Integer,
+#                  ForeignKey('bmarks.bid'),
+#                  primary_key=True)
+#     hash_id = Column(Unicode(22),
+#                      ForeignKey('bmarks.hash_id'),
+#                      index=True)
+#     content = Column(UnicodeText)
+#     clean_content = Column(UnicodeText)
+#     imported = Column(DateTime, default=datetime.utcnow)
+#     content_type = Column(Unicode(255))
+#     status_code = Column(Integer)
+#     status_message = Column(Unicode(255))
+#
+#
+# def sync_readable_content(mapper, connection, target):
+#     def _clean_content(content):
+#         if content:
+#             return u' '.join(BeautifulSoup(content).findAll(text=True))
+#         else:
+#             return u""
+#
+#     target.clean_content = _clean_content(target.content)
+#
+#     # Background the process of fulltext indexing this bookmark's content.
+#     from bookie.bcelery import tasks
+#     tasks.fulltext_index_bookmark.delay(
+#         target.bmark.bid,
+#         target.clean_content)
+#
+#
+# event.listen(Readable, 'after_insert', sync_readable_content)
+# event.listen(Readable, 'after_update', sync_readable_content)
