@@ -124,12 +124,12 @@ class ReactivateMsg(Message):
         return """
 Hello {username}:
 
-Please activate your {0} account by clicking on the following url:
+Please activate your app account by clicking on the following url:
 
 {url}
 
 ---
-The {0} Team""".format(**message_data)
+From Us""".format(**message_data)
         # lookup = config['pylons.app_globals'].mako_lookup
         # template = lookup.get_template(template_file)
 
@@ -145,14 +145,14 @@ class InvitationMsg(Message):
 
         """
         return """
-You've been invited to {0}!
+You've been invited to The Site!
 
 Please click the link below to activate your account.
 
 {0}
 
 ---
-The {0} Team""".format(message_data)
+From Us""".format(**message_data)
 
 
 class ImportFailureMessage(Message):
@@ -196,7 +196,7 @@ Error
 A copy of this error has been logged and will be looked at.
 
 ---
-The Bookie Team""".format(**message_data)
+From Us""".format(**message_data)
         return msg
 
 
@@ -213,5 +213,5 @@ while if you have a large number of bookmarks. Check out your imported
 bookmarks at https://bmark.us/{username}/recent.
 
 ---
-The Bookie Team""".format(**message_data)
+From Us""".format(**message_data)
         return msg
