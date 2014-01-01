@@ -152,7 +152,7 @@ Please click the link below to activate your account.
 {0}
 
 ---
-From Us""".format(**message_data)
+From Us""".format(message_data)
 
 
 class ImportFailureMessage(Message):

@@ -12,6 +12,13 @@
     <script src="/static/js/vendor/custom.modernizr.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        <%
+            app_url = request.route_url('home').rstrip('/')
+        %>
+        APP_URL = '${app_url}';
+    </script>
 </head>
 
 <body>

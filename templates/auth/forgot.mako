@@ -39,3 +39,63 @@
             <h5>Please submit your email address you used to sign into the account in the form and a reset link will be emailed to you.</h
         </div>
     </div>
+
+    <script type="text/javascript">
+
+    $(function()
+    {
+        $('#submit_forgotten').click(function()
+        {
+            console.log("submit_forgotten");
+
+            var formData = {email:$("#email").val()};
+            var resultString;
+            $.ajax({
+                type: "POST",   
+                url: APP_URL + "/api/v1/suspend",
+                data: formData,
+                success: function(data, textStatus, jqXHR)
+                {
+                    var message;
+                    console.log("suspend success: " + data);
+
+                    for(key in data) {
+                        if (key === "message")
+                        {
+                            console.log("found success");
+                            message = data[key];
+                        }
+
+                        console.log("key: " + key);
+                        console.log("value: " + data[key]);
+                    }
+                    $('#loginpanel-status').removeClass('alert-box').removeClass('warning').removeClass('round').addClass('success').addClass('radius').addClass('alert-box');
+                    $('#forgotten_password_panel').slideToggle();
+
+                    $('#loginpanel-status').html(message);
+                },
+                error: function (jqXHR, textStatus, errorThrown)
+                {
+                    var message;
+                    console.log("suspend fail: " + data);
+
+                    for(key in data) {
+                        if (key === "message")
+                        {
+                            console.log("found success");
+                            message = data[key];
+                        }
+
+                        console.log("key: " + key);
+                        console.log("value: " + data[key]);
+                    }
+                    $('#loginpanel-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
+                    $('#forgotten_password_panel').slideToggle();
+
+                    $('#loginpanel-status').html(message);
+                }
+            });
+        });
+    });
+
+    </script>

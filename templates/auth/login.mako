@@ -71,6 +71,13 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="large-12 columns">
+            <div data-alert class="" id="loginpanel-status">
+            </div>
+        </div>
+    </div>
+
     <%def name="add_js()">
     <script type="text/javascript">
 
