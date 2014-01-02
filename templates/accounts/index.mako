@@ -159,5 +159,56 @@ ${password_reset(user, reset=False)}
         });
     });
 
+    $('#submit_password_change').click(function()
+    {
+
+        console.log("submit_password_change, api_key: " + '${request.user.api_key}');
+        $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').removeClass('success').removeClass('radius');
+        $('#changepassword-status').html("");
+
+        var formData = {
+                        username: '${user.username}',
+                        current_password: $("#current_password").val(),
+                        new_password: $("#new_password").val(),
+                        api_key: '${request.user.api_key}'
+                        };
+
+        $.ajax({
+            type: "POST",   
+            url: APP_URL + "/api/v1/" + '${user.username}' + "/password",
+            data: formData,
+            success: function(data, textStatus, jqXHR)
+            {
+                var message;
+                console.log("suspend success: " + data);
+
+                for(key in data) {
+                    if (key === "message")
+                    {
+                        console.log("found success");
+                        message = data[key];
+                    }
+
+                    console.log("key: " + key);
+                    console.log("value: " + data[key]);
+                }
+                $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').addClass('success').addClass('radius').addClass('alert-box');
+                $('#forgotten_password_panel').slideToggle();
+
+                $('#changepassword-status').html(message);
+            },
+            error: function (jqXHR, textStatus, errorThrown)
+            {
+                var message;
+                console.log("suspend fail");
+                $('#changepassword-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
+                $('#forgotten_password_panel').slideToggle();
+
+                $('#changepassword-status').html(textStatus);
+            }
+        });
+
+    });
+
 });
 </script>

@@ -56,6 +56,7 @@
                     style="display: none; opacity: 0;"
                 % endif
             >
+            <form id="password_reset" method="POST">
 
                     % if message:
                         <div class="error">${message}</div>
@@ -82,7 +83,7 @@
                                 <h5></h5>
                                 <input type="submit" id="submit_password_change" value="${submit}" class="button" />
                     </ul>
-
+            </form>
             </div>
             <div class="row">
                 <div class="large-12 columns">
@@ -95,67 +96,5 @@
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-
-$(function()
-{
-
-    $('#submit_password_change').click(function()
-    {
-
-        console.log("submit_password_change, api_key: " + '${request.user.api_key}');
-        $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').removeClass('success').removeClass('radius');
-        $('#changepassword-status').html("");
-
-        var formData = {
-                        username: '${user.username}',
-                        current_password: $("#current_password").val(),
-                        new_password: $("#new_password").val(),
-                        api_key: '${request.user.api_key}'
-                        };
-
-        $.ajax({
-            type: "POST",   
-            url: APP_URL + "/api/v1/" + '${user.username}' + "/password",
-            data: formData,
-            success: function(data, textStatus, jqXHR)
-            {
-                var message;
-                console.log("suspend success: " + data);
-
-                for(key in data) {
-                    if (key === "message")
-                    {
-                        console.log("found success");
-                        message = data[key];
-                    }
-
-                    console.log("key: " + key);
-                    console.log("value: " + data[key]);
-                }
-                $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').addClass('success').addClass('radius').addClass('alert-box');
-                $('#forgotten_password_panel').slideToggle();
-
-                $('#changepassword-status').html(message);
-            },
-            error: function (jqXHR, textStatus, errorThrown)
-            {
-                var message;
-                console.log("suspend fail");
-                $('#changepassword-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
-                $('#forgotten_password_panel').slideToggle();
-
-                $('#changepassword-status').html(textStatus);
-            }
-        });
-
-    });
-
-
-});
-
-</script>
-
 
 </%def>

@@ -40,7 +40,8 @@ celery.conf.update(
     CELERY_RESULT_SERIALIZER = 'json',
     CELERY_TIMEZONE = 'Canada/Eastern',
     CELERY_ENABLE_UTC = True,
-    CELERY_TASK_RESULT_EXPIRES=3600
+    CELERY_TASK_RESULT_EXPIRES=3600,
+    CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 )
 
 if __name__ == '__main__':
