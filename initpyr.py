@@ -87,8 +87,8 @@ def main():
         os.system("../bin/pip install supervisor")
 
         # Copy supervisord.conf file to new environment
-        shutil.copy(base_dir + "/supervisord.conf", abs_env_dir)
-        substitute_in_file(os.path.join(abs_env_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
+        shutil.copy(base_dir + "/supervisord.conf", abs_root_dir)
+        substitute_in_file(os.path.join(abs_root_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
 
         os.system("../bin/supervisord -n -c supervisord.conf")
     else:
