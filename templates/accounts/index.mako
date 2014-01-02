@@ -56,12 +56,22 @@ ${account_nav()}
 <div class="panel">
     <div class="row">
         <div class="large-4 columns">
-            <h3>View API Key</h3>
+            <a href="#" id="view_api_key" class="heading">
+            <span aria-hidden="true" class="icon icon-lock" title="View API Key"></span>
+            <h3>View API Key</h3></a>
         </div>
 
         <div class="large-8 columns">
-            <form>
-            </form>
+            <div id="view_api_key_view" style="display: none; opacity: 0;">
+            </div>
+            <div class="row">
+                <div class="large-12 columns">
+                    <div data-alert class="" id="view_api_status">
+                    </div>
+                </div>
+            </div>
+
+            <div id="password_msg" class="error" style="opacity: 0;"></div>
         </div>
     </div>
 </div>
@@ -105,5 +115,49 @@ ${password_reset(user, reset=False)}
         $('#password_change').slideToggle();
         $("#password_change").css({ opacity: 1. });
     });
+
+    $('#view_api_key').click(function()
+    {
+        window.console&&console.log('view_api_key');
+        $('#view_api_key_view').slideToggle();
+        $("#view_api_key_view").css({ opacity: 1. });
+
+        var formData = {
+                        username: '${user.username}',
+                        api_key: '${request.user.api_key}'
+                        };
+
+        var resultString;
+        $.ajax({
+            type: "POST",   
+            url: APP_URL + "/api/v1/" + '${user.username}' + "/api_key",
+            data: formData,
+            success: function(data, textStatus, jqXHR)
+            {
+                var api_key;
+                console.log("suspend success: " + data);
+
+                for(key in data) {
+                    if (key === "api_key")
+                    {
+                        console.log("found success");
+                        api_key = data[key];
+                    }
+
+                    console.log("key: " + key);
+                    console.log("value: " + data[key]);
+                }
+
+                $('#view_api_key_view').html(api_key);
+            },
+            error: function (jqXHR, textStatus, errorThrown)
+            {
+                var message;
+                console.log("suspend fail");
+                $('#view_api_key_view').html("There was an error obtaining your API key.");
+            }
+        });
+    });
+
 });
 </script>
