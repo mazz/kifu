@@ -123,8 +123,8 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "decorator"])
     subprocess.call(["bin/easy_install", "gunicorn"])
     subprocess.call(["bin/easy_install", "redis"])
-    subprocess.call(["bin/easy_install", "breadability"])
-    subprocess.call(["bin/easy_install", "lxml"])
+#    subprocess.call(["bin/easy_install", "breadability"])
+#    subprocess.call(["bin/easy_install", "lxml"])
 
     # Install dependencies in requirements.txt
     #requirements = os.path.join(base_dir, "requirements.txt")
