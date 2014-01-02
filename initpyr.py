@@ -21,12 +21,13 @@ options = {}
 unix_app_socket = "app.sock"
 project_name_placeholder = "~~~PROJNAME~~~"
 base_dir = None
-env_dir = None
+abs_env_dir = None
+abs_root_dir = None
 settings = None
 
 def main():
     global base_dir
-    global env_dir
+    global abs_env_dir
     global options
     global settings
 
@@ -58,12 +59,17 @@ def main():
     
     subprocess.call(["virtualenv", options.project_name + "_env"])
 
-    env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
-    os.chdir(env_dir)
+    abs_env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
+    os.chdir(abs_env_dir)
 
     perform_installs()
 
-    os.chdir(options.project_name)
+    abs_root_dir = os.path.join(abs_env_dir, options.project_name)
+    os.chdir(abs_root_dir)
+
+    print("abs_env_dir: " + abs_env_dir)
+    print("getcwd: " + os.getcwd())
+    print("base_dir: " + base_dir)
 
     setup_maininitpy()
     setup_dotini()
@@ -81,8 +87,8 @@ def main():
         os.system("../bin/pip install supervisor")
 
         # Copy supervisord.conf file to new environment
-        shutil.copy(base_dir + "/supervisord.conf", os.getcwd())
-        substitute_in_file(os.path.join(os.getcwd(), "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
+        shutil.copy(base_dir + "/supervisord.conf", abs_env_dir)
+        substitute_in_file(os.path.join(abs_env_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
 
         os.system("../bin/supervisord -n -c supervisord.conf")
     else:
@@ -105,17 +111,17 @@ def substitute_in_file(filename, old_string, new_string):
             logger.info('No occurences of "{old_string}" found in "{filename}" '.format(**locals()))
 
 def perform_installs():
-    global env_dir
+    global abs_env_dir
     global options
 
     # Install pyramid_alembic_mako
     subprocess.call(["bin/easy_install", "pyramid"])
     subprocess.call(["bin/easy_install", "setuptools_git"])
     subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
-    os.chdir(os.path.abspath(os.path.join(env_dir, "pyramid_alembic_mako")))
+    os.chdir(os.path.abspath(os.path.join(abs_env_dir, "pyramid_alembic_mako")))
     os.system("../bin/pip install .")
 
-    os.chdir(env_dir)
+    os.chdir(abs_env_dir)
     subprocess.call(["bin/pcreate", "-s", "alembic_mako", options.project_name])
 
     subprocess.call(["bin/easy_install", "bcrypt"])
@@ -123,8 +129,6 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "decorator"])
     subprocess.call(["bin/easy_install", "gunicorn"])
     subprocess.call(["bin/easy_install", "redis"])
-#    subprocess.call(["bin/easy_install", "breadability"])
-#    subprocess.call(["bin/easy_install", "lxml"])
 
     # Install dependencies in requirements.txt
     #requirements = os.path.join(base_dir, "requirements.txt")
@@ -132,6 +136,8 @@ def perform_installs():
 
 def setup_maininitpy():
     global settings
+    global abs_env_dir
+    global abs_root_dir
 
     maininitpy_map = settings["maininitpy"]
 
@@ -155,6 +161,9 @@ def setup_maininitpy():
     substitute_in_file(maininitpy, "    config.add_route(\'home\', \'/\')", "")
 
 def setup_dotini():
+    global abs_env_dir
+    global abs_root_dir
+
     developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
     productionini = os.path.join(os.getcwd(), "production.ini")
 
@@ -173,6 +182,14 @@ def setup_dotini():
 def setup_packages():
     global options
     global base_dir
+    global abs_env_dir
+    global abs_root_dir
+
+
+    print("abs_env_dir: " + abs_env_dir)
+    print("getcwd: " + os.getcwd())
+    print("base_dir: " + base_dir)
+
     # Copy Celery-related files to the app
     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
     shutil.copytree(base_dir + "/queue", celery_dir)
@@ -303,6 +320,8 @@ def setup_packages():
 def output_nginx_help():
     global options
     global unix_app_socket
+    global abs_env_dir
+    global abs_root_dir
 
     # Help text for configuring nginx
     print ("")
@@ -355,6 +374,8 @@ def output_nginx_help():
 
 def setup_tests():
     global options
+    global abs_env_dir
+    global abs_root_dir
 
     # Tweak the tests.py to use the project name and correct models path
     testspy = os.path.join(os.getcwd(), options.project_name + "/tests.py")
@@ -377,6 +398,8 @@ def setup_tests():
 def setup_alembic():
     global base_dir
     global options
+    global abs_env_dir
+    global abs_root_dir
 
     initdb = "4f3b93305fe8_initializedb.py"
     initdbpy = base_dir + "/alembic_versions/" + initdb
