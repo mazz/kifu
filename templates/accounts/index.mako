@@ -38,10 +38,10 @@ ${account_nav()}
                         <input type="button" id="submit_account_change" value="Update" class="button" class="postfix small button expand"/>
                     </div>
                     </div>
-                    <div class="row">
-                        <div class="large-12 columns">
-                        <div id="account_msg" class="error"></div>
-                    </div>
+                        <div class="row">
+                            <div class="large-12 columns">
+                            <div id="account_msg" class="error"></div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -70,6 +70,7 @@ ${password_reset(user, reset=False)}
 
 <%def name="add_js()">
     <script type="text/javascript">
+        /*
         YUI().use('node', 'bookie-view', 'console', function (Y) {
             Y.on('domready', function () {
                 var api_cfg = {
@@ -92,6 +93,7 @@ ${password_reset(user, reset=False)}
                 % endif
             });
         });
+        */
     </script>
 </%def>
 

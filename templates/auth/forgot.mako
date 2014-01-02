@@ -77,22 +77,12 @@
                 error: function (jqXHR, textStatus, errorThrown)
                 {
                     var message;
-                    console.log("suspend fail: " + data);
+                    console.log("suspend fail");
 
-                    for(key in data) {
-                        if (key === "message")
-                        {
-                            console.log("found success");
-                            message = data[key];
-                        }
-
-                        console.log("key: " + key);
-                        console.log("value: " + data[key]);
-                    }
                     $('#loginpanel-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
                     $('#forgotten_password_panel').slideToggle();
 
-                    $('#loginpanel-status').html(message);
+                    $('#loginpanel-status').html(errorThrown);
                 }
             });
         });
