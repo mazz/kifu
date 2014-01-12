@@ -42,13 +42,13 @@ def main():
 
     base_dir = os.getcwd();
     
-    if options.project_name == None:
+    if options.project_name is None:
         options.project_name = "default"
 
-    if options.deploy_dir == None:
+    if options.deploy_dir is None:
         options.deploy_dir = base_dir
 
-    if options.supervisor_enabled == None:
+    if options.supervisor_enabled is None:
         options.supervisor_enabled = False
 
     with open('initpyr.yaml') as f:
