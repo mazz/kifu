@@ -122,16 +122,18 @@ ${password_reset(user, reset=False)}
         $('#view_api_key_view').slideToggle();
         $("#view_api_key_view").css({ opacity: 1. });
 
-        var formData = {
+        var formData = JSON.stringify({
                         username: '${user.username}',
                         api_key: '${request.user.api_key}'
-                        };
+                        });
 
         var resultString;
         $.ajax({
             type: "POST",   
             url: APP_URL + "/api/v1/" + '${user.username}' + "/api_key",
             data: formData,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
             success: function(data, textStatus, jqXHR)
             {
                 var api_key;
@@ -166,17 +168,19 @@ ${password_reset(user, reset=False)}
         $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').removeClass('success').removeClass('radius');
         $('#changepassword-status').html("");
 
-        var formData = {
+        var formData = JSON.stringify({
                         username: '${user.username}',
                         current_password: $("#current_password").val(),
                         new_password: $("#new_password").val(),
                         api_key: '${request.user.api_key}'
-                        };
+                        });
 
         $.ajax({
             type: "POST",   
             url: APP_URL + "/api/v1/" + '${user.username}' + "/password",
             data: formData,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
             success: function(data, textStatus, jqXHR)
             {
                 var message;
@@ -201,6 +205,57 @@ ${password_reset(user, reset=False)}
             {
                 var message;
                 console.log("suspend fail");
+                $('#changepassword-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
+                $('#forgotten_password_panel').slideToggle();
+
+                $('#changepassword-status').html(textStatus);
+            }
+        });
+
+    });
+
+    $('#submit_account_change').click(function()
+    {
+
+        console.log("submit_account_change, api_key: " + '${request.user.api_key}');
+        $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').removeClass('success').removeClass('radius');
+        $('#changepassword-status').html("");
+
+        var formData = JSON.stringify({
+                        name: $("#name").val(),
+                        email: $("#email").val(),
+                        });
+
+        $.ajax({
+            type: "POST",   
+            url: APP_URL + "/api/v1/" + '${user.username}' + "/account",
+            data: formData,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data, textStatus, jqXHR)
+            {
+                var message;
+                console.log("account change success: " + data);
+
+                for(key in data) {
+                    if (key === "message")
+                    {
+                        console.log("found success");
+                        message = data[key];
+                    }
+
+                    console.log("key: " + key);
+                    console.log("value: " + data[key]);
+                }
+                $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').addClass('success').addClass('radius').addClass('alert-box');
+                $('#forgotten_password_panel').slideToggle();
+
+                $('#changepassword-status').html(message);
+            },
+            error: function (jqXHR, textStatus, errorThrown)
+            {
+                var message;
+                console.log("account change fail");
                 $('#changepassword-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
                 $('#forgotten_password_panel').slideToggle();
 
