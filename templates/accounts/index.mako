@@ -247,19 +247,11 @@ ${password_reset(user, reset=False)}
                     console.log("key: " + key);
                     console.log("value: " + data[key]);
                 }
-                $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').addClass('success').addClass('radius').addClass('alert-box');
-                $('#forgotten_password_panel').slideToggle();
-
-                $('#changepassword-status').html(message);
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
                 var message;
                 console.log("account change fail");
-                $('#changepassword-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
-                $('#forgotten_password_panel').slideToggle();
-
-                $('#changepassword-status').html(textStatus);
             }
         });
 
