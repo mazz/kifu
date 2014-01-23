@@ -46,7 +46,7 @@
 
             <div class="row">
                 <div class="small-3 columns">
-                    <input type="submit" id="send_signup" name="send_signup" class="postfix small button expand" value="Sign Up" />
+                    <input type="submit" id="send_signup" name="send_signup" class="small button expand" value="Sign Up" />
                 </div>
             </div>
             </form>
