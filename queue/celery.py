@@ -7,6 +7,19 @@ from os import path
 
 from celery.signals import worker_init
 
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Query
+
+from zope.sqlalchemy import ZopeTransactionExtension
+
+DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+Base = declarative_base()
+
+Base.query = DBSession.query_property(Query)
+
 def load_ini():
     print "load_ini"
     cfg = ConfigParser()
@@ -17,15 +30,16 @@ def load_ini():
     # Hold onto the ini config.
     return dict(cfg.items('app:main', raw=True))
 
-#@worker_init.connect
-#def bootstrap_pyramid(signal, sender):
-#    import os
-#    from pyramid.paster import bootstrap
-#    #sender.app.settings = bootstrap(os.environ['development.ini'])['registry'].settings
-#    print "signal: " + str(signal)
-#    print "sender: " + str(sender)
-#    print "os.environ: " + str(os.environ)
-#    #print "sender.app.settings: " + sender.app.settings
+@worker_init.connect
+def bootstrap_pyramid(signal, sender):
+
+    from pyramid.paster import bootstrap
+    sender.app.settings = bootstrap(path.join(path.dirname(path.dirname(path.dirname(__file__))), "development.ini"))['registry'].settings
+
+    engine = sqlalchemy.create_engine(sender.app.settings['sqlalchemy.url'])
+    DBSession.configure(bind=engine)
+    Base.metadata.bind = engine
+
 
 INI = load_ini()
 

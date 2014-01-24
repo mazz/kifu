@@ -33,9 +33,6 @@ from zope.sqlalchemy import ZopeTransactionExtension
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
-from .applog import AppLog
-from .auth import User, Activation
-
 def initialize_sql(settings):
     """Called by the app on startup to setup bindings to the DB"""
     engine = engine_from_config(settings, 'sqlalchemy.')
@@ -95,6 +92,8 @@ Base.__todict__ = todict
 Base.__iter__ = iterfunc
 Base.fromdict = fromdict
 
+from .applog import AppLog
+from .auth import User, Activation
 
 # class ReadableMgr(object):
 #     """Handle non-instance model issues for readable"""
