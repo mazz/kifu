@@ -5,9 +5,8 @@ import shutil
 import subprocess
 from optparse import OptionParser
 import yaml
-import random
-import string
 import logging
+from sys import platform as _platform
 
 logger = logging.getLogger('initpyr')
 logger.setLevel(logging.INFO)
@@ -124,7 +123,15 @@ def perform_installs():
     os.chdir(abs_env_dir)
     subprocess.call(["bin/pcreate", "-s", "alembic_mako", options.project_name])
 
-    subprocess.call(["bin/easy_install", "bcrypt"])
+    # treat bcrypt special when on mac os x from an issue introduced in Xcode 5.1: http://stackoverflow.com/a/22322645/841065
+    if _platform == "darwin":
+        logger.info("darwin")
+        os.environ["CPPFLAGS"] = "-Qunused-arguments"
+        os.environ["CFLAGS"] = "-Qunused-arguments"
+        subprocess.call(["bin/pip", "install", "bcrypt"])
+    else:
+        subprocess.call(["bin/easy_install", "bcrypt"])
+
     subprocess.call(["bin/easy_install", "celery"])
     subprocess.call(["bin/easy_install", "decorator"])
     subprocess.call(["bin/easy_install", "gunicorn"])
