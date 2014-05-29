@@ -6,13 +6,19 @@ maininitpy:
             
             authn_policy = AuthTktAuthenticationPolicy(
                 settings.get("auth.secret"),
-                callback=UserMgr.auth_groupfinder)
+                callback=UserMgr.auth_groupfinder,
+                hashalg="sha512",
+                timeout=1200,
+                reissue_time=300)
             authz_policy = ACLAuthorizationPolicy()
+
+            session_factory = SignedCookieSessionFactory(settings.get("session.secret"))
 
             config = Configurator(settings=settings,
                 root_factory="~~~PROJNAME~~~.RootFactory",
                 authentication_policy=authn_policy,
-                authorization_policy=authz_policy)
+                authorization_policy=authz_policy,
+                session_factory=session_factory)
 
             config.set_request_factory(RequestWithUserAttribute)
             config = build_routes(config)
@@ -34,7 +40,9 @@ maininitpy:
         from pyramid.security import Allow
         from pyramid.security import Everyone
         from pyramid.security import ALL_PERMISSIONS
-        
+
+        from pyramid.session import SignedCookieSessionFactory
+
         class RootFactory(object):
             __acl__ = [(Allow, Everyone, ALL_PERMISSIONS)]
         

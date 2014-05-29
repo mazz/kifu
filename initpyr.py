@@ -180,7 +180,7 @@ def setup_dotini():
     substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
     substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
     authsecret_orig = "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite"
-    authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME\n\nemail.enable=true\nemail.from=change@me.com\nemail.host=sendmail"
+    authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME\n\nsession.secret = PLEASECHANGEMETOO\n\nemail.enable=true\nemail.from=change@me.com\nemail.host=sendmail"
     substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\n") 
