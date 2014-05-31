@@ -136,6 +136,7 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "decorator"])
     subprocess.call(["bin/easy_install", "gunicorn"])
     subprocess.call(["bin/easy_install", "redis"])
+    subprocess.call(["bin/easy_install", "wtforms"])
 
     # Install dependencies in requirements.txt
     #requirements = os.path.join(base_dir, "requirements.txt")
@@ -207,6 +208,10 @@ def setup_packages():
     # Copy models dir to the app
     models_dir = os.path.join(os.getcwd(), options.project_name + "/models")
     shutil.copytree(base_dir + "/models", models_dir)
+
+    # Copy forms dir to the app
+    forms_dir = os.path.join(os.getcwd(), options.project_name + "/forms")
+    shutil.copytree(base_dir + "/forms", forms_dir)
 
     # Replace ~~~PROJNAME~~~ placeholders in the auth code
     authpy = os.path.join(models_dir, "auth.py")
@@ -292,9 +297,6 @@ def setup_packages():
     # Copy over layout.mako
     shutil.copy(layoutmako, os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"))
     substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"), "~~~PROJNAME~~~", options.project_name)
-
-    # Copy over list_users.mako
-    shutil.copy(list_usersmako, os.path.join(os.getcwd(), options.project_name + "/templates/list_users.mako"))
 
     # Copy over routes.py
     routespy = base_dir + "/routes.py"

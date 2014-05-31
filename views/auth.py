@@ -24,6 +24,8 @@ from ~~~PROJNAME~~~.models.auth import UserMgr
 from ~~~PROJNAME~~~.models.auth import Activation
 from ~~~PROJNAME~~~.models.auth import ActivationMgr
 
+from ~~~PROJNAME~~~.forms.signupform import SignupForm
+
 LOG = logging.getLogger(__name__)
 
 @view_config(route_name="login", renderer="~~~PROJNAME~~~:templates/auth/login.mako")
@@ -126,59 +128,59 @@ def signup_process(request):
     information.
 
     """
-    params = request.params
-    email = params.get('email', None)
-
-    if not email:
-        # if still no email, I give up!
-        return {
-            'errors': {
-                'email': 'Please supply an email address to sign up.'
-            }
-        }
-
-    # first see if the user is already in the system
-    exists = UserMgr.get(email=email)
-    if exists:
-        return {
-            'errors': {
-                'email': 'The user has already signed up.'
-            }
-        }
-
-    new_user = UserMgr.signup_user(email, 'signup')
-    print "new_user: " + str(new_user)
-    if new_user:
-        # then this user is able to invite someone
-        # log it
-        AuthLog.reactivate(new_user.username)
-#        pdb.set_trace()
-        # and then send an email notification
-        # @todo the email side of things
-        settings = request.registry.settings
-
-        # Add a queue job to send the user a notification email.
-        tasks.email_signup_user.delay(
-           new_user.email,
-           "Enable your account",
-           settings,
-           request.route_url(
-               'reset',
-               username=new_user.username,
-               reset_key=new_user.activation.code
-           )
-        )
-
-        # And let the user know they're signed up.
-        return {
-            'message': 'Thank you for signing up from: ' + new_user.email
-        }
+    if request.user and request.user.username:
+        print("user logged in")
+        return HTTPFound(location=request.route_url('user_account', username=request.user.username))
     else:
-        return {
-            'errors': {
-                'email': 'There was an unknown error signing up.'
-            }
-        }
+        signupForm = SignupForm(request.POST)
+
+        params = request.params
+        email = params.get('email', None)
+
+        # first see if the user is already in the system
+        exists = UserMgr.get(email=email)
+        if exists:
+            print('user exists')
+            message = 'The user has already signed up.'
+            request.session.flash(message)
+            # signupForm.errors = {'email': ['The user has already signed up.']}
+            return {'form':signupForm,
+                'action':request.matchdict.get('action'),
+                'signup_error_message': message,
+                }
+
+        if request.method == 'POST' and signupForm.validate():
+            message = 'Thank you for signing up from: ' + str(signupForm.email.data) + '\nPlease check your email.'
+            request.session.flash(message)
+
+            #return HTTPFound(location=request.route_url('signup_process2'))
+            new_user = UserMgr.signup_user(email, 'signup')
+            print "new_user: " + str(new_user)
+            if new_user:
+                AuthLog.reactivate(new_user.username)
+                # @todo the email side of things
+                settings = request.registry.settings
+
+                # Add a queue job to send the user a notification email.
+                tasks.email_signup_user.delay(
+                   new_user.email,
+                   "Enable your account",
+                   settings,
+                   request.route_url(
+                       'reset',
+                       username=new_user.username,
+                       reset_key=new_user.activation.code
+                   )
+                )
+
+                # And let the user know they're signed up.
+                return {'signup_success_message': message,
+                        'form':signupForm,
+                }
+
+        return {'form':signupForm,
+                'action':request.matchdict.get('action'),
+                }
 
 @view_config(route_name="reset", renderer="~~~PROJNAME~~~:templates/auth/reset.mako")
 def reset(request):

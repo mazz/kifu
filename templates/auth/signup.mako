@@ -1,65 +1,63 @@
 <%inherit file="/layout.mako" />
-<%def name="title()">Sign up for baz!</%def>
-<div class="signup_form" class="block">
 
-      <div class="large-12 columns">
-        <div class="panel">
-            <div class="row">
-                <div class="large-12 columns">
-                    <h1>Signup</h1>
-                </div>
+<%def name="title()">Sign up for wtf!</%def>
+
+<%def name="signup_form()">
+    <form formid="signup_form" method="post" action="${request.route_url('signup_process')}">
+
+        <div class="row collapse">
+            <div class="large-12 columns">
+
+                <h3>${self.title()}</h3>
+                ${form.email.label}
+                ${form['email']}
+
+              <input type="submit" id="send_signup" name="send_signup" value="Sign up" class="radius button"/>
             </div>
-
-        % if message:
-            <div class="row">
-                <div class="large-12 columns">
-                    <p id="signup_msg" class="success">${message}</p>
-                </div>
-            </div>
-
-        % else:
-
-            <div class="row">
-                <div class="large-12 columns">
-                    <h5>If you'd like to have an account please submit your email address.</h5>
-                </div>
-            </div>
-            <div class="row">
-                <div class="large-12 columns">
-                <br/>
-                </div>
-            </div>
-
-            <form id="#signup_form" action="signup_process" method="POST">
-            <div class="row">
-                <div class="large-12 columns">
-                    <h5>Email Address</h5>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="large-12 columns">
-                    <input type="email" id="email" name="email" />
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="small-3 columns">
-                    <input type="submit" id="send_signup" name="send_signup" class="small button expand" value="Sign Up" />
-                </div>
-            </div>
-            </form>
-        %endif
-
-        % if errors:
-            <div class="row">
-                <div class="large-12 columns">
-                    <div id="signup_msg" class="error">${errors['email']}</div>
-                </div>
-            </div>
-        % endif
-
         </div>
-      </div>
-</div>
+
+    </form>
+
+</%def>
+
+<!-- Signup Details -->
+    % if signup_success_message:
+        <div class="row collapse">
+            <div class="large-12 columns">
+                % for msg in request.session.pop_flash():
+                    <div data-alert class="alert-box success">
+                        ${msg}
+                    </div>
+                % endfor
+            </div>
+        </div>
+    % elif signup_error_message:
+        <div class="row collapse">
+            <div class="large-12 columns">
+                % for msg in request.session.pop_flash():
+                    <div data-alert class="alert-box alert">
+                        ${msg}
+                        <a href="#" class="close">&times;</a>
+                    </div>
+                % endfor
+            </div>
+        </div>
+
+        ${self.signup_form()}
+
+    % else:
+        <div class="row collapse">
+            <div class="large-12 columns">
+                % for field, errors in form.errors.iteritems():
+                    <div data-alert class="alert-box alert">
+                        ${field}: ${ ', '.join(errors)}
+                        <a href="#" class="close">&times;</a>
+                    </div>
+                % endfor
+            </div>
+        </div>
+
+        ${self.signup_form()}
+    % endif
+
+    <!-- End Signup Details -->
