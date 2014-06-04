@@ -134,27 +134,12 @@ def signup_process(request):
     else:
         signupForm = SignupForm(request.POST)
 
-        params = request.params
-        email = params.get('email', None)
-
-        # first see if the user is already in the system
-        exists = UserMgr.get(email=email)
-        if exists:
-            print('user exists')
-            message = 'The user has already signed up.'
-            request.session.flash(message)
-            # signupForm.errors = {'email': ['The user has already signed up.']}
-            return {'form':signupForm,
-                'action':request.matchdict.get('action'),
-                'signup_error_message': message,
-                }
-
         if request.method == 'POST' and signupForm.validate():
             message = 'Thank you for signing up from: ' + str(signupForm.email.data) + '\nPlease check your email.'
             request.session.flash(message)
 
             #return HTTPFound(location=request.route_url('signup_process2'))
-            new_user = UserMgr.signup_user(email, 'signup')
+            new_user = UserMgr.signup_user(signupForm.email.data, 'signup')
             print "new_user: " + str(new_user)
             if new_user:
                 AuthLog.reactivate(new_user.username)
@@ -267,7 +252,7 @@ Pyramid is having a problem using your SQL database.  The problem
 might be caused by one of the following things:
 
 1.  You may need to run the "initialize_foo_db" script
-    to initialize your database tables.  Check your virtual 
+    to initialize your database tables.  Check your virtual
     environment's "bin" directory for this script and try to run it.
 
 2.  Your database server may not be running.  Check that the
