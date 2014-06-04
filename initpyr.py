@@ -213,6 +213,10 @@ def setup_packages():
     forms_dir = os.path.join(os.getcwd(), options.project_name + "/forms")
     shutil.copytree(base_dir + "/forms", forms_dir)
 
+    # Replace ~~~PROJNAME~~~ placeholders in the forms code
+    signupformpy = os.path.join(forms_dir, "signupform.py")
+    substitute_in_file(signupformpy, "~~~PROJNAME~~~", options.project_name)
+
     # Replace ~~~PROJNAME~~~ placeholders in the auth code
     authpy = os.path.join(models_dir, "auth.py")
     substitute_in_file(authpy, "~~~PROJNAME~~~", options.project_name)
