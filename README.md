@@ -125,7 +125,7 @@ In a terminal window launch rabbitMQ.
 
 Clone the initpyr repo locally. Run initpyr.py and create a project called `foo`.
 
-    ./initpyr.py -n foo
+    ./initpyr.py -s -n foo
 
 The script will in a virtual environment:
 
