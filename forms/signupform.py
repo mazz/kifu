@@ -1,6 +1,6 @@
 from wtforms import Form, StringField, validators
 from wtforms.validators import ValidationError
-from foo.models.auth import UserMgr
+from ~~~PROJNAME~~~.models.auth import UserMgr
 
 
 def is_already_taken(form, field):
