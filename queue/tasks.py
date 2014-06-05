@@ -5,8 +5,8 @@ import transaction
 
 #from celery import Celery
 
-from .celery import load_ini
-INI = load_ini()
+# from .celery import load_ini
+# INI = load_ini()
 
 import logging
 LOG = logging.getLogger(__name__)

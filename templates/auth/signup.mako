@@ -1,6 +1,6 @@
 <%inherit file="/layout.mako" />
 
-<%def name="title()">Sign up for wtf!</%def>
+<%def name="title()">Sign up for ~~~PROJNAME~~~!</%def>
 
 <%def name="signup_form()">
     <form formid="signup_form" method="post" action="${request.route_url('signup_process')}">
