@@ -77,6 +77,16 @@ def main():
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
 
+
+    # change all ~~~PROJNAME~~~ to actual name
+    full_file_paths = _get_filepaths(abs_root_dir)
+
+    for f in full_file_paths:
+        if f.endswith(".py") or f.endswith("mako" or f.endswith("conf")):
+            substitute_in_file(f, "~~~PROJNAME~~~", options.project_name)
+
+
+    substitute_in_file(os.path.join(abs_root_dir, "development.ini"), "    pyramid_debugtoolbar", "#   pyramid_debugtoolbar")
     setup_alembic()
 
     if options.supervisor_enabled:
@@ -87,7 +97,7 @@ def main():
 
         # Copy supervisord.conf file to new environment
         shutil.copy(base_dir + "/supervisord.conf", abs_root_dir)
-        substitute_in_file(os.path.join(abs_root_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
+        # substitute_in_file(os.path.join(abs_root_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
 
         os.system("../bin/supervisord -n -c supervisord.conf")
     else:
@@ -162,9 +172,6 @@ def setup_maininitpy():
 
     substitute_in_file(maininitpy, "    config.scan()", "    config.scan(\"~~~PROJNAME~~~.views\")")
 
-    # Replace ~~~PROJNAME~~~ placeholders in the __init__.py code
-    substitute_in_file(maininitpy, "~~~PROJNAME~~~", options.project_name)
-
     # We add routes via routes.py now, so remove this template code
     substitute_in_file(maininitpy, "    config.add_route(\'home\', \'/\')", "")
 
@@ -213,18 +220,6 @@ def setup_packages():
     forms_dir = os.path.join(os.getcwd(), options.project_name + "/forms")
     shutil.copytree(base_dir + "/forms", forms_dir)
 
-    # Replace ~~~PROJNAME~~~ placeholders in the forms code
-    signupformpy = os.path.join(forms_dir, "signupform.py")
-    substitute_in_file(signupformpy, "~~~PROJNAME~~~", options.project_name)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the auth code
-    authpy = os.path.join(models_dir, "auth.py")
-    substitute_in_file(authpy, "~~~PROJNAME~~~", options.project_name)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the applog code
-    applogpy = os.path.join(models_dir, "applog.py")
-    substitute_in_file(applogpy, "~~~PROJNAME~~~", options.project_name)
-
     # Delete the unnecessary models.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
 
@@ -234,25 +229,7 @@ def setup_packages():
     lib_dir = os.path.join(os.getcwd(), options.project_name + "/lib")
     shutil.copytree(base_dir + "/lib", lib_dir)
 
-    # Replace ~~~PROJNAME~~~ placeholders in the lib code
-    accesspy = os.path.join(lib_dir, "access.py")
-    substitute_in_file(accesspy, "~~~PROJNAME~~~", options.project_name)
-
-    # Replace ~~~PROJNAME~~~ placeholders in the lib code
-    libapplogpy = os.path.join(lib_dir, "applog.py")
-    substitute_in_file(libapplogpy, "~~~PROJNAME~~~", options.project_name)
-
-    libreadablepy = os.path.join(lib_dir, "readable.py")
-    substitute_in_file(libreadablepy, "~~~PROJNAME~~~", options.project_name)
-
     ### celery ###
-
-    # Replace ~~~PROJNAME~~~ placeholders in the Celery code
-    celerypy = os.path.join(celery_dir, "celery.py")
-    substitute_in_file(celerypy, "~~~PROJNAME~~~", options.project_name)
-
-    taskspy = os.path.join(celery_dir, "tasks.py")
-    substitute_in_file(taskspy, "~~~PROJNAME~~~", options.project_name)
 
     # Tweak initialize db script to use replacement model hierarchy
     initializedbpy = os.path.join(os.getcwd(), options.project_name + "/scripts/initializedb.py")
@@ -270,8 +247,6 @@ def setup_packages():
     # Copy views to the app
     views_dir = os.path.join(os.getcwd(), options.project_name + "/views")
     shutil.copytree(base_dir + "/views", views_dir)
-    homepy = os.path.join(views_dir, "home.py")
-    substitute_in_file(homepy, "~~~PROJNAME~~~", options.project_name)
 
     # Delete mymodel.py
     mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
@@ -289,9 +264,6 @@ def setup_packages():
     accounts_dir = os.path.join(os.getcwd(), options.project_name + "/templates/accounts")
     shutil.copytree(base_dir + "/templates/accounts", accounts_dir)
 
-    signupmako = base_dir + "/templates/auth/signup.mako"
-    substitute_in_file(signupmako, "~~~PROJNAME~~~", options.project_name)
-
     auth_dir = os.path.join(os.getcwd(), options.project_name + "/templates/auth")
     shutil.copytree(base_dir + "/templates/auth", auth_dir)
 
@@ -300,7 +272,6 @@ def setup_packages():
 
     # Copy over layout.mako
     shutil.copy(layoutmako, os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"))
-    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/templates/layout.mako"), "~~~PROJNAME~~~", options.project_name)
 
     # Copy over routes.py
     routespy = base_dir + "/routes.py"
@@ -309,25 +280,17 @@ def setup_packages():
     ### views ###
 
     viewsauthpy = base_dir + "/views/auth.py"
-
     # Copy over views auth.py
     shutil.copy(viewsauthpy, os.path.join(os.getcwd(), options.project_name + "/views/auth.py"))
-    # Replace ~~~PROJNAME~~~ placeholders in the auth code
-    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/views/auth.py"), "~~~PROJNAME~~~", options.project_name)
 
     viewsaccountspy = base_dir + "/views/accounts.py"
-
     # Copy over views accounts.py
     shutil.copy(viewsaccountspy, os.path.join(os.getcwd(), options.project_name + "/views/accounts.py"))
-    # Replace ~~~PROJNAME~~~ placeholders in the accounts code
-    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/views/accounts.py"), "~~~PROJNAME~~~", options.project_name)
 
     viewsapipy = base_dir + "/views/api.py"
 
     # Copy over views api.py
     shutil.copy(viewsapipy, os.path.join(os.getcwd(), options.project_name + "/views/api.py"))
-    # Replace ~~~PROJNAME~~~ placeholders in the accounts code
-    substitute_in_file(os.path.join(os.getcwd(), options.project_name + "/views/api.py"), "~~~PROJNAME~~~", options.project_name)
 
 
 def output_nginx_help():
@@ -396,7 +359,6 @@ def setup_tests():
     substitute_in_file(testspy, "from .models import DBSession", "from ~~~PROJNAME~~~.models.mymodel import DBSession")
     substitute_in_file(testspy, "from .models import", "from ~~~PROJNAME~~~.models.mymodel import")
     substitute_in_file(testspy, "from .views import", "from ~~~PROJNAME~~~.views.home import")
-    substitute_in_file(testspy, "~~~PROJNAME~~~", options.project_name)
 
     # Copy tests.py to the tests package
     #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/tests.py"), base_dir + "/tests/tests.py")
@@ -426,6 +388,26 @@ def setup_alembic():
 #    os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
     os.system("../bin/alembic -c development.ini upgrade head")
 
+def _get_filepaths(directory):
+    """
+    This function will generate the file names in a directory
+    tree by walking the tree either top-down or bottom-up. For each
+    directory in the tree rooted at directory top (including top itself),
+    it yields a 3-tuple (dirpath, dirnames, filenames).
+    """
+    file_paths = []  # List which will store all of the full filepaths.
+
+    # Walk the tree.
+    for root, directories, files in os.walk(directory):
+        for filename in files:
+            # Join the two strings in order to form the full filepath.
+            filepath = os.path.join(root, filename)
+            file_paths.append(filepath)  # Add it to the list.
+
+    return file_paths  # Self-explanatory.
+
+# Run the above function and store its results in a variable.
+#full_file_paths = get_filepaths("/Users/johnny/Desktop/TEST")
 
 if __name__ == "__main__":
     main()
