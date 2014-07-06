@@ -34,6 +34,7 @@ def main():
     parser.add_option("-n", "--name", dest="project_name", type="string", help="Name of the new pyramid project.")
     parser.add_option("-d", "--deploy", dest="deploy_dir", type="string", help="Deploy base directory of webapp.")
     parser.add_option("-s", "--supervisor-enabled", action="store_true", dest="supervisor_enabled", help="Run gunicorn with supervisor.")
+    parser.add_option("-b", "--database", dest="database_type", type="string", help="Database type. sqlite or postgresql")
 
     (options, args) = parser.parse_args()
 
@@ -50,12 +51,16 @@ def main():
     if options.supervisor_enabled is None:
         options.supervisor_enabled = False
 
+    if options.database_type is None:
+        options.database_type = "sqlite"
+
+    print("options.database_type: " + options.database_type)
     with open('initpyr.yaml') as f:
         settings = yaml.load(f)
 
     absolute_deploydir = os.path.abspath(options.deploy_dir)
     os.chdir(absolute_deploydir)
-    
+
     subprocess.call(["virtualenv", options.project_name + "_env"])
 
     abs_env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
@@ -97,7 +102,7 @@ def main():
 
         # Copy supervisord.conf file to new environment
         shutil.copy(base_dir + "/supervisord.conf", abs_root_dir)
-        # substitute_in_file(os.path.join(abs_root_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
+        substitute_in_file(os.path.join(abs_root_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
 
         os.system("../bin/supervisord -n -c supervisord.conf")
     else:
@@ -147,6 +152,8 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "gunicorn"])
     subprocess.call(["bin/easy_install", "redis"])
     subprocess.call(["bin/easy_install", "wtforms"])
+    if options.database_type is "postgresql":
+        subprocess.call(["bin/easy_install", "psycopg2"])
 
     # Install dependencies in requirements.txt
     #requirements = os.path.join(base_dir, "requirements.txt")
@@ -178,6 +185,7 @@ def setup_maininitpy():
 def setup_dotini():
     global abs_env_dir
     global abs_root_dir
+    global options
 
     developmentini = os.path.abspath(os.path.join(os.getcwd(), "development.ini"))
     productionini = os.path.join(os.getcwd(), "production.ini")
@@ -187,7 +195,12 @@ def setup_dotini():
     
     substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
     substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
+
     authsecret_orig = "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite"
+
+    if options.database_type is "postgresql":
+        authsecret_orig = "sqlalchemy.url = postgresql+psycopg2://PGUSERNAME:PGPASSWORD@localhost/" + options.project_name
+
     authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME\n\nsession.secret = PLEASECHANGEMETOO\n\nemail.enable=true\nemail.from=change@me.com\nemail.host=sendmail"
     substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
