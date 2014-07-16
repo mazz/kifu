@@ -7,6 +7,17 @@ Requirements:
 
     * Python 2.7
 
+QUICKSTART:
+-----------
+cd initpyr
+./initpyr.py -n foo -s
+cd foo_env/foo
+../bin/pserve development.ini
+ 
+web browser: http://0.0.0.0:6543/login
+ 
+user: admin
+pass: admin
 
 SETUP(Ubuntu Linux)
 -------------------
