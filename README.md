@@ -9,6 +9,7 @@ Requirements:
 
 QUICKSTART
 ----------
+```
 cd initpyr
 ./initpyr.py -n foo -s
 cd foo_env/foo
@@ -18,6 +19,7 @@ web browser: http://0.0.0.0:6543/login
  
 user: admin
 pass: admin
+```
 
 SETUP(Ubuntu Linux)
 -------------------
