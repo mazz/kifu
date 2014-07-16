@@ -6,6 +6,14 @@ Requirements:
 -------------
 
     * Python 2.7
+    * virtualenv
+    
+Optional:
+
+    * redis
+    * msmtp
+    * rabbitmq
+    * nginx
 
 QUICKSTART
 ----------
