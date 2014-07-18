@@ -57,7 +57,15 @@ Install pyyaml:
     tar zxvf PyYAML-3.10.tar.gz
     cd PyYAML-3.10.tar.gz/
     sudo python setup.py install
+    
+    OR: 
 
+    curl -O https://pypi.python.org/packages/source/p/pip/pip-1.5.6.tar.gz
+    tar xzvf pip-1.5.6.tar.gz
+    cd pip-1.5.6
+    sudo python setup.py install
+    pip install pyyaml
+    
 Install Python headers:
 
     sudo apt-get install python-dev
