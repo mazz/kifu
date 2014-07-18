@@ -99,7 +99,19 @@ Install pyyaml:
     tar zxvf PyYAML-3.10.tar.gz
     cd PyYAML-3.10.tar.gz/
     sudo python setup.py install
+    
+    OR:
+   
+    curl -O https://pypi.python.org/packages/source/p/pip/pip-1.5.6.tar.gz
+    tar xzvf pip-1.5.6.tar.gz
+    cd pip-1.5.6
+    sudo python setup.py install
+    pip install pyyaml
 
+Install libffi and set it up with pkg_config:
+
+    brew install libffi
+    export PKG_CONFIG_PATH=/usr/local/Cellar/libffi/3.0.13/lib/pkgconfig
 
 Continue Setup(All platforms)
 -----------------------------
