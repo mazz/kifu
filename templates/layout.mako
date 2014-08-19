@@ -15,7 +15,7 @@
 
     <script type="text/javascript" charset="utf-8">
         <%
-            app_url = request.route_url('home').rstrip('/')
+            app_url = request.route_url('login').rstrip('/')
         %>
         APP_URL = '${app_url}';
     </script>
