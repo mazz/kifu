@@ -204,7 +204,7 @@ def setup_dotini():
     authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME\n\nsession.secret = PLEASECHANGEMETOO\n\nemail.enable=true\nemail.from=change@me.com\nemail.host=sendmail"
     substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
-    substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\n") 
+    substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\nhost = localhost\nport = 80\n")
 
 
 def setup_packages():
