@@ -140,11 +140,6 @@ Install msmtp
 
     brew install msmtp
 
-Configure msmtp
----------------
-
-Create a .msmtprc file in $HOME. Use the checked-in msmtprc.sample file as a starting point.
-
 Configure nginx
 ---------------
 
