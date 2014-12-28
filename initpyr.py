@@ -152,6 +152,7 @@ def perform_installs():
     subprocess.call(["bin/easy_install", "gunicorn"])
     subprocess.call(["bin/easy_install", "redis"])
     subprocess.call(["bin/easy_install", "wtforms"])
+    subprocess.call(["bin/easy_install", "pyramid_mailer"])
     if options.database_type is "postgresql":
         subprocess.call(["bin/easy_install", "psycopg2"])
 
@@ -193,15 +194,15 @@ def setup_dotini():
     # Add template if it is in the yaml file
     #if settings["template"] != None:        
     
-    substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
-    substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mako")
+    substitute_in_file(developmentini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mailer\n    pyramid_mako")
+    substitute_in_file(productionini, "pyramid.includes =", "pyramid.includes =\n    pyramid_mailer\n    pyramid_mako")
 
     authsecret_orig = "sqlalchemy.url = sqlite:///%(here)s/" + options.project_name + ".sqlite"
 
     if options.database_type is "postgresql":
         authsecret_orig = "sqlalchemy.url = postgresql+psycopg2://PGUSERNAME:PGPASSWORD@localhost/" + options.project_name
 
-    authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME\n\nsession.secret = PLEASECHANGEMETOO\n\nemail.enable=true\nemail.from=change@me.com\nemail.host=sendmail"
+    authsecret_subst = authsecret_orig + "\n\nauth.secret=PLEASECHANGEME\n\nsession.secret = PLEASECHANGEMETOO\n\nmail.host=smtp.mandrillapp.com\nmail.username=YOURMANDRILLAPPUSERNAME\nmail.password=YOURMANDRILLAPPPASSWORD\nmail.port=587\nmail.ssl=False\nmail.default_sender=donotreply@YOURDOMAIN"
     substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\nhost = localhost\nport = 80\n")

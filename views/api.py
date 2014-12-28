@@ -11,8 +11,8 @@ from StringIO import StringIO
 from ~~~PROJNAME~~~.queue import tasks
 from ~~~PROJNAME~~~.lib.access import api_auth
 from ~~~PROJNAME~~~.lib.applog import AuthLog
-from ~~~PROJNAME~~~.lib.message import ReactivateMsg
-from ~~~PROJNAME~~~.lib.message import InvitationMsg
+from ~~~PROJNAME~~~.lib.msg import ReactivateMsg
+from ~~~PROJNAME~~~.lib.msg import InvitationMsg
 #from ~~~PROJNAME~~~.lib.readable import ReadContent
 #from ~~~PROJNAME~~~.lib.tagcommands import Commander
 
