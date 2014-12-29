@@ -8,7 +8,9 @@ import yaml
 import logging
 from sys import platform as _platform
 
-logger = logging.getLogger('initpyr')
+k_appname = 'kifu'
+
+logger = logging.getLogger(k_appname)
 logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
@@ -55,7 +57,7 @@ def main():
         options.database_type = "sqlite"
 
     print("options.database_type: " + options.database_type)
-    with open('initpyr.yaml') as f:
+    with open(k_appname + '.yaml') as f:
         settings = yaml.load(f)
 
     absolute_deploydir = os.path.abspath(options.deploy_dir)
