@@ -1,4 +1,4 @@
-initpyr
+kifu
 =======
 Deploys a pyramid project that includes SQLAlchemy, alembic, gunicorn, supervisor, celery, RabbitMQ, redis(result backend). A python script that is based on the pyramid_alembic_mako scaffold.
 
@@ -18,8 +18,8 @@ Optional:
 QUICKSTART
 ----------
 ```
-cd initpyr
-./initpyr.py -n foo -s
+cd kifu
+./kifu.py -n foo -s
 cd foo_env/foo
 ../bin/pserve development.ini
  
@@ -86,7 +86,7 @@ Install linuxbrew
 
 Install this script:
 
-    git clone https://github.com/mazzaroth/initpyr.git
+    git clone https://github.com/mazzaroth/kifu.git
 
 
 SETUP(Mac OS X)
@@ -159,9 +159,9 @@ In a terminal window launch rabbitMQ.
 
     rabbitmq-server
 
-Clone the initpyr repo locally. Run initpyr.py and create a project called `foo`.
+Clone the kifu repo locally. Run kifu.py and create a project called `foo`.
 
-    ./initpyr.py -s -n foo
+    ./kifu.py -s -n foo
 
 The script will in a virtual environment:
 
