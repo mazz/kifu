@@ -14,17 +14,17 @@
                           <p>You can reset your password here.</p>
                             <div class="panel-body">
 
-                              <form class="form">
+                              <form "${request.route_url('forgot_password')}" method="post" class="form">
                                 <fieldset>
                                   <div class="form-group">
                                     <div class="input-group">
                                       <span class="input-group-addon"><i class="glyphicon glyphicon-envelope color-blue"></i></span>
 
-                                      <input id="emailInput" placeholder="email address" class="form-control" type="email" oninvalid="setCustomValidity('Please enter a valid email address!')" onchange="try{setCustomValidity('')}catch(e){}" required="">
+                                      <input name="email" placeholder="email address" class="form-control" type="email" oninvalid="setCustomValidity('Please enter a valid email address!')" onchange="try{setCustomValidity('')}catch(e){}" required="">
                                     </div>
                                   </div>
                                   <div class="form-group">
-                                    <input class="btn btn-lg btn-primary btn-block" value="Send My Password" type="submit">
+                                    <input class="btn btn-lg btn-primary btn-block" value="Send My Password" type="submit" name="form.submitted">
                                   </div>
                                 </fieldset>
                               </form>
