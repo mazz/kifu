@@ -7,6 +7,7 @@ def build_routes(config):
     # auth routes
     config.add_route("login", "/")
     config.add_route("logout", "logout")
+    config.add_route("forgot_password", "forgot_password")
     config.add_route("reset", "{username}/reset/{reset_key}")
     config.add_route("signup", "signup")
     config.add_route("signup_process", "signup_process")

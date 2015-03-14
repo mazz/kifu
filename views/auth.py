@@ -167,6 +167,86 @@ def signup_process(request):
                 'action':request.matchdict.get('action'),
                 }
 
+@view_config(route_name="forgot_password", renderer="foo:templates/auth/forgot.mako")
+def forgot_password(request):
+    """Login the user to the system
+
+    If not POSTed then show the form
+    If error, display the form with the error message
+    If successful, forward the user to their /recent
+
+    Note: the came_from stuff we're not using atm. We'll clean out if we keep
+    things this way
+
+    """
+    fp_url = route_url('forgot_password', request)
+    referrer = request.url
+    if referrer == fp_url:
+        referrer = '/'  # never use the login form itself as came_from
+    came_from = request.params.get('came_from', referrer)
+    #
+    message = ''
+    error_message = ''
+    # login = ''
+    # password = ''
+
+    if 'form.submitted' in request.params:
+        email = request.params['email']
+        # password = request.params['password']
+
+        LOG.debug(email)
+        auth = UserMgr.get(email=email)
+        LOG.debug(auth)
+        # LOG.debug(UserMgr.get_list())
+
+        if auth:
+            message = 'An email has been sent to the address provided. Open the email and follow the instructions.'
+            error_message = ''
+            # # We use the Primary Key as our identifier once someone has
+            # # authenticated rather than the username.  You can change what is
+            # # returned as the userid by altering what is passed to remember.
+            # headers = remember(request, auth.id, max_age=60 * 60 * 24 * 30)
+            # auth.last_login = datetime.utcnow()
+            #
+            # # log the successful login
+            # AuthLog.login(login, True)
+
+            # we're always going to return a user to their own /recent after a
+            # login
+#             return HTTPFound(
+#                 location=request.route_url(
+#                     'user_bmark_recent',
+#                     username=auth.username),
+#                 headers=headers)
+
+            # return HTTPFound(
+            #     location=request.route_url(
+            #         'forgot_password_email_confirmed'),
+            #     headers=headers)
+
+        if not auth:
+            error_message = 'There was an error attempting to find that email.'
+            message = ''
+        # log the right level of problem
+        # if auth and not auth.validate_password(password):
+        #     message = "Your login attempt has failed."
+        #     AuthLog.login(login, False, password=password)
+        #
+        # elif auth and not auth.activated:
+        #     message = "User account deactivated. Please check your email."
+        #     AuthLog.login(login, False, password=password)
+        #     AuthLog.disabled(login)
+        #
+        # elif auth is None:
+        #     message = "Failed login"
+        #     AuthLog.login(login, False, password=password)
+
+    return {
+        'message': message,
+        'error_message': error_message,
+        'came_from': came_from,
+    }
+
 @view_config(route_name="reset", renderer="~~~PROJNAME~~~:templates/auth/reset.mako")
 def reset(request):
     """Once deactivated, allow for changing the password via activation key"""
