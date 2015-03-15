@@ -48,15 +48,17 @@ def login(request):
     came_from = request.params.get('came_from', referrer)
 
     message = ''
-    login = ''
+    email = ''
     password = ''
 
+    # import pdb; pdb.set_trace()
+
     if 'form.submitted' in request.params:
-        login = request.params['login']
+        email = request.params['email']
         password = request.params['password']
 
-        LOG.debug(login)
-        auth = UserMgr.get(username=login)
+        LOG.debug(email)
+        auth = UserMgr.get(email=email)
         LOG.debug(auth)
         LOG.debug(UserMgr.get_list())
 
@@ -68,7 +70,7 @@ def login(request):
             auth.last_login = datetime.utcnow()
 
             # log the successful login
-            AuthLog.login(login, True)
+            AuthLog.login(auth.username, True)
 
             # we're always going to return a user to their own /recent after a
             # login
@@ -87,24 +89,24 @@ def login(request):
         # log the right level of problem
         if auth and not auth.validate_password(password):
             message = "Your login attempt has failed."
-            AuthLog.login(login, False, password=password)
+            AuthLog.login(email, False, password=password)
 
         elif auth and not auth.activated:
             message = "User account deactivated. Please check your email."
-            AuthLog.login(login, False, password=password)
-            AuthLog.disabled(login)
+            AuthLog.login(email, False, password=password)
+            AuthLog.disabled(email)
 
         elif auth is None:
             message = "Failed login"
-            AuthLog.login(login, False, password=password)
+            AuthLog.login(email, False, password=password)
 
+    print('message: ' + message)
     return {
         'message': message,
         'came_from': came_from,
-        'login': login,
+        'email': email,
         'password': password,
     }
-
 
 @view_config(route_name="logout", renderer="~~~PROJNAME~~~:templates/auth/login.mako")
 def logout(request):
@@ -186,9 +188,10 @@ def forgot_password(request):
     came_from = request.params.get('came_from', referrer)
     #
     message = ''
-    error_message = ''
     # login = ''
     # password = ''
+
+    # import pdb; pdb.set_trace()
 
     if 'form.submitted' in request.params:
         email = request.params['email']
@@ -200,8 +203,9 @@ def forgot_password(request):
         # LOG.debug(UserMgr.get_list())
 
         if auth:
+            # Add a queue job to send the user a notification email.
+            async_result = tasks.email_forgot_password_user.delay(email)
             message = 'An email has been sent to the address provided. Open the email and follow the instructions.'
-            error_message = ''
             # # We use the Primary Key as our identifier once someone has
             # # authenticated rather than the username.  You can change what is
             # # returned as the userid by altering what is passed to remember.
@@ -225,8 +229,7 @@ def forgot_password(request):
             #     headers=headers)
 
         if not auth:
-            error_message = 'There was an error attempting to find that email.'
-            message = ''
+            message = 'There was an error attempting to find that email.'
         # log the right level of problem
         # if auth and not auth.validate_password(password):
         #     message = "Your login attempt has failed."
@@ -240,10 +243,8 @@ def forgot_password(request):
         # elif auth is None:
         #     message = "Failed login"
         #     AuthLog.login(login, False, password=password)
-
     return {
         'message': message,
-        'error_message': error_message,
         'came_from': came_from,
     }
 
