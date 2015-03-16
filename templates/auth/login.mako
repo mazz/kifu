@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-6 col-md-4 col-md-offset-4">
-            <h1 class="text-center login-title">Sign in to continue to foo</h1>
+            <h1 class="text-center login-title">Sign in to continue to ~~~PROJNAME~~~</h1>
             % if message is not '':
                 <div class="alert alert-danger" role="alert">
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
