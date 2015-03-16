@@ -10,7 +10,6 @@ def build_routes(config):
     config.add_route("forgot_password", "forgot_password")
     config.add_route("reset", "{username}/reset/{reset_key}")
     config.add_route("signup", "signup")
-    config.add_route("signup_process", "signup_process")
     config.add_route('list_users', '/list_users')
 
     config.add_route("user_account", "{username}/account")

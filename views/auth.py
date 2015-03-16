@@ -122,21 +122,35 @@ def list_users(request):
         return Response(conn_err_msg, content_type='text/plain', status_int=500)
     return {'users': users}
 
-@view_config(route_name="signup_process", renderer="~~~PROJNAME~~~:templates/auth/signup.mako")
-def signup_process(request):
+@view_config(route_name="signup", renderer="~~~PROJNAME~~~:templates/auth/signup.mako")
+def signup(request):
     """Process the signup request
 
     If there are any errors drop to the same template with the error
     information.
 
     """
+
+    message = ''
+
+    # import pdb; pdb.set_trace()
     if request.user and request.user.username:
         print("user logged in")
         return HTTPFound(location=request.route_url('user_account', username=request.user.username))
     else:
-        signupForm = SignupForm(request.POST)
+        if request.method == 'POST':
+            email = request.params['email']
+            # password = request.params['password']
 
-        if request.method == 'POST' and signupForm.validate():
+            LOG.debug(email)
+            auth = UserMgr.get(email=email)
+
+            if auth:
+                return {
+                    'email': '',
+                    'message': 'A user with this email already exists.',
+                }
+
             message = 'Thank you for signing up from: ' + str(signupForm.email.data) + '\nPlease check your email.'
             request.session.flash(message)
 
@@ -149,7 +163,7 @@ def signup_process(request):
                 settings = request.registry.settings
 
                 # Add a queue job to send the user a notification email.
-                tasks.email_signup_user.delay(
+                tasks.email_forgot_password_user.delay(
                    new_user.email,
                    "Enable your account",
                    settings,
@@ -165,11 +179,11 @@ def signup_process(request):
                         'form':signupForm,
                 }
 
-        return {'form':signupForm,
-                'action':request.matchdict.get('action'),
+        return {'email': '',
+                'message': message,
                 }
 
-@view_config(route_name="forgot_password", renderer="foo:templates/auth/forgot.mako")
+@view_config(route_name="forgot_password", renderer="~~~PROJNAME~~~:templates/auth/forgot.mako")
 def forgot_password(request):
     """Login the user to the system
 
@@ -247,6 +261,7 @@ def forgot_password(request):
         'message': message,
         'came_from': came_from,
     }
+
 
 @view_config(route_name="reset", renderer="~~~PROJNAME~~~:templates/auth/reset.mako")
 def reset(request):
@@ -332,7 +347,7 @@ conn_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem
 might be caused by one of the following things:
 
-1.  You may need to run the "initialize_foo_db" script
+1.  You may need to run the "initialize_~~~PROJNAME~~~_db" script
     to initialize your database tables.  Check your virtual
     environment's "bin" directory for this script and try to run it.
 

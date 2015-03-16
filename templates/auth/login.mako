@@ -5,7 +5,6 @@
     <div class="row">
         <div class="col-sm-6 col-md-4 col-md-offset-4">
             <h1 class="text-center login-title">Sign in to continue to foo</h1>
-
             % if message is not '':
                 <div class="alert alert-danger" role="alert">
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
@@ -14,9 +13,17 @@
                     <!--<button type="button" class="close" data-dismiss="alert">&times;</button> -->
                 </div>
             % endif
-            <div class="account-wall">
-                <img class="profile-img" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=120"
-                    alt="">
+
+##            <div class="alert alert-error">
+##                <a href="#" class="close" data-dismiss="alert">&times;</a>
+##                <strong>Error!</strong> A problem has been occurred while submitting your data.
+##            </div>
+
+
+            <div class="panel panel-default">
+                        <div class="text-center">
+                          <h3><i class="fa fa-sign-in fa-4x"></i></h3>
+                        </div>
                 <form "${request.route_url('login')}" method="post" class="form-signin">
 
                 <input type="hidden" name="came_from" value="${came_from}"/>
@@ -48,5 +55,10 @@
         });
     });
 
+    $(document).ready(function(){
+        $(".close").click(function(){
+            $(".alert").alert();
+        });
+    });
     </script>
     </%def>
