@@ -111,7 +111,7 @@ def login(request):
 @view_config(route_name="logout", renderer="~~~PROJNAME~~~:templates/auth/login.mako")
 def logout(request):
     headers = forget(request)
-    return HTTPFound(location=route_url('signup_process', request),
+    return HTTPFound(location=route_url('signup', request),
                      headers=headers)
 
 @view_config(route_name='list_users', renderer='~~~PROJNAME~~~:templates/list_users.mako')
@@ -151,11 +151,11 @@ def signup(request):
                     'message': 'A user with this email already exists.',
                 }
 
-            message = 'Thank you for signing up from: ' + str(signupForm.email.data) + '\nPlease check your email.'
+            message = 'Thank you for signing up from: ' + str(email) + '\nPlease check your email.'
             request.session.flash(message)
 
             #return HTTPFound(location=request.route_url('signup_process2'))
-            new_user = UserMgr.signup_user(signupForm.email.data, 'signup')
+            new_user = UserMgr.signup_user(email, 'signup')
             print "new_user: " + str(new_user)
             if new_user:
                 AuthLog.reactivate(new_user.username)
@@ -175,8 +175,8 @@ def signup(request):
                 )
 
                 # And let the user know they're signed up.
-                return {'signup_success_message': message,
-                        'form':signupForm,
+                return {'message': message,
+                        'email':email,
                 }
 
         return {'email': '',

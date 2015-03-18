@@ -7,6 +7,15 @@
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
                 <div class="panel panel-default">
+                    % if message is not '':
+                        <div class="alert alert-success" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">Error:</span>
+                        ${message}
+                        <!--<button type="button" class="close" data-dismiss="alert">&times;</button> -->
+                        </div>
+                    % endif
+
                     <div class="panel-body">
                         <div class="text-center">
                           <h3><i class="fa fa-thumbs-o-up fa-4x"></i></h3>

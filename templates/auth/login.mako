@@ -39,7 +39,7 @@
                 <a href="${request.route_url('forgot_password')}" class="pull-right need-help">Forgot Password? </a><span class="clearfix"></span>
                 </form>
             </div>
-            <a href="#" class="text-center new-account">Create an account</a>
+            <a href="${request.route_url('signup')}" class="text-center new-account">Create an account</a>
         </div>
     </div>
 </div>
