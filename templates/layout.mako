@@ -17,6 +17,9 @@
 
     <!-- (End Bootstrap)-->
 
+    <!-- getting jquery-latest AFTER bootstrap above seems to fix topbar menu from disappearing -->
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
     <link rel="stylesheet" href="/static/css/login.css">
 
 

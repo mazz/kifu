@@ -8,11 +8,11 @@
             <div class="col-md-4 col-md-offset-4">
                 <div class="panel panel-default">
                     % if message is not '':
-                        <div class="alert alert-success" role="alert">
+                        <div class="alert alert-success" role="alert" alert-dismissable>
                         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                         <span class="sr-only">Error:</span>
                         ${message}
-                        <!--<button type="button" class="close" data-dismiss="alert">&times;</button> -->
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
                         </div>
                     % endif
 

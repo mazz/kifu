@@ -6,11 +6,11 @@
         <div class="col-sm-6 col-md-4 col-md-offset-4">
             <h1 class="text-center login-title">Sign in to continue to ~~~PROJNAME~~~</h1>
             % if message is not '':
-                <div class="alert alert-danger" role="alert">
+                <div class="alert alert-danger" role="alert" alert-dismissable>
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                     <span class="sr-only">Error:</span>
                     ${message}
-                    <!--<button type="button" class="close" data-dismiss="alert">&times;</button> -->
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
             % endif
 

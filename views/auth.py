@@ -48,6 +48,8 @@ def login(request):
     message = ''
     email = ''
     password = ''
+    headers = None
+    max_cookie_age = (60 * 60 * 24 * 30)
 
     # import pdb; pdb.set_trace()
 
@@ -64,7 +66,7 @@ def login(request):
             # We use the Primary Key as our identifier once someone has
             # authenticated rather than the username.  You can change what is
             # returned as the userid by altering what is passed to remember.
-            headers = remember(request, auth.id, max_age=60 * 60 * 24 * 30)
+            headers = remember(request, auth.id, max_age=max_cookie_age)
             auth.last_login = datetime.utcnow()
 
             # log the successful login
@@ -98,7 +100,15 @@ def login(request):
             message = "Failed login"
             AuthLog.login(email, False, password=password)
 
-    print('message: ' + message)
+    # in case they're already logged-in just send them to their profile page for now
+    if request.user:
+        headers = remember(request, request.user.id, max_age=max_cookie_age)
+        return HTTPFound(
+            location=request.route_url(
+                'user_account',
+                username=request.user.username),
+            headers=headers)
+
     return {
         'message': message,
         'came_from': came_from,
@@ -229,7 +239,7 @@ def forgot_password(request):
                 reset_key=user.activation.code)
             )
 
-            message = 'An email has been sent to the address provided. Open the email and follow the instructions.'
+            message = 'An email has been sent with instructions for resetting your password. If you do not receive it within an hour or two, check your spam folder.'
             # # We use the Primary Key as our identifier once someone has
             # # authenticated rather than the username.  You can change what is
             # # returned as the userid by altering what is passed to remember.
