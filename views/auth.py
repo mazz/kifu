@@ -24,8 +24,6 @@ from ~~~PROJNAME~~~.models.auth import UserMgr
 from ~~~PROJNAME~~~.models.auth import Activation
 from ~~~PROJNAME~~~.models.auth import ActivationMgr
 
-from ~~~PROJNAME~~~.forms.signupform import SignupForm
-
 LOG = logging.getLogger(__name__)
 
 @view_config(route_name="login", renderer="~~~PROJNAME~~~:templates/auth/login.mako")
@@ -163,7 +161,7 @@ def signup(request):
                 settings = request.registry.settings
 
                 # Add a queue job to send the user a notification email.
-                tasks.email_forgot_password_user.delay(
+                tasks.email_signup_user.delay(
                    new_user.email,
                    "Enable your account",
                    settings,
@@ -212,13 +210,25 @@ def forgot_password(request):
         # password = request.params['password']
 
         LOG.debug(email)
-        auth = UserMgr.get(email=email)
-        LOG.debug(auth)
+        user = UserMgr.get(email=email)
+        LOG.debug(user)
         # LOG.debug(UserMgr.get_list())
 
-        if auth:
+        settings = request.registry.settings
+
+        if user:
             # Add a queue job to send the user a notification email.
-            async_result = tasks.email_forgot_password_user.delay(email)
+            user.reactivate('forgot_password')
+            tasks.email_forgot_password_user.delay(
+                user.email,
+                "Reset Your Password",
+                settings,
+                request.route_url(
+                'reset',
+                username=user.username,
+                reset_key=user.activation.code)
+            )
+
             message = 'An email has been sent to the address provided. Open the email and follow the instructions.'
             # # We use the Primary Key as our identifier once someone has
             # # authenticated rather than the username.  You can change what is
@@ -242,7 +252,7 @@ def forgot_password(request):
             #         'forgot_password_email_confirmed'),
             #     headers=headers)
 
-        if not auth:
+        if not user:
             message = 'There was an error attempting to find that email.'
         # log the right level of problem
         # if auth and not auth.validate_password(password):

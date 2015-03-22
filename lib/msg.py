@@ -106,6 +106,41 @@ From Us""".format(**message_data)
         # template_vars = {'data': message_data}
         # return template.render(**template_vars)
 
+class SignupMsg(Msg):
+    """Send an email that you've been invited to the system"""
+    def _get_message_body(self, template_file, message_data):
+        """Return the completed message template body
+
+        """
+        return """
+Someone signed-up for an account at ~~~PROJNAME~~~(possibly you).
+
+Please click the link below to activate your account.
+
+{0}
+
+---
+From Us""".format(message_data)
+
+class ResetMsg(Msg):
+    """Send an email that you've been invited to the system"""
+    def _get_message_body(self, template_file, message_data):
+        """Return the completed message template body
+
+        """
+        return """
+Someone requested to reset the password for your account at ~~~PROJNAME~~~(possibly you).
+
+Please click the link below to reset your password.
+
+If this wasn't you, then simply ignore this message.
+
+{0}
+
+---
+From Us""".format(message_data)
+
+
 
 class InvitationMsg(Msg):
     """Send an email that you've been invited to the system"""

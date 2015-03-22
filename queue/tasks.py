@@ -22,8 +22,9 @@ def email_signup_user(email, msg, settings, message_data):
     :param iid: import id we need to pull and work on
 
     """
-    from ~~~PROJNAME~~~.lib.msg import InvitationMsg
-    msg = InvitationMsg(email, msg, settings)
+
+    from ~~~PROJNAME~~~.lib.msg import SignupMsg
+    msg = SignupMsg(email, msg, settings)
     status = msg.send(message_data)
     if status == 4:
 #        from bookie.lib.applog import SignupLog
@@ -31,48 +32,48 @@ def email_signup_user(email, msg, settings, message_data):
         LOG.info('Could not send smtp email to signup: ' + email)
         trans.commit()
 
-@celery.task(ignore_result=False)
-def email_forgot_password_user(email):
+@celery.task(ignore_result=True)
+def email_forgot_password_user(email, msg, settings, message_data):
     """Do the real import work
 
     :param iid: import id we need to pull and work on
 
     """
-    # from lrd.lib.message import InvitationMsg
-    # msg = InvitationMsg(email, msg, settings)
-    # status = msg.send(message_data)
-    # if status == 4:
-    #     from lrd.lib.applog import SignupLog
-    #     trans = transaction.begin()
-    #     LOG.info('Could not send smtp email to signup: ' + email)
-    #     trans.commit()
+    from ~~~PROJNAME~~~.lib.msg import ResetMsg
+    msg = ResetMsg(email, msg, settings)
+    status = msg.send(message_data)
+    if status == 4:
+        from lrd.lib.applog import SignupLog
+        trans = transaction.begin()
+        LOG.info('Could not send smtp email to signup: ' + email)
+        trans.commit()
 
-    if email is not None:
-        server_dict = _server_and_port()
-        endpoint = 'http://' + server_dict['host'] + ':' + str(server_dict['port']) + '/api/v1/suspend'
-        headers = {'content-type': 'application/json'}
-
-        print('endpoint: ' + repr(endpoint))
-        payload = {'email': email}
-        print('payload: ' + repr(payload))
-        post_response = requests.post(endpoint, data=json.dumps(payload), headers=headers)
-
-    else:
-        LOG.error('email is None')
-
-    message = post_response.json().get('message', None)
-    error = post_response.json().get('error', None)
-
-    print('post_response message: ' + repr(message))
-    print('post_response error: ' + repr(error))
-
-    ret = {}
-    if message is not None:
-        ret['message'] = message
-    else:
-        ret['message'] = error
-
-    return ret
+    # if email is not None:
+    #     server_dict = _server_and_port()
+    #     endpoint = 'http://' + server_dict['host'] + ':' + str(server_dict['port']) + '/api/v1/suspend'
+    #     headers = {'content-type': 'application/json'}
+    #
+    #     print('endpoint: ' + repr(endpoint))
+    #     payload = {'email': email}
+    #     print('payload: ' + repr(payload))
+    #     post_response = requests.post(endpoint, data=json.dumps(payload), headers=headers)
+    #
+    # else:
+    #     LOG.error('email is None')
+    #
+    # message = post_response.json().get('message', None)
+    # error = post_response.json().get('error', None)
+    #
+    # print('post_response message: ' + repr(message))
+    # print('post_response error: ' + repr(error))
+    #
+    # ret = {}
+    # if message is not None:
+    #     ret['message'] = message
+    # else:
+    #     ret['message'] = error
+    #
+    # return ret
 
 @celery.task(ignore_result=True)
 def test_post():

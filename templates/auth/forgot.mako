@@ -7,11 +7,21 @@
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
                 <div class="panel panel-default">
+                    % if message is not '':
+                        <div class="alert alert-success" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">Error:</span>
+                        ${message}
+                        <!--<button type="button" class="close" data-dismiss="alert">&times;</button> -->
+                        </div>
+                    % endif
+
                     <div class="panel-body">
                         <div class="text-center">
-                          <h3><i class="fa fa-lock fa-4x"></i></h3>
-                          <h2 class="text-center">Forgot Password?</h2>
-                          <p>You can reset your password here.</p>
+                            <h3><i class="fa fa-lock fa-4x"></i></h3>
+                            <h2 class="text-center">Forgot Password?</h2>
+                            <p>You can reset your password here.</p>
+
                             <div class="panel-body">
 
                               <form "${request.route_url('forgot_password')}" method="post" class="form">
@@ -24,7 +34,7 @@
                                     </div>
                                   </div>
                                   <div class="form-group">
-                                    <input class="btn btn-lg btn-primary btn-block" value="Send My Password" type="submit" name="form.submitted">
+                                    <input class="btn btn-lg btn-primary btn-block" value="Reset My Password" type="submit" name="form.submitted">
                                   </div>
                                 </fieldset>
                               </form>
@@ -37,54 +47,3 @@
         </div>
     </div>
 </div>
-
-
-<script type="text/javascript">
-
-    $(function()
-    {
-        $('#submit_forgotten').click(function()
-        {
-            console.log("submit_forgotten");
-
-            var formData = {email:$("#email").val()};
-            var resultString;
-            $.ajax({
-                type: "POST",   
-                url: APP_URL + "/api/v1/suspend",
-                data: formData,
-                success: function(data, textStatus, jqXHR)
-                {
-                    var message;
-                    console.log("suspend success: " + data);
-
-                    for(key in data) {
-                        if (key === "message")
-                        {
-                            console.log("found success");
-                            message = data[key];
-                        }
-
-                        console.log("key: " + key);
-                        console.log("value: " + data[key]);
-                    }
-                    $('#loginpanel-status').removeClass('alert-box').removeClass('warning').removeClass('round').addClass('success').addClass('radius').addClass('alert-box');
-                    $('#forgotten_password_panel').slideToggle();
-
-                    $('#loginpanel-status').html(message);
-                },
-                error: function (jqXHR, textStatus, errorThrown)
-                {
-                    var message;
-                    console.log("suspend fail");
-
-                    $('#loginpanel-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
-                    $('#forgotten_password_panel').slideToggle();
-
-                    $('#loginpanel-status').html(errorThrown);
-                }
-            });
-        });
-    });
-
-    </script>
