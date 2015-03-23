@@ -171,7 +171,7 @@
 
     ${next.body()}
 
-  </div>
+##  </div>
 
 ##    <!-- jQuery -->
     <script src="../static/jquery/dist/jquery.min.js"></script>
