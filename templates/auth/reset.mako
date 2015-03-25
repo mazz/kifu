@@ -4,6 +4,9 @@
 ##
 ##${password_reset(user, reset=True)}
 
+<%
+    date_fmt = "%m/%d/%Y"
+%>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -68,14 +71,20 @@
 
 </script>
 
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <h1>Change Password</h1>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6 col-sm-offset-3">
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <h1 class="page-header">Update Account</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="col-md-4 col-md-offset-2">
+                    <!-- /.panel -->
+                    <!-- /.panel -->
+<!--                    <div class="panel panel-default"> -->
+                        <!-- /.panel-heading -->
             % if message is not '':
                 <div class="alert alert-danger" role="alert" alert-dismissable>
                     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
@@ -90,24 +99,49 @@
                 <input type="hidden" name="username" id="username" value="${user.username}" />
                 <input type="hidden" name="code" id="code" value="${user.activation.code}" />
                 <input type="password" class="input-lg form-control" name="password1" id="password1" placeholder="New Password" autocomplete="off">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <span id="8char" class="glyphicon glyphicon-remove" style="color:#FF0004;"></span> 8 Characters Long<br>
-                        <span id="ucase" class="glyphicon glyphicon-remove" style="color:#FF0004;"></span> One Uppercase Letter
-                    </div>
-                    <div class="col-sm-6">
-                        <span id="lcase" class="glyphicon glyphicon-remove" style="color:#FF0004;"></span> One Lowercase Letter<br>
-                        <span id="num" class="glyphicon glyphicon-remove" style="color:#FF0004;"></span> One Number
-                    </div>
-                </div>
+                </br>
                 <input type="password" class="input-lg form-control" name="password2" id="password2" placeholder="Repeat Password" autocomplete="off">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <span id="pwmatch" class="glyphicon glyphicon-remove" style="color:#FF0004;"></span> Passwords Match
-                    </div>
-                </div>
+                </br>
                 <input type="submit" class="col-xs-12 btn btn-primary btn-load btn-lg" data-loading-text="Changing Password..." value="Change Password">
             </form>
-        </div><!--/col-sm-6-->
-    </div><!--/row-->
-</div>
+<!--                    </div> -->
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-8 -->
+                <div class="col-lg-4">
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="list-group">
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-comment fa-fw"></i> 8 Characters Long
+                                    <span id="8char" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-twitter fa-fw"></i> One Uppercase Letter
+                                    <span id="ucase" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-envelope fa-fw"></i> One Lowercase Letter
+                                    <span id="lcase" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-tasks fa-fw"></i> One Number
+                                    <span id="num" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-upload fa-fw"></i> Passwords Match
+                                    <span id="pwmatch" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                </a>
+                            </div>
+                            <!-- /.list-group -->
+                        </div>
+                        <!-- /.panel-body -->
+                    <!-- /.panel -->
+                    <!-- /.panel -->
+                    <!-- /.panel .chat-panel -->
+                </div>
+                <!-- /.col-lg-4 -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /#page-wrapper -->

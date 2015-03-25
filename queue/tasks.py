@@ -26,8 +26,10 @@ def email_signup_user(email, msg, settings, message_data):
     from ~~~PROJNAME~~~.lib.msg import SignupMsg
     msg = SignupMsg(email, msg, settings)
     status = msg.send(message_data)
+    LOG.info('email sending status: ' + repr(status))
+
     if status == 4:
-#        from bookie.lib.applog import SignupLog
+        from foo.lib.applog import SignupLog
         trans = transaction.begin()
         LOG.info('Could not send smtp email to signup: ' + email)
         trans.commit()

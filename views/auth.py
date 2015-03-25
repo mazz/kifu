@@ -38,6 +38,12 @@ def login(request):
     things this way
 
     """
+
+    # in case they're already logged-in just send them to their profile page for now
+    if request.user:
+        headers = remember(request, request.user.id, max_age=max_cookie_age)
+        return HTTPFound(location=request.route_url('user_account', username=request.user.username),headers=headers)
+
     login_url = route_url('login', request)
     referrer = request.url
     if referrer == login_url:
@@ -203,6 +209,11 @@ def forgot_password(request):
     things this way
 
     """
+    # in case they're already logged-in just send them to their profile page for now
+    if request.user:
+        headers = remember(request, request.user.id, max_age=max_cookie_age)
+        return HTTPFound(location=request.route_url('user_account', username=request.user.username),headers=headers)
+
     fp_url = route_url('forgot_password', request)
     referrer = request.url
     if referrer == fp_url:
