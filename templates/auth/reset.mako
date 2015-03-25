@@ -11,13 +11,20 @@
 <script type="text/javascript">
     $(document).ready(function() {
 
+        $('#change_password').prop('disabled', true);
 
         $("input[type=password]").keyup(function () {
             var ucase = new RegExp("[A-Z]+");
             var lcase = new RegExp("[a-z]+");
             var num = new RegExp("[0-9]+");
 
-            if ($("#password1").val().length >= 8) {
+            var long_password   = $("#password1").val().length >= 8;
+            var uppercase       = ucase.test($("#password1").val());
+            var lowercase       = lcase.test($("#password1").val());
+            var numeric         = num.test($("#password1").val());
+            var password_match  = $("#password1").val() == $("#password2").val();
+            var all_good;
+            if (long_password) {
                 $("#8char").removeClass("glyphicon-remove");
                 $("#8char").addClass("glyphicon-ok");
                 $("#8char").css("color", "#00A41E");
@@ -27,7 +34,7 @@
                 $("#8char").css("color", "#FF0004");
             }
 
-            if (ucase.test($("#password1").val())) {
+            if (uppercase) {
                 $("#ucase").removeClass("glyphicon-remove");
                 $("#ucase").addClass("glyphicon-ok");
                 $("#ucase").css("color", "#00A41E");
@@ -37,7 +44,7 @@
                 $("#ucase").css("color", "#FF0004");
             }
 
-            if (lcase.test($("#password1").val())) {
+            if (lowercase) {
                 $("#lcase").removeClass("glyphicon-remove");
                 $("#lcase").addClass("glyphicon-ok");
                 $("#lcase").css("color", "#00A41E");
@@ -47,7 +54,7 @@
                 $("#lcase").css("color", "#FF0004");
             }
 
-            if (num.test($("#password1").val())) {
+            if (numeric) {
                 $("#num").removeClass("glyphicon-remove");
                 $("#num").addClass("glyphicon-ok");
                 $("#num").css("color", "#00A41E");
@@ -57,7 +64,7 @@
                 $("#num").css("color", "#FF0004");
             }
 
-            if ($("#password1").val() == $("#password2").val()) {
+            if (password_match) {
                 $("#pwmatch").removeClass("glyphicon-remove");
                 $("#pwmatch").addClass("glyphicon-ok");
                 $("#pwmatch").css("color", "#00A41E");
@@ -66,6 +73,11 @@
                 $("#pwmatch").addClass("glyphicon-remove");
                 $("#pwmatch").css("color", "#FF0004");
             }
+            all_good = long_password &lowercase & uppercase & numeric & password_match;
+
+            console.log('all_good: ' + all_good);
+
+            $('#change_password').prop('disabled', !all_good);
         });
     });
 
@@ -102,7 +114,7 @@
                 </br>
                 <input type="password" class="input-lg form-control" name="password2" id="password2" placeholder="Repeat Password" autocomplete="off">
                 </br>
-                <input type="submit" class="col-xs-12 btn btn-primary btn-load btn-lg" data-loading-text="Changing Password..." value="Change Password">
+                <input type="submit" class="col-xs-12 btn btn-primary btn-load btn-lg" data-loading-text="Changing Password..." value="Change Password" id="change_password">
             </form>
 <!--                    </div> -->
                     <!-- /.panel -->
