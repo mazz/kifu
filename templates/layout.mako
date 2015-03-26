@@ -12,34 +12,35 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
 
+        <!-- getting jquery-latest AFTER bootstrap above seems to fix topbar menu from disappearing -->
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
+    <link rel="stylesheet" href="/static/css/login.css">
+
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
     <!-- (End Bootstrap)-->
 
-    <!-- getting jquery-latest AFTER bootstrap above seems to fix topbar menu from disappearing -->
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-
-    <link rel="stylesheet" href="/static/css/login.css">
 
 
-        <!-- Bootstrap Core CSS -->
-    <link href="../static/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- MetisMenu CSS -->
-    <link href="../static/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
-
-    <!-- Timeline CSS -->
-    <link href="../static/dist/css/timeline.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link href="../static/dist/css/sb-admin-2.css" rel="stylesheet">
-
-    <!-- Morris Charts CSS -->
-    <link href="../static/morrisjs/morris.css" rel="stylesheet">
+##        <!-- Bootstrap Core CSS -->
+##    <link href="../static/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+##
+##    <!-- MetisMenu CSS -->
+##    <link href="../static/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
+##
+##    <!-- Timeline CSS -->
+##    <link href="../static/dist/css/timeline.css" rel="stylesheet">
+##
+##    <!-- Custom CSS -->
+##    <link href="../static/dist/css/sb-admin-2.css" rel="stylesheet">
+##
+##    <!-- Morris Charts CSS -->
+##    <link href="../static/morrisjs/morris.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="../static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/foo/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -88,22 +89,70 @@
 
 <body>
 
-  <div id="page">
+    <nav role="navigation" class="navbar navbar-inverse navbar-static-top">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="navbar-brand">foo</a>
+        </div>
+        <!-- Collection of nav links, forms, and other content for toggling -->
+        <div id="navbarCollapse" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+##                <li class="active"><a href="#">Home</a></li>
+##                <li><a href="#">Profile</a></li>
+##                <li class="dropdown">
+##                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Messages <b class="caret"></b></a>
+##                    <ul role="menu" class="dropdown-menu">
+##                        <li><a href="#">Inbox</a></li>
+##                        <li><a href="#">Drafts</a></li>
+##                        <li><a href="#">Sent Items</a></li>
+##                        <li class="divider"></li>
+##                        <li><a href="#">Trash</a></li>
+##                    </ul>
+##                </li>
+            </ul>
+##            <form role="search" class="navbar-form navbar-left">
+##                <div class="form-group">
+##                    <input type="text" placeholder="Search" class="form-control">
+##                </div>
+##            </form>
+            <ul class="nav navbar-nav navbar-right">
+                % if request.user and request.user.username:
+                    <li class="active"><a href="${request.route_url('user_account', username=request.user.username)}">Profile</a></li>
+                    <li class=""><a href="${request.route_url('logout')}">Logout</a></li>
+                    <li><a href="#"></a></li>
+                % else:
+                    <li class="active"><a href="${request.route_url('login')}">Sign In</a></li>
+                    <li><a href="#"></a></li>
+                % endif
+            </ul>
+        </div>
+    </nav>
 
-              <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-##                <a class="navbar-brand" href="index.html">SB Admin v2.0</a>
-            </div>
-            <!-- /.navbar-header -->
 
-            <ul class="nav navbar-top-links navbar-right">
+
+
+##  <div id="page">
+##
+##              <!-- Navigation -->
+##        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+##            <div class="navbar-header">
+##                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+##                    <span class="sr-only">Toggle navigation</span>
+##                    <span class="icon-bar"></span>
+##                    <span class="icon-bar"></span>
+##                    <span class="icon-bar"></span>
+##                </button>
+####                <a class="navbar-brand" href="index.html">SB Admin v2.0</a>
+##            </div>
+##            <!-- /.navbar-header -->
+##
+##            <ul class="nav navbar-top-links navbar-right">
 
 
                 ##        % if request.user and request.user.username:
@@ -112,34 +161,34 @@
 ##            <li class="active"><a href="${request.route_url('login')}">Sign In</a></li>
 ##        % endif
 
-                <!-- /.dropdown -->
-                % if request.user and request.user.username:
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
-                        </li>
-##                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+##                <!-- /.dropdown -->
+##                % if request.user and request.user.username:
+##                <li class="dropdown">
+##                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+##                        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+##                    </a>
+##                    <ul class="dropdown-menu dropdown-user">
+##                        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
 ##                        </li>
-                        <li class="divider"></li>
-                        <li><a href="${request.route_url('logout')}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
-                        </li>
-                    </ul>
-                    <!-- /.dropdown-user -->
-                </li>
-                <!-- /.dropdown -->
-                % endif
-
-
-            </ul>
-            <!-- /.navbar-top-links -->
-
-
-                <!-- /.sidebar-collapse -->
-            </div>
-            <!-- /.navbar-static-side -->
+####                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+####                        </li>
+##                        <li class="divider"></li>
+##                        <li><a href="${request.route_url('logout')}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+##                        </li>
+##                    </ul>
+##                    <!-- /.dropdown-user -->
+##                </li>
+##                <!-- /.dropdown -->
+##                % endif
+##
+##
+##            </ul>
+##            <!-- /.navbar-top-links -->
+##
+##
+##                <!-- /.sidebar-collapse -->
+##            </div>
+##            <!-- /.navbar-static-side -->
 ##        </nav>
 
 
@@ -170,25 +219,6 @@
 ##</nav>
 
     ${next.body()}
-
-##  </div>
-
-##    <!-- jQuery -->
-    <script src="../static/jquery/dist/jquery.min.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../static/bootstrap/dist/js/bootstrap.min.js"></script>
-
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="../static/metisMenu/dist/metisMenu.min.js"></script>
-
-    <!-- Morris Charts JavaScript -->
-    <script src="../static/raphael/raphael-min.js"></script>
-    <script src="../static/morrisjs/morris.min.js"></script>
-    <script src="../static/js/morris-data.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="../static/dist/js/sb-admin-2.js"></script>
 
 <!--
   <script src="/static/js/vendor/jquery.js"></script>
