@@ -22,44 +22,9 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <i class="fa fa-dashboard fa-fw"></i> Account Information
-##                            <div class="pull-right">
-##                                <div class="btn-group">
-##                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-##                                        Actions
-##                                        <span class="caret"></span>
-##                                    </button>
-##                                    <ul class="dropdown-menu pull-right" role="menu">
-##                                        <li><a href="#">Action</a>
-##                                        </li>
-##                                        <li><a href="#">Another action</a>
-##                                        </li>
-##                                        <li><a href="#">Something else here</a>
-##                                        </li>
-##                                        <li class="divider"></li>
-##                                        <li><a href="#">Separated link</a>
-##                                        </li>
-##                                    </ul>
-##                                </div>
-##                            </div>
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
-
-                            ##                <h5>${user.username}</h5>
-##                <h5>Member since:
-##                    % if user.signup:
-##                        ${user.signup.strftime(date_fmt)}
-##                    % else:
-##                        Unknown
-##                    % endif
-##                <h5>
-##                <h5>Last Seen: <span>
-##                    % if user.last_login:
-##                        ${user.last_login.strftime(date_fmt)}
-##                    % else:
-##                        Not logged in
-##                    % endif
-##                <h5>
                                <div class="list-group">
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-clock-o fa-fw"></i> Member since
@@ -90,9 +55,11 @@
                                         </span>
                                 </a>
 
-                                <a href="#" class="list-group-item">
+                                <a href="#" id="view_api_key" class="list-group-item">
                                     <i class="fa fa-key fa-fw"></i> API Key
-                                    <button type="submit" class="btn btn-default pull-right btn-xs">View API Key</button>
+                                    <button type="submit" class="btn btn-default pull-right btn-xs" id="view_api_key_button"> View API Key</button>
+                                    <span class="pull-right text-muted small" id="view_api_key_value" hidden>
+                                    </span>
                                 </a>
                             </div>
                         </div>
@@ -121,27 +88,17 @@
     </div>
   </form>
 
-##                            <a href="#" class="list-group-item">
-##    </a>
-##    <a href="#" class="list-group-item">
-##                            </a>
-
-                        </div>
+</div>
 
                         <!-- /.panel-body -->
                     </div>
                     <!-- /.panel -->
                     <div class="panel panel-default col-sm-8">
-##                        <div class="panel-heading">
-##                            <i class="fa fa-clock-o fa-fw"></i> Settings
-##                        </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
 
-##                            <a href="#" class="list-group-item">
-##    </a>
-##    <a href="#" class="list-group-item">
-  <form class="form-horizontal" role="form">
+  <form method="POST" id="passwordForm" class="form-horizontal" role="form">
+    <input type="hidden" name="username" id="username" value="${user.username}" />
     <div class="form-group">
       <label class="control-label col-sm-2" for="email">Change Password:</label>
 
@@ -158,21 +115,13 @@
       </div>
     </div>
   </form>
-##                            </a>
 
-                        </div>
+    </div>
 
                         <!-- /.panel-body -->
                     </div>
                     <div class="panel panel-default col-sm-4">
-##                        <div class="panel-heading">
-##                            <i class="fa fa-clock-o fa-fw"></i> Settings
-##                        </div>
                         <!-- /.panel-heading -->
-##                        <div class="panel-body">
-
-##                            <a href="#" class="list-group-item">
-##    </a>
                         <!-- /.panel-heading -->
 ##                        <div class="panel-body">
                             <div class="list-group">
@@ -250,6 +199,7 @@
 
     $('#view_api_key').click(function()
     {
+        $('#view_api_key_button').prepend(" <i class='fa fa-spinner fa-spin'></i>");
         window.console&&console.log('view_api_key');
         $('#view_api_key_view').slideToggle();
         $("#view_api_key_view").css({ opacity: 1. });
@@ -269,7 +219,7 @@
             success: function(data, textStatus, jqXHR)
             {
                 var api_key;
-                console.log("suspend success: " + data);
+                console.log("api_key success: " + data);
 
                 for(key in data) {
                     if (key === "api_key")
@@ -280,6 +230,9 @@
 
                     console.log("key: " + key);
                     console.log("value: " + data[key]);
+                    $("span[id*=view_api_key_value]").text(api_key);
+                    $("span[id*=view_api_key_value]").show();
+
                 }
 
                 $('#view_api_key_view').html(api_key);
@@ -287,8 +240,8 @@
             error: function (jqXHR, textStatus, errorThrown)
             {
                 var message;
-                console.log("suspend fail");
-                $('#view_api_key_view').html("There was an error obtaining your API key.");
+                console.log("api_key fail");
+                $("span[id*=view_api_key_value]").text('There was an error obtaining your API key. Try later.');
             }
         });
     });

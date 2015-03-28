@@ -33,7 +33,7 @@
                 </div>
             % endif
 
-            <p class="text-center">Use the form below to change your password. Your password cannot be the same as your username.</p>
+            <p class="text-center">Use the form below to change your password.</p>
             <form method="POST" id="passwordForm">
                 <input type="hidden" name="username" id="username" value="${user.username}" />
                 <input type="hidden" name="code" id="code" value="${user.activation.code}" />
