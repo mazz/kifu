@@ -57,6 +57,7 @@
 
                                 <a href="#" id="view_api_key" class="list-group-item">
                                     <i class="fa fa-key fa-fw"></i> API Key
+
                                     <button type="submit" class="btn btn-default pull-right btn-xs" id="view_api_key_button"> View API Key</button>
                                     <span class="pull-right text-muted small" id="view_api_key_value" hidden>
                                     </span>
@@ -74,29 +75,47 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
 
-                              <form class="form-horizontal" role="form">
+    <form class="form-horizontal" role="form">
     <div class="form-group">
       <label class="control-label col-sm-2" for="email">Username:</label>
       <div class="col-sm-8">
-        <input type="email" class="form-control" id="new_username" placeholder="${user.name}">
+          <p class="form-control-static">${user.username}</p>
+##        <input type="email" class="form-control" id="new_username" placeholder="">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2" for="email">Name:</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="name" placeholder="${user.name}" maxlength="64">
       </div>
     </div>
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-default">Update</button>
+        <button type="submit" class="btn btn-default" id="submit_account_change">Update</button>
       </div>
     </div>
   </form>
 
-</div>
+##                            <a href="#" class="list-group-item">
+##    </a>
+##    <a href="#" class="list-group-item">
+##                            </a>
+
+                        </div>
 
                         <!-- /.panel-body -->
                     </div>
                     <!-- /.panel -->
                     <div class="panel panel-default col-sm-8">
+##                        <div class="panel-heading">
+##                            <i class="fa fa-clock-o fa-fw"></i> Settings
+##                        </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
 
+##                            <a href="#" class="list-group-item">
+##    </a>
+##    <a href="#" class="list-group-item">
   <form method="POST" id="passwordForm" class="form-horizontal" role="form">
     <input type="hidden" name="username" id="username" value="${user.username}" />
     <div class="form-group">
@@ -116,12 +135,19 @@
     </div>
   </form>
 
-    </div>
+</div>
 
                         <!-- /.panel-body -->
                     </div>
                     <div class="panel panel-default col-sm-4">
+##                        <div class="panel-heading">
+##                            <i class="fa fa-clock-o fa-fw"></i> Settings
+##                        </div>
                         <!-- /.panel-heading -->
+##                        <div class="panel-body">
+
+##                            <a href="#" class="list-group-item">
+##    </a>
                         <!-- /.panel-heading -->
 ##                        <div class="panel-body">
                             <div class="list-group">
@@ -199,7 +225,7 @@
 
     $('#view_api_key').click(function()
     {
-        $('#view_api_key_button').prepend(" <i class='fa fa-spinner fa-spin'></i>");
+       $('#view_api_key_button').prepend(" <i class='fa fa-spinner fa-spin'></i>");
         window.console&&console.log('view_api_key');
         $('#view_api_key_view').slideToggle();
         $("#view_api_key_view").css({ opacity: 1. });
@@ -219,7 +245,7 @@
             success: function(data, textStatus, jqXHR)
             {
                 var api_key;
-                console.log("api_key success: " + data);
+                console.log("suspend success: " + data);
 
                 for(key in data) {
                     if (key === "api_key")
@@ -230,17 +256,17 @@
 
                     console.log("key: " + key);
                     console.log("value: " + data[key]);
+                    $('#view_api_key_button').hide();
+
+##                    $('#view_api_key_button').remove("i");
                     $("span[id*=view_api_key_value]").text(api_key);
                     $("span[id*=view_api_key_value]").show();
-
                 }
-
-                $('#view_api_key_view').html(api_key);
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
                 var message;
-                console.log("api_key fail");
+                console.log("suspend fail");
                 $("span[id*=view_api_key_value]").text('There was an error obtaining your API key. Try later.');
             }
         });
@@ -307,13 +333,13 @@
         $('#changepassword-status').html("");
 
         var formData = JSON.stringify({
-                        name: $("#name").val(),
-                        email: $("#email").val(),
+                        name: $("#name").val()
                         });
 
+        account_change_url = APP_URL + "/api/v1/" + '${user.username}' + "/account?api_key=" + '${request.user.api_key}';
         $.ajax({
             type: "POST",   
-            url: APP_URL + "/api/v1/" + '${user.username}' + "/account",
+            url: account_change_url,
             data: formData,
             contentType: "application/json; charset=utf-8",
             dataType: "json",

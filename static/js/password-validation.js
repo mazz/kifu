@@ -1,6 +1,7 @@
 $(document).ready(function() {
 
     $('#change_password').prop('disabled', true);
+    $('#submit_account_change').prop('disabled', true);
 
     $("input[type=password]").keyup(function () {
         var ucase = new RegExp("[A-Z]+");
@@ -68,4 +69,13 @@ $(document).ready(function() {
 
         $('#change_password').prop('disabled', !all_good);
     });
+
+    $("input[id=name]").keyup(function () {
+            var min_name_length = 1;
+            var is_min_length   = $("#name").val().length >= min_name_length;
+
+            $('#submit_account_change').prop('disabled', !is_min_length);
+
+    });
+
 });

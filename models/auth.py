@@ -236,8 +236,8 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    username = Column(Unicode(255), unique=True)
-    name = Column(Unicode(255))
+    username = Column(Unicode(64), unique=True)
+    name = Column(Unicode(64))
     _password = Column('password', Unicode(60))
     email = Column(Unicode(255), unique=True)
     activated = Column(Boolean, default=False)
