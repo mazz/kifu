@@ -1,7 +1,38 @@
+var unique_username_timer = null;
+
 $(document).ready(function() {
 
-    $('#change_password').prop('disabled', true);
+    $('#submit_forgot_signup').prop('disabled', true);
     $('#submit_account_change').prop('disabled', true);
+    $('#change_password').prop('disabled', true);
+
+    $("input[id=new_username]").keyup(function () {
+        var vusername = new RegExp("^[^\-]?[a-zA-Z_0-9]+"); // do not allow a username to precede with one or more of `-`
+        var valid_username  =  vusername.test($("#new_username").val());
+//        var is_min_length   = $("#username1").val().length >= min_name_length;
+
+        console.log('valid_username: ' + valid_username);
+        if (valid_username)
+        {
+            $("#vusername").removeClass("glyphicon-remove");
+            $("#vusername").addClass("glyphicon-ok");
+            $("#vusername").css("color", "#00A41E");
+        }
+        else
+        {
+            $("#vusername").removeClass("glyphicon-ok");
+            $("#vusername").addClass("glyphicon-remove");
+            $("#vusername").css("color", "#FF0004");
+        }
+        console.log('unique_username_timer: ' + unique_username_timer);
+        console.log('user_username exists: ' + ($("#user_username").val() != undefined));
+        if (unique_username_timer === null)
+        {
+            unique_username_timer = setTimeout(function() { unique_username(); }, 1000);
+        }
+
+    });
+
 
     $("input[type=password]").keyup(function () {
         var ucase = new RegExp("[A-Z]+");
@@ -13,6 +44,9 @@ $(document).ready(function() {
         var lowercase       = lcase.test($("#password1").val());
         var numeric         = num.test($("#password1").val());
         var password_match  = $("#password1").val() == $("#password2").val();
+
+        var pwnotmatchuname =  ($("#password1").val() == $("#password2").val()) && ($("#password1").val() != $("#username1").val());
+
         var all_good;
         if (long_password) {
             $("#8char").removeClass("glyphicon-remove");
@@ -67,6 +101,7 @@ $(document).ready(function() {
 
         console.log('all_good: ' + all_good);
 
+        $('#submit_forgot_signup').prop('disabled', !all_good);
         $('#change_password').prop('disabled', !all_good);
     });
 
@@ -77,5 +112,10 @@ $(document).ready(function() {
             $('#submit_account_change').prop('disabled', !is_min_length);
 
     });
-
 });
+
+function unique_username()
+{
+    console.log('unique_username')
+    unique_username_timer = null;
+}

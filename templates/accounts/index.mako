@@ -117,9 +117,9 @@
 ##    </a>
 ##    <a href="#" class="list-group-item">
   <form method="POST" id="passwordForm" class="form-horizontal" role="form">
-    <input type="hidden" name="username" id="username" value="${user.username}" />
+##    <input type="hidden" name="username" id="username" value="${user.username}" />
     <div class="form-group">
-      <label class="control-label col-sm-2" for="email">Change Password:</label>
+      <label class="control-label col-sm-2" >Change Password:</label>
 
       <div class="col-sm-10">
         <input type="password" class="form-control" name="password1" id="password1" placeholder="New Password" autocomplete="off">

@@ -320,11 +320,7 @@ def reset(request):
         password2 = params.get('password2', None)
         new_username = params.get('new_username', None)
 
-        if not password1 == password2:
-            # Set an error message to the template.
-            message = "Passwords do not match."
-        else:
-            res = ActivationMgr.activate_user(username, activation, password1)
+        res = ActivationMgr.activate_user(username, activation, password1)
         if res:
             # success so respond nicely
             AuthLog.reactivate(username, success=True, code=activation)
