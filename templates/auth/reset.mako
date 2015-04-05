@@ -10,10 +10,10 @@
             <div class="row">
                 <div class="col-md-8 col-md-offset-2">
                     % if user.activation.created_by == 'forgot_password':
-                        <h1 class="page-header">Update Account</h1>
+                        <h1 class="page-header">Change Password</h1>
                     % else:
                         % if user.activation.created_by == 'signup':
-                            <h1 class="page-header">Create Account</h1>
+                            <h1 class="page-header">Enable Account</h1>
                         % endif
                     % endif
                 </div>
@@ -35,27 +35,19 @@
                 </div>
             % endif
 
-##            <p class="text-center">Use the form below to change your password.</p>
-            <p class="text-center">created_by: ${user.activation.created_by}</p>
-            <p class="text-center">user.username: ${user.username}</p>
+##            <p class="text-center">created_by: ${user.activation.created_by}</p>
+##            <p class="text-center">user.username: ${user.username}</p>
 
             <form method="POST" id="passwordForm" class="form-horizontal" role="form">
 
-                % if user.activation.created_by == 'forgot_password':
-                    ## if forgot password, provide user.username so we can make sure the new password is not the same as the pre-existing user.username
-                    <input type="text" class="input-lg form-control" name="new_username" id="new_username" placeholder="${user.username}" autocomplete="off" maxlength="32">
-##                    <input type="hidden" name="user_username" id="user_username" value="${user.username}" />
-                % else:
-                    % if user.activation.created_by == 'signup':
-                        <input type="text" class="input-lg form-control" name="new_username" id="new_username" placeholder="Username" autocomplete="off" maxlength="32">
-                    % endif
-                % endif
+            % if user.activation.created_by == 'signup':
+                <input type="text" class="input-lg form-control" name="new_username" id="new_username" placeholder="Username" autocomplete="off" maxlength="32">
+                <span class="pull-right text-muted small" id="unique_username_api_value" hidden>
+                </span>
 
-##                <input type="text" class="input-lg form-control" name="new_username" id="new_username" placeholder="${user.username}" autocomplete="off" maxlength="32">
+            % endif
 
                 </br>
-
-##                <input type="hidden" name="username" id="username" value="${user.username}" />
 
                 <input type="hidden" name="username" id="username" value="${user.username}" />
                 <input type="hidden" name="code" id="code" value="${user.activation.code}" />
@@ -69,11 +61,9 @@
                     <input type="submit" class="col-xs-12 btn btn-primary btn-load btn-lg" data-loading-text="Changing Password..." value="Change Password" id="submit_forgot_signup">
                 % else:
                     % if user.activation.created_by == 'signup':
-                        <input type="submit" class="col-xs-12 btn btn-primary btn-load btn-lg" data-loading-text="Creating Account..." value="Create Account" id="submit_forgot_signup">
+                        <input type="submit" class="col-xs-12 btn btn-primary btn-load btn-lg" data-loading-text="Enabling Account..." value="Enable Account" id="submit_forgot_signup">
                     % endif
                 % endif
-
-
 
             </form>
                     <!-- /.panel -->

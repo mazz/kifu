@@ -210,6 +210,39 @@ def reset_password(request):
         })
 
 
+@view_config(route_name="api_user_username_exists", renderer="jsonp")
+def username_exists(request):
+    params = request.params
+
+    # import pdb; pdb.set_trace()
+
+    # now also load the password info
+    username = params.get('username', None)
+
+    if username is None and hasattr(request, 'json_body'):
+        # try the json body
+        username = request.json_body.get('username', None)
+
+    if username is None:
+        request.response.status_int = 406
+        return _api_response(request, {
+            'error': "Please submit a username",
+        })
+
+    user = UserMgr.get(username=username)
+
+    response_dict = {}
+    if user is None:
+        response_dict = {
+            'exists': False,
+            }
+    else:
+        response_dict = {
+            'exists': True,
+            }
+
+    return _api_response(request, response_dict)
+
 @view_config(route_name="api_user_suspend", renderer="jsonp")
 def suspend_acct(request):
     """Reset a user account to enable them to change their password"""

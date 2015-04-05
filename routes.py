@@ -37,6 +37,8 @@ def build_routes(config):
     config.add_route("api_user_reset_password",
                      "/api/v1/{username}/password",
                      request_method="POST")
+    config.add_route("api_user_username_exists",
+                     "/api/v1/{username}/usernameexists")
 
     config.add_route("api_user_suspend_remove",
                      "api/v1/suspend",
