@@ -161,14 +161,9 @@ function unique_username(username)
 //                console.log("usernameexists success: " + data);
 
                 for(key in data) {
-                    if (key === "exists")
-                    {
-                        console.log("found success");
-                        exists = data[key];
-                    }
+                    exists = data[key]['exists'];
+                    console.log("value: " + data[key]['exists']);
 
-//                    console.log("key: " + key);
-//                    console.log("value: " + data[key]);
     //                $('#view_api_key_button').hide();
                     var unique_username_result;
                     if (exists == true)

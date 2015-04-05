@@ -229,19 +229,16 @@ def username_exists(request):
             'error': "Please submit a username",
         })
 
-    user = UserMgr.get(username=username)
+    async_result = tasks.username_exists.delay(username)
 
-    response_dict = {}
-    if user is None:
-        response_dict = {
-            'exists': False,
-            }
-    else:
-        response_dict = {
-            'exists': True,
-            }
+    exists = async_result.get()
+    LOG.info('exists: ' + repr(exists))
 
-    return _api_response(request, response_dict)
+    return _api_response(request, {
+        'payload': exists
+    })
+
+    # return _api_response(request, response_dict)
 
 @view_config(route_name="api_user_suspend", renderer="jsonp")
 def suspend_acct(request):

@@ -7,6 +7,7 @@ from os import path
 from ConfigParser import ConfigParser
 import json
 import requests
+from ~~~PROJNAME~~~.models.auth import UserMgr
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -76,6 +77,17 @@ def email_forgot_password_user(email, msg, settings, message_data):
     #     ret['message'] = error
     #
     # return ret
+@celery.task(ignore_result=False)
+def username_exists(username):
+    user = UserMgr.get(username=username)
+
+    response_dict = {}
+    if user is None:
+        response_dict['exists'] = False
+    else:
+        response_dict['exists'] = True
+    return response_dict
+
 
 @celery.task(ignore_result=True)
 def test_post():
