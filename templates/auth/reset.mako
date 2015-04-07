@@ -4,7 +4,7 @@
 ##
 ##${password_reset(user, reset=True)}
 
-<script src="/static/js/password-validation.js"></script>
+<script src="/static/js/reset-enable.js"></script>
 
         <div id="page-wrapper">
             <div class="row">

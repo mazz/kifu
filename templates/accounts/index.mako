@@ -6,7 +6,7 @@
     date_fmt = "%m/%d/%Y"
 %>
 
-    <script src="/static/js/password-validation.js"></script>
+    <script src="/static/js/account.js"></script>
 
     <div id="wrapper">
         <div id="page-wrapper">
@@ -67,44 +67,64 @@
                         <!-- /.panel-body -->
                     </div>
                     <!-- /.panel -->
-                    <!-- /.panel -->
-                    <div class="panel panel-default">
-##                        <div class="panel-heading">
-##                            <i class="fa fa-clock-o fa-fw"></i> Settings
-##                        </div>
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">
 
-    <form class="form-horizontal" role="form">
-    <div class="form-group">
-      <label class="control-label col-sm-2" for="email">Username:</label>
-      <div class="col-sm-8">
-          <p class="form-control-static">${user.username}</p>
-##        <input type="email" class="form-control" id="new_username" placeholder="">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-2" for="email">Name:</label>
-      <div class="col-sm-8">
-        <input type="text" class="form-control" id="name" placeholder="${user.name}" maxlength="64">
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-default" id="submit_account_change">Update</button>
-      </div>
-    </div>
-  </form>
 
-##                            <a href="#" class="list-group-item">
-##    </a>
-##    <a href="#" class="list-group-item">
-##                            </a>
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                    <i class="fa fa-dashboard fa-fw"></i> Identification
+                    </div>
+                <!-- /.panel-heading -->
+                    <div class="panel-body">
+                    ##            <div class="row">
+                    ##                <div class="col-lg-12">
+                    ##                </div>
+                    <!-- /.col-lg-12 -->
+                    ##            </div>
+                    <!-- /.row -->
+
+
+                        <div class="form-group panel-default">
+
+                        ##                               <div class="list-group">
+                        <label class="control-label col-sm-2">Username:</label>
+
+                            <div class="col-sm-10">
+                            <input type="hidden" name="var_current_username" id="var_current_username" value="${user.username}" />
+
+                            <input type="text" class="form-control" name="current_username" id="current_username" placeholder="${user.username}" autocomplete="off" maxlength="32">
+                            ##        <input type="text" class="form-control" id="current_username" name="current_username" placeholder="${user.username}" maxlength="32">
+                            ##        <p class="form-control-static" id="current_username" name="current_username">${user.username}</p>
+                            <span class="pull-right text-muted small" id="unique_username_api_value" hidden>
+                            </span>
+                            ##        <input type="email" class="form-control" id="new_username" placeholder="">
+                            </div>
+                        </div>
+                        <div class="panel-group">
+
+                        <label class="control-label col-sm-2" for="email">Name:</label>
+                            <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name" placeholder="${user.name}" maxlength="64">
+                            </div>
+                        ##                                    <div class="spacer30"></div>
+                        </div>
+                        <div class="form-group panel-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-default" id="submit_account_change">Update</button>
+                            </div>
+                            <span class="pull-right text-muted small" id="userid_submit_message" hidden>
+                            </span>
 
                         </div>
-
-                        <!-- /.panel-body -->
                     </div>
+                ##                        </div>
+                <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+##                <div class="panel panel-default"></div>
+                <!-- /.panel -->
+
                     <!-- /.panel -->
                     <div class="panel panel-default col-sm-8">
 ##                        <div class="panel-heading">
@@ -113,27 +133,30 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
 
-##                            <a href="#" class="list-group-item">
-##    </a>
-##    <a href="#" class="list-group-item">
-  <form method="POST" id="passwordForm" class="form-horizontal" role="form">
-##    <input type="hidden" name="username" id="username" value="${user.username}" />
-    <div class="form-group">
+<div class="panel-body">
+##     <div class="form-group">
       <label class="control-label col-sm-2" >Change Password:</label>
 
       <div class="col-sm-10">
+        <input type="password" class="form-control" name="current_password" id="current_password" placeholder="Current Password" autocomplete="off">
+      </div>
+##    <div class="spacer30"></div>
+      <div class="col-sm-10">
         <input type="password" class="form-control" name="password1" id="password1" placeholder="New Password" autocomplete="off">
       </div>
-      <div class="col-sm-10"></br>
+      <div class="col-sm-10 col-sm-offset-2"></br>
         <input type="password" class="form-control" name="password2" id="password2" placeholder="Repeat Password" autocomplete="off">
       </div>
     </div>
     <div class="form-group">
       <div class="col-sm-6 col-sm-offset-2">
-        <button type="submit" class="btn btn-default" id="change_password">Change Password</button>
+        <button type="submit" class="btn btn-default" id="submit_password_change">Change Password</button>
       </div>
-    </div>
-  </form>
+    <span class="pull-right text-muted small" id="password_submit_message" hidden>
+    </span>
+##    </div>
+</div>
+##  </form>
 
 </div>
 
@@ -170,6 +193,10 @@
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> Passwords Match
                                     <span id="pwmatch" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <i class="fa fa-upload fa-fw"></i> Username is not Password
+                                    <span id="pwnotmatchuname" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
                                 </a>
                             </div>
                             <!-- /.list-group -->
@@ -282,9 +309,12 @@
         var formData = JSON.stringify({
                         username: '${user.username}',
                         current_password: $("#current_password").val(),
-                        new_password: $("#new_password").val(),
+                        new_password: $("#password1").val(),
                         api_key: '${request.user.api_key}'
                         });
+
+        url = APP_URL + "/api/v1/" + '${user.username}' + "/password";
+        console.log('url: ' + url);
 
         $.ajax({
             type: "POST",   
@@ -295,9 +325,10 @@
             success: function(data, textStatus, jqXHR)
             {
                 var message;
-                console.log("suspend success: " + data);
+                console.log("password change success: " + data);
 
-                for(key in data) {
+                for (key in data)
+                {
                     if (key === "message")
                     {
                         console.log("found success");
@@ -306,20 +337,27 @@
 
                     console.log("key: " + key);
                     console.log("value: " + data[key]);
-                }
-                $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').addClass('success').addClass('radius').addClass('alert-box');
-                $('#forgotten_password_panel').slideToggle();
 
-                $('#changepassword-status').html(message);
+                }
+
+                $("span[id*=password_submit_message]").text(message);
+                $("span[id*=password_submit_message]").show();
+                $('#current_password').val('');
+                $('#password1').val('');
+                $('#password2').val('');
+
+                update_password_ui();
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
-                var message;
-                console.log("suspend fail");
-                $('#changepassword-status').removeClass('alert-box').removeClass('success').removeClass('radius').addClass('warning').addClass('round').addClass('alert-box');
-                $('#forgotten_password_panel').slideToggle();
+                console.log("password change textStatus: " + textStatus);
+                console.log("password change jqXHR: " + jqXHR);
+                console.log("password change errorThrown: " + errorThrown);
+                $("span[id*=password_submit_message]").text('There was an error changing your password.');
+                $("span[id*=password_submit_message]").show();
 
-                $('#changepassword-status').html(textStatus);
+                update_password_ui();
+
             }
         });
 
@@ -333,7 +371,8 @@
         $('#changepassword-status').html("");
 
         var formData = JSON.stringify({
-                        name: $("#name").val()
+                        name: $("#name").val(),
+                        username: $("#current_username").val()
                         });
 
         account_change_url = APP_URL + "/api/v1/" + '${user.username}' + "/account?api_key=" + '${request.user.api_key}';
@@ -348,22 +387,39 @@
                 var message;
                 console.log("account change success: " + data);
 
-                for(key in data) {
-                    if (key === "message")
+                for(key in data)
+                {
+                    if (key === "username")
                     {
                         console.log("found success");
-                        message = data[key];
+                        new_username = data[key];
+                    }
+                    if (key === "name")
+                    {
+                        console.log("found success");
+                        new_name = data[key];
                     }
 
                     console.log("key: " + key);
                     console.log("value: " + data[key]);
                 }
+
+                $("span[id*=userid_submit_message]").text('Update successful.');
+                $("span[id*=userid_submit_message]").show();
+
+                $("span[id*=unique_username_api_value]").hide();
+
+                $("#name").attr('placeholder', new_name).val('').focus().blur();
+                $("#current_username").attr('placeholder', new_username).val('').focus().blur();
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
                 var message;
                 console.log("account change fail");
-            }
+
+                $("span[id*=userid_submit_message]").text('Update failed. Please try later.');
+                $("span[id*=userid_submit_message]").show();
+            }
         });
 
     });
