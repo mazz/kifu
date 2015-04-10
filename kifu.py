@@ -132,6 +132,7 @@ def perform_installs():
 
     # Install pyramid_alembic_mako
     subprocess.call(["bin/easy_install", "pyramid"])
+#    subprocess.call(['bin/pip', 'install','pyramid'])
     subprocess.call(["bin/easy_install", "setuptools_git"])
     subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
     os.chdir(os.path.abspath(os.path.join(abs_env_dir, "pyramid_alembic_mako")))
@@ -270,13 +271,15 @@ def setup_packages():
     mymodelpy = os.path.join(os.getcwd(), options.project_name + "/models/mymodel.py")
     os.unlink(mymodelpy)
 
-    # Copy over Foundation 5.02 static css/js resources 
+    # Copy over static css/js resources
     css_dir = os.path.join(os.getcwd(), options.project_name + "/static/css")
     shutil.copytree(base_dir + "/static/css", css_dir)
     img_dir = os.path.join(os.getcwd(), options.project_name + "/static/img")
     shutil.copytree(base_dir + "/static/img", img_dir)
     js_dir = os.path.join(os.getcwd(), options.project_name + "/static/js")
     shutil.copytree(base_dir + "/static/js", js_dir)
+    fa_dir = os.path.join(os.getcwd(), options.project_name + "/static/font-awesome")
+    shutil.copytree(base_dir + "/static/font-awesome", fa_dir)
 
     # Copy over templates
     accounts_dir = os.path.join(os.getcwd(), options.project_name + "/templates/accounts")
