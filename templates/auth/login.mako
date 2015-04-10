@@ -1,82 +1,49 @@
 <%inherit file="/layout.mako" />
 <%def name="title()">Login</%def>
 
-<div class="login_form" class="block">
-    <form action="${request.route_url('login')}" method="post" class="login form">
-
+<div class="container">
     <div class="row">
-      <div class="large-12 columns">
-        <div class="panel">
-            <div class="row">
-                <div class="large-12 columns">
-                    <h1>Log In</h1>
+        <div class="col-sm-6 col-md-4 col-md-offset-4">
+            <h1 class="text-center login-title">Sign in to continue to ~~~PROJNAME~~~</h1>
+            % if message is not '':
+                <div class="alert alert-danger" role="alert" alert-dismissable>
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">Error:</span>
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>
-            </div>
+            % endif
 
-            <div class="row">
-                <div class="large-12 columns">
-                    <p class="error">${message}</p>
-                    <input type="hidden" name="came_from" value="${came_from}"/>
-                </div>
-            </div>
+##            <div class="alert alert-error">
+##                <a href="#" class="close" data-dismiss="alert">&times;</a>
+##                <strong>Error!</strong> A problem has been occurred while submitting your data.
+##            </div>
 
-            <div class="row">
-                <div class="large-12 columns">
-                    <h5>Username</h5>
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="large-12 columns">
-                    <input type="text" name="login" value="${login}"/>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="large-12 columns">
-                    <h5>Password</h5>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="large-12 columns">
-                    <input type="password" name="password" value="${password}"/>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="small-4 columns">
-                    <input type="submit" name="form.submitted" class="small button expand" value="Log In"/>
-                </div>
-            </div>
-
-        </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-        <div class="large-12 columns">
-            <div class="panel callout radius" id="Content">
-                <div class="row">
-                    <div class="large-12 columns">
-                        <a href="#" id="forgotten_password" class="toggle_forgotten">Forgotten Password</a>
-
-                        <div id="forgotten_password_panel" style="display: none; opacity: 0;">
-                            <%include file="forgot.mako"/>
+            <div class="panel panel-default">
+                        <div class="text-center">
+                          <h3><i class="fa fa-sign-in fa-4x"></i></h3>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                <form "${request.route_url('login')}" method="post" class="form-signin">
 
-    <div class="row">
-        <div class="large-12 columns">
-            <div data-alert class="" id="loginpanel-status">
+                <input type="hidden" name="came_from" value="${came_from}"/>
+                <input type="text" class="form-control" placeholder="Email" name="email" value="${email}" required autofocus>
+                <input type="password" class="form-control" placeholder="Password" name="password" value="${password}" required>
+
+                <button class="btn btn-lg btn-primary btn-block" type="submit" name="form.submitted">
+                    Sign in</button>
+                <label class="checkbox pull-left">
+                    <input type="checkbox" value="remember-me">
+                    Remember me
+                </label>
+                <a href="${request.route_url('forgot_password')}" class="pull-right need-help">Forgot Password? </a><span class="clearfix"></span>
+                </form>
             </div>
+            <a href="${request.route_url('signup')}" class="text-center new-account">Create an account</a>
         </div>
     </div>
+</div>
+
 
     <%def name="add_js()">
     <script type="text/javascript">
@@ -88,5 +55,10 @@
         });
     });
 
+    $(document).ready(function(){
+        $(".close").click(function(){
+            $(".alert").alert();
+        });
+    });
     </script>
     </%def>

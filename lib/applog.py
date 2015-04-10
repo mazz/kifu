@@ -38,7 +38,7 @@ class AuthLog(Log):
         passwd = lambda x: None if password is None else {'password': password}
 
         status = get_status(success)
-        message = "User {0} attempted to login {1}".format(username,
+        message = u"User {0} attempted to login {1}".format(username,
                                                            success)
 
         data = {

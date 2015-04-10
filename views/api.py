@@ -111,7 +111,7 @@ def account_update(request):
     """Update the account information for a user
 
     :params name:
-    :params email:
+    :params username:
 
     Callable by either a logged in user or the api key for mobile apps/etc
 
@@ -128,13 +128,13 @@ def account_update(request):
         name = json_body.get('name')
         user_acct.name = name
 
-    if 'email' in params and params['email'] is not None:
-        email = params.get('email')
-        user_acct.email = email
+    if 'username' in params and params['username'] is not None:
+        username = params.get('username')
+        user_acct.username = username
 
-    if 'email' in json_body and json_body['email'] is not None:
-        email = json_body.get('email')
-        user_acct.email = email
+    if 'username' in json_body and json_body['username'] is not None:
+        username = json_body.get('username')
+        user_acct.username = username
 
     return _api_response(request, user_acct.safe_data())
 
@@ -198,6 +198,7 @@ def reset_password(request):
     if user_acct.validate_password(current):
         # we're good to change it
         user_acct.password = new
+        request.response.status_int = 200
         return _api_response(request, {
             'username': user_acct.username,
             'message': "Password changed",
@@ -209,6 +210,36 @@ def reset_password(request):
             'error': "There was a typo somewhere. Please check your request"
         })
 
+
+@view_config(route_name="api_user_username_exists", renderer="jsonp")
+def username_exists(request):
+    params = request.params
+
+    # import pdb; pdb.set_trace()
+
+    # now also load the password info
+    username = params.get('username', None)
+
+    if username is None and hasattr(request, 'json_body'):
+        # try the json body
+        username = request.json_body.get('username', None)
+
+    if username is None:
+        request.response.status_int = 406
+        return _api_response(request, {
+            'error': "Please submit a username",
+        })
+
+    async_result = tasks.username_exists.delay(username)
+
+    exists = async_result.get()
+    LOG.info('exists: ' + repr(exists))
+
+    return _api_response(request, {
+        'payload': exists
+    })
+
+    # return _api_response(request, response_dict)
 
 @view_config(route_name="api_user_suspend", renderer="jsonp")
 def suspend_acct(request):

@@ -145,15 +145,17 @@ def perform_installs():
         logger.info("darwin")
         os.environ["CPPFLAGS"] = "-Qunused-arguments"
         os.environ["CFLAGS"] = "-Qunused-arguments"
-        subprocess.call(["bin/pip", "install", "bcrypt"])
-    else:
-        subprocess.call(["bin/easy_install", "bcrypt"])
+
+    subprocess.call(["bin/pip", "install", "bcrypt"])
 
     subprocess.call(["bin/easy_install", "celery"])
     subprocess.call(["bin/easy_install", "decorator"])
     subprocess.call(["bin/easy_install", "gunicorn"])
     subprocess.call(["bin/easy_install", "redis"])
-    subprocess.call(["bin/easy_install", "wtforms"])
+    # subprocess.call(["bin/easy_install", "wtforms"])
+
+    subprocess.call(["bin/pip", "install", "requests"])
+
     subprocess.call(["bin/easy_install", "pyramid_mailer"])
     if options.database_type is "postgresql":
         subprocess.call(["bin/easy_install", "psycopg2"])
@@ -233,8 +235,8 @@ def setup_packages():
     shutil.copytree(base_dir + "/models", models_dir)
 
     # Copy forms dir to the app
-    forms_dir = os.path.join(os.getcwd(), options.project_name + "/forms")
-    shutil.copytree(base_dir + "/forms", forms_dir)
+    # forms_dir = os.path.join(os.getcwd(), options.project_name + "/forms")
+    # shutil.copytree(base_dir + "/forms", forms_dir)
 
     # Delete the unnecessary models.py file
     os.unlink(os.path.join(os.getcwd(), options.project_name + "/models.py"))
@@ -307,6 +309,10 @@ def setup_packages():
 
     # Copy over views api.py
     shutil.copy(viewsapipy, os.path.join(os.getcwd(), options.project_name + "/views/api.py"))
+
+    # Copy over a gitignore template
+    gitignorefile = base_dir + "/gitignore"
+    shutil.copy(gitignorefile, os.path.join(os.getcwd(), options.project_name + ".gitignore"))
 
 
 def output_nginx_help():

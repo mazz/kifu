@@ -7,9 +7,9 @@ def build_routes(config):
     # auth routes
     config.add_route("login", "/")
     config.add_route("logout", "logout")
+    config.add_route("forgot_password", "forgot_password")
     config.add_route("reset", "{username}/reset/{reset_key}")
     config.add_route("signup", "signup")
-    config.add_route("signup_process", "signup_process")
     config.add_route('list_users', '/list_users')
 
     config.add_route("user_account", "{username}/account")
@@ -37,6 +37,8 @@ def build_routes(config):
     config.add_route("api_user_reset_password",
                      "/api/v1/{username}/password",
                      request_method="POST")
+    config.add_route("api_user_username_exists",
+                     "/api/v1/{username}/usernameexists")
 
     config.add_route("api_user_suspend_remove",
                      "api/v1/suspend",
