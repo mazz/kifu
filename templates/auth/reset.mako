@@ -4,6 +4,7 @@
 ##
 ##${password_reset(user, reset=True)}
 
+<script type="text/javascript" src="/static/js/jquery.alphanum.js"></script>
 <script src="/static/js/reset-enable.js"></script>
 
         <div id="page-wrapper">
@@ -77,33 +78,33 @@
                             % if user.activation.created_by == 'signup':
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-comment fa-fw"></i> Valid Username
-                                    <span id="vusername" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="vusername" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                             % endif
 
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-comment fa-fw"></i> 8 Characters Long
-                                    <span id="8char" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="8char" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-twitter fa-fw"></i> One Uppercase Letter
-                                    <span id="ucase" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="ucase" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-envelope fa-fw"></i> One Lowercase Letter
-                                    <span id="lcase" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="lcase" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-tasks fa-fw"></i> One Number
-                                    <span id="num" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="num" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> Passwords Match
-                                    <span id="pwmatch" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="pwmatch" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> Username is not Password
-                                    <span id="pwnotmatchuname" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="pwnotmatchuname" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                             </div>
                             <!-- /.list-group -->

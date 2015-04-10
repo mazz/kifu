@@ -6,6 +6,7 @@
     date_fmt = "%m/%d/%Y"
 %>
 
+    <script type="text/javascript" src="/static/js/jquery.alphanum.js"></script>
     <script src="/static/js/account.js"></script>
 
     <div id="wrapper">
@@ -91,13 +92,21 @@
                         <label class="control-label col-sm-2">Username:</label>
 
                             <div class="col-sm-10">
-                            <input type="hidden" name="var_current_username" id="var_current_username" value="${user.username}" />
+##                                <label class="control-label" for="var_current_username"></label>
+##                                <input type="text" class="form-control" name="var_current_username" id="var_current_username" value="${user.username}" />
+##                                <span class="fa fa-check form-control-feedback"></span>
 
-                            <input type="text" class="form-control" name="current_username" id="current_username" placeholder="${user.username}" autocomplete="off" maxlength="32">
+                               <span class="pull-right text-muted small" id="unique_username_api_value" hidden>
+                            </span>
+                                <div class="form-group has-feedback" id="current_username_color_state">
+                                <label class="control-label" for="var_current_username"></label>
+                                <input type="text" class="form-control" name="current_username" id="current_username" placeholder="${user.username}" autocomplete="off" maxlength="32">
+                                <span class="fa form-control-feedback" id="current_username_check_icon"></span>
+                            </div>
+
                             ##        <input type="text" class="form-control" id="current_username" name="current_username" placeholder="${user.username}" maxlength="32">
                             ##        <p class="form-control-static" id="current_username" name="current_username">${user.username}</p>
-                            <span class="pull-right text-muted small" id="unique_username_api_value" hidden>
-                            </span>
+
                             ##        <input type="email" class="form-control" id="new_username" placeholder="">
                             </div>
                         </div>
@@ -176,27 +185,27 @@
                             <div class="list-group">
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-comment fa-fw"></i> 8 Characters Long
-                                    <span id="8char" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="8char" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-twitter fa-fw"></i> One Uppercase Letter
-                                    <span id="ucase" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="ucase" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-envelope fa-fw"></i> One Lowercase Letter
-                                    <span id="lcase" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="lcase" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-tasks fa-fw"></i> One Number
-                                    <span id="num" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="num" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> Passwords Match
-                                    <span id="pwmatch" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="pwmatch" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                                 <a href="#" class="list-group-item">
                                     <i class="fa fa-upload fa-fw"></i> Username is not Password
-                                    <span id="pwnotmatchuname" class="pull-right glyphicon glyphicon-remove" style="color:#FF0004;"></span>
+                                    <span id="pwnotmatchuname" class="pull-right fa fa-times" style="color:#973132;"></span>
                                 </a>
                             </div>
                             <!-- /.list-group -->
@@ -370,10 +379,24 @@
         $('#changepassword-status').removeClass('alert-box').removeClass('warning').removeClass('round').removeClass('success').removeClass('radius');
         $('#changepassword-status').html("");
 
-        var formData = JSON.stringify({
-                        name: $("#name").val(),
-                        username: $("#current_username").val()
-                        });
+        var formData;
+        var did_set_username;
+
+        if ($("#current_username").val().length == 0)
+        {
+            did_set_username = false;
+            formData = JSON.stringify({
+            name: $("#name").val()
+            });
+        }
+        else
+        {
+        did_set_username = true;
+        formData = JSON.stringify({
+                    name: $("#name").val(),
+                    username: $("#current_username").val()
+                    });
+        }
 
         account_change_url = APP_URL + "/api/v1/" + '${user.username}' + "/account?api_key=" + '${request.user.api_key}';
         $.ajax({
@@ -410,7 +433,11 @@
                 $("span[id*=unique_username_api_value]").hide();
 
                 $("#name").attr('placeholder', new_name).val('').focus().blur();
-                $("#current_username").attr('placeholder', new_username).val('').focus().blur();
+
+                if (did_set_username == true)
+                {
+                    $("#current_username").attr('placeholder', new_username).val('').focus().blur();
+                }
             },
             error: function (jqXHR, textStatus, errorThrown)
             {

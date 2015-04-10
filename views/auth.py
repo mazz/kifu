@@ -25,6 +25,7 @@ from ~~~PROJNAME~~~.models.auth import Activation
 from ~~~PROJNAME~~~.models.auth import ActivationMgr
 
 LOG = logging.getLogger(__name__)
+max_cookie_age = (60 * 60 * 24 * 30)
 
 @view_config(route_name="login", renderer="~~~PROJNAME~~~:templates/auth/login.mako")
 def login(request):

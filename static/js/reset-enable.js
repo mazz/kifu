@@ -1,15 +1,23 @@
 var unique_username_timer = null;
-var username_exists = false;
+var g_username_exists = false;
 var ucase = new RegExp("[A-Z]+");
 var lcase = new RegExp("[a-z]+");
 var num = new RegExp("[0-9]+");
-var vusername = new RegExp("^[^\-]?[a-zA-Z_0-9]+"); // do not allow a username to precede with one or more of `-`
-
+//var vusername = new RegExp("^[^\-]?"); // do not allow a username to precede with one or more of `-`
+//var vusername = new RegExp("^[^\-]?\\w+"); // do not allow a username to precede with one or more of `-`
+//var whitespace = new RegExp("\\s+"); // whitespace
+var g_valid_username = false;
 var g_calling_timer = false;
 
 $(document).ready(function() {
 
     $('#submit_forgot_signup').prop('disabled', true); // reset/enable page
+
+    $('#new_username').alphanum({
+        allowSpace: false, // Allow the space character
+        allow: '_',
+        allowOtherCharSets: true
+    });
 
     $("input[id=new_username]").keyup(function () {
         $('#submit_forgot_signup').prop('disabled', true); // reset/enable page
@@ -60,12 +68,14 @@ function unique_username_rest(username)
                     if (exists == true)
                     {
                         unique_username_result = 'This username is currently in use.'
-                        username_exists = true;
+                        g_username_exists = true;
+                        g_valid_username = false;
                     }
                     else
                     {
                         unique_username_result = 'This username is available.'
-                        username_exists = false;
+                        g_username_exists = false;
+                        g_valid_username = true;
                     }
 
                     $("span[id*=unique_username_api_value]").text(unique_username_result);
@@ -97,101 +107,99 @@ function update_ui()
 
     if (long_password)
     {
-        $("#8char").removeClass("glyphicon-remove");
-        $("#8char").addClass("glyphicon-ok");
+        $("#8char").removeClass("fa-times");
+        $("#8char").addClass("fa-check");
         $("#8char").css("color", "#00A41E");
     }
     else
     {
-        $("#8char").removeClass("glyphicon-ok");
-        $("#8char").addClass("glyphicon-remove");
-        $("#8char").css("color", "#FF0004");
+        $("#8char").removeClass("fa-check");
+        $("#8char").addClass("fa-times");
+        $("#8char").css("color", "#973132");
     }
 
     if (uppercase)
     {
-        $("#ucase").removeClass("glyphicon-remove");
-        $("#ucase").addClass("glyphicon-ok");
+        $("#ucase").removeClass("fa-times");
+        $("#ucase").addClass("fa-check");
         $("#ucase").css("color", "#00A41E");
     }
     else
     {
-        $("#ucase").removeClass("glyphicon-ok");
-        $("#ucase").addClass("glyphicon-remove");
-        $("#ucase").css("color", "#FF0004");
+        $("#ucase").removeClass("fa-check");
+        $("#ucase").addClass("fa-times");
+        $("#ucase").css("color", "#973132");
     }
 
     if (lowercase)
     {
-        $("#lcase").removeClass("glyphicon-remove");
-        $("#lcase").addClass("glyphicon-ok");
+        $("#lcase").removeClass("fa-times");
+        $("#lcase").addClass("fa-check");
         $("#lcase").css("color", "#00A41E");
     }
     else
     {
-        $("#lcase").removeClass("glyphicon-ok");
-        $("#lcase").addClass("glyphicon-remove");
-        $("#lcase").css("color", "#FF0004");
+        $("#lcase").removeClass("fa-check");
+        $("#lcase").addClass("fa-times");
+        $("#lcase").css("color", "#973132");
     }
 
     if (numeric)
     {
-        $("#num").removeClass("glyphicon-remove");
-        $("#num").addClass("glyphicon-ok");
+        $("#num").removeClass("fa-times");
+        $("#num").addClass("fa-check");
         $("#num").css("color", "#00A41E");
     }
     else
     {
-        $("#num").removeClass("glyphicon-ok");
-        $("#num").addClass("glyphicon-remove");
-        $("#num").css("color", "#FF0004");
+        $("#num").removeClass("fa-check");
+        $("#num").addClass("fa-times");
+        $("#num").css("color", "#973132");
     }
 
     if (password_match)
     {
-        $("#pwmatch").removeClass("glyphicon-remove");
-        $("#pwmatch").addClass("glyphicon-ok");
+        $("#pwmatch").removeClass("fa-times");
+        $("#pwmatch").addClass("fa-check");
         $("#pwmatch").css("color", "#00A41E");
     }
     else
     {
-        $("#pwmatch").removeClass("glyphicon-ok");
-        $("#pwmatch").addClass("glyphicon-remove");
-        $("#pwmatch").css("color", "#FF0004");
+        $("#pwmatch").removeClass("fa-check");
+        $("#pwmatch").addClass("fa-times");
+        $("#pwmatch").css("color", "#973132");
     }
 
     if (pwnotmatchuname)
     {
-        $("#pwnotmatchuname").removeClass("glyphicon-remove");
-        $("#pwnotmatchuname").addClass("glyphicon-ok");
+        $("#pwnotmatchuname").removeClass("fa-times");
+        $("#pwnotmatchuname").addClass("fa-check");
         $("#pwnotmatchuname").css("color", "#00A41E");
     }
     else
     {
-        $("#pwnotmatchuname").removeClass("glyphicon-ok");
-        $("#pwnotmatchuname").addClass("glyphicon-remove");
-        $("#pwnotmatchuname").css("color", "#FF0004");
+        $("#pwnotmatchuname").removeClass("fa-check");
+        $("#pwnotmatchuname").addClass("fa-times");
+        $("#pwnotmatchuname").css("color", "#973132");
     }
-     var passwords_valid = long_password && lowercase && uppercase && numeric && password_match && pwnotmatchuname;
-    var valid_username  =  vusername.test($("#new_username").val());
+    var passwords_valid = long_password && lowercase && uppercase && numeric && password_match && pwnotmatchuname;
 
-    var username_ok = valid_username && !username_exists;
+    var username_ok = g_valid_username && !g_username_exists;
     var password_ok = long_password;
 
     if (username_ok)
     {
-        $("#vusername").removeClass("glyphicon-remove");
-        $("#vusername").addClass("glyphicon-ok");
+        $("#vusername").removeClass("fa-times");
+        $("#vusername").addClass("fa-check");
         $("#vusername").css("color", "#00A41E");
     }
     else
     {
-        $("#vusername").removeClass("glyphicon-ok");
-        $("#vusername").addClass("glyphicon-remove");
-        $("#vusername").css("color", "#FF0004");
+        $("#vusername").removeClass("fa-check");
+        $("#vusername").addClass("fa-times");
+        $("#vusername").css("color", "#973132");
     }
 
-    console.log('------');
     $('#submit_forgot_signup').prop('disabled', (!passwords_valid || !username_ok)); // reset/enable page
 
 }
