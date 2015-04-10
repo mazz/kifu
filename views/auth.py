@@ -56,7 +56,6 @@ def login(request):
     email = ''
     password = ''
     headers = None
-    max_cookie_age = (60 * 60 * 24 * 30)
 
     # import pdb; pdb.set_trace()
 
