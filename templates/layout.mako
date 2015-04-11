@@ -7,18 +7,19 @@
     <title>app</title>
 
     <!-- Latest compiled and minified CSS (Bootstrap)-->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/bootstrap/3.3.4/css/bootstrap.min.css">
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/static/bootstrap/3.3.4/css/bootstrap-theme.min.css">
 
         <!-- getting jquery-latest AFTER bootstrap above seems to fix topbar menu from disappearing -->
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
+##    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="/static/jquery/2.1.3/jquery.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/login.css">
 
     <!-- Latest compiled and minified JavaScript -->
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="/static/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
     <!-- (End Bootstrap)-->
 

@@ -287,6 +287,10 @@ def setup_packages():
     shutil.copytree(base_dir + "/static/js", js_dir)
     fa_dir = os.path.join(os.getcwd(), options.project_name + "/static/font-awesome")
     shutil.copytree(base_dir + "/static/font-awesome", fa_dir)
+    bootstrap_dir = os.path.join(os.getcwd(), options.project_name + "/static/bootstrap")
+    shutil.copytree(base_dir + "/static/bootstrap", bootstrap_dir)
+    jquery_dir = os.path.join(os.getcwd(), options.project_name + "/static/jquery")
+    shutil.copytree(base_dir + "/static/jquery", jquery_dir)
 
     # Copy over templates
     accounts_dir = os.path.join(os.getcwd(), options.project_name + "/templates/accounts")
