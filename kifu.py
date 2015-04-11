@@ -131,9 +131,10 @@ def perform_installs():
     global options
 
     # Install pyramid_alembic_mako
-    subprocess.call(["bin/easy_install", "pyramid"])
-#    subprocess.call(['bin/pip', 'install','pyramid'])
-    subprocess.call(["bin/easy_install", "setuptools_git"])
+    # subprocess.call(["bin/easy_install", "pyramid"])
+    subprocess.call(['bin/pip', 'install','pyramid'])
+    subprocess.call(['bin/pip', 'install','setuptools_git'])
+    # subprocess.call(["bin/easy_install", "setuptools_git"])
     subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
     os.chdir(os.path.abspath(os.path.join(abs_env_dir, "pyramid_alembic_mako")))
     os.system("../bin/pip install .")
@@ -149,17 +150,23 @@ def perform_installs():
 
     subprocess.call(["bin/pip", "install", "bcrypt"])
 
-    subprocess.call(["bin/easy_install", "celery"])
-    subprocess.call(["bin/easy_install", "decorator"])
-    subprocess.call(["bin/easy_install", "gunicorn"])
-    subprocess.call(["bin/easy_install", "redis"])
+    # subprocess.call(["bin/easy_install", "celery"])
+    subprocess.call(['bin/pip', 'install','celery'])
+    # subprocess.call(["bin/easy_install", "decorator"])
+    subprocess.call(['bin/pip', 'install','decorator'])
+    # subprocess.call(["bin/easy_install", "gunicorn"])
+    subprocess.call(['bin/pip', 'install','gunicorn'])
+    # subprocess.call(["bin/easy_install", "redis"])
+    subprocess.call(['bin/pip', 'install','redis'])
     # subprocess.call(["bin/easy_install", "wtforms"])
 
     subprocess.call(["bin/pip", "install", "requests"])
 
-    subprocess.call(["bin/easy_install", "pyramid_mailer"])
+    # subprocess.call(["bin/easy_install", "pyramid_mailer"])
+    subprocess.call(['bin/pip', 'install','pyramid_mailer'])
     if options.database_type is "postgresql":
-        subprocess.call(["bin/easy_install", "psycopg2"])
+        # subprocess.call(["bin/easy_install", "psycopg2"])
+        subprocess.call(['bin/pip', 'install','psycopg2'])
 
     # Install dependencies in requirements.txt
     #requirements = os.path.join(base_dir, "requirements.txt")
