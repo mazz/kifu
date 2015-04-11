@@ -117,6 +117,8 @@ Someone signed-up for an account at ~~~PROJNAME~~~(possibly you).
 
 Please click the link below to activate your account.
 
+If this wasn't you, then simply ignore this message.
+
 {0}
 
 ---

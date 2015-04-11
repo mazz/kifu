@@ -159,13 +159,17 @@ def signup(request):
             LOG.debug(email)
             auth = UserMgr.get(email=email)
 
-            if auth:
+            if auth and auth.activated:
                 return {
                     'email': '',
                     'message': 'A user with this email already exists.',
                 }
+            else:
+                if auth and auth.activated is not True:
+                    message = 'Re-sending another signup to: ' + str(email) + '\nPlease check your email.'
+                else:
+                    message = 'Thank you for signing up from: ' + str(email) + '\nPlease check your email.'
 
-            message = 'Thank you for signing up from: ' + str(email) + '\nPlease check your email.'
             request.session.flash(message)
 
             #return HTTPFound(location=request.route_url('signup_process2'))

@@ -217,18 +217,23 @@ class UserMgr(object):
     @staticmethod
     def signup_user(email, signup_method):
         # Get this invite party started, create a new user acct.
-        new_user = User()
-        new_user.email = email.lower()
-        new_user.username = email.lower()
-        new_user.invited_by = signup_method
-        new_user.api_key = User.gen_api_key()
 
-        # they need to be deactivated
-        new_user.reactivate('invite')
+        exists = UserMgr.get(email=email)
+        if exists:
+            return exists
+        else:
+            new_user = User()
+            new_user.email = email.lower()
+            new_user.username = email.lower()
+            new_user.invited_by = signup_method
+            new_user.api_key = User.gen_api_key()
 
-        # decrement the invite counter
-        DBSession.add(new_user)
-        return new_user
+            # they need to be deactivated
+            new_user.reactivate('signup')
+
+            # decrement the invite counter
+            DBSession.add(new_user)
+            return new_user
 
 
 class User(Base):

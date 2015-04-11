@@ -1,6 +1,6 @@
 <%inherit file="/layout.mako" />
 
-<%def name="title()">Sign up for foo!</%def>
+<%def name="title()">Sign up for ~~~PROJNAME~~~!</%def>
 
 <div class="container">
     <div class="row">
