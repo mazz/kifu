@@ -414,9 +414,11 @@ def setup_alembic():
 
     initdb = "4f3b93305fe8_initializedb.py"
     initdbpy = base_dir + "/alembic_versions/" + initdb
+    substitute_in_file(initdbpy, "~~~PROJNAME~~~", options.project_name)
 
     seedinitialdata = "1bc0be10afc1_seed_initial_data.py"
     seedinitialdatapy = base_dir + "/alembic_versions/" + seedinitialdata
+    substitute_in_file(seedinitialdatapy, "~~~PROJNAME~~~", options.project_name)
 
     shutil.copy(initdbpy, os.path.join(os.getcwd(), options.project_name + "/alembic/versions/" + initdb))
     shutil.copy(seedinitialdatapy, os.path.join(os.getcwd(), options.project_name + "/alembic/versions/" + seedinitialdata))

@@ -13,6 +13,7 @@ down_revision = '4f3b93305fe8'
 from alembic import op
 import sqlalchemy as sa
 
+from ~~~PROJNAME~~~.models.auth import User
 
 def upgrade():
     """Preseed data into the system."""
@@ -20,6 +21,7 @@ def upgrade():
     meta = current_context.opts['target_metadata']
     user = sa.Table('users', meta, autoload=True)
 
+    api_key = User.gen_api_key()
     # Add the initial admin user account.
     op.bulk_insert(user, [{
         'username': u'admin',
@@ -27,7 +29,7 @@ def upgrade():
         'email': u'foo@bar.bar',
         'activated': True,
         'is_admin': True,
-        'api_key': u'000000',
+        'api_key': api_key,
         }
     ])
 
