@@ -26,7 +26,6 @@ MSG_STATUS = {
     'error': 4,
 }
 
-app_settings = bootstrap(path.join(path.dirname(path.dirname(path.dirname(__file__))), "development.ini"))['registry'].settings
 
 class Msg(object):
     """This is a base email message we can then tweak"""
@@ -75,6 +74,7 @@ class Msg(object):
 
         LOG.debug('msg: ' + repr(msg))
 
+        app_settings = bootstrap(path.join(path.dirname(path.dirname(path.dirname(__file__))), "development.ini"))['registry'].settings
         mailer = pyramid_mailer.mailer.Mailer.from_settings(app_settings)
         message = Message(subject=msg['Subject'],
                           recipients=[msg['To']],
