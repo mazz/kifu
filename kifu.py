@@ -418,10 +418,13 @@ def setup_alembic():
 
     seedinitialdata = "1bc0be10afc1_seed_initial_data.py"
     seedinitialdatapy = base_dir + "/alembic_versions/" + seedinitialdata
-    substitute_in_file(seedinitialdatapy, "~~~PROJNAME~~~", options.project_name)
 
     shutil.copy(initdbpy, os.path.join(os.getcwd(), options.project_name + "/alembic/versions/" + initdb))
-    shutil.copy(seedinitialdatapy, os.path.join(os.getcwd(), options.project_name + "/alembic/versions/" + seedinitialdata))
+    
+    seeddatapath = os.path.join(os.getcwd(), options.project_name + "/alembic/versions/" + seedinitialdata)
+    shutil.copy(seedinitialdatapy, seeddatapath)
+    substitute_in_file(seeddatapath, "~~~PROJNAME~~~", options.project_name)
+
 
 #    os.system("../bin/alembic -c development.ini revision --autogenerate -m \"initializedb\"")
     os.system("../bin/alembic -c development.ini upgrade head")
