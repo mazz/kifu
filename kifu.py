@@ -37,6 +37,7 @@ def main():
     parser.add_option("-d", "--deploy", dest="deploy_dir", type="string", help="Deploy base directory of webapp.")
     parser.add_option("-s", "--supervisor-enabled", action="store_true", dest="supervisor_enabled", help="Run gunicorn with supervisor.")
     parser.add_option("-b", "--database", dest="database_type", type="string", help="Database type. sqlite or postgresql")
+    parser.add_option("-p", "--python", dest="python_path", type="string", help="Path to python to use for virtualenv")
 
     (options, args) = parser.parse_args()
 
@@ -63,7 +64,13 @@ def main():
     absolute_deploydir = os.path.abspath(options.deploy_dir)
     os.chdir(absolute_deploydir)
 
-    subprocess.call(["virtualenv", options.project_name + "_env"])
+    virtualenv_cmd = None
+    if options.python_path is None:
+        virtualenv_cmd = ["virtualenv", options.project_name + "_env"]
+    else:
+        virtualenv_cmd = ["virtualenv", "--python=" + options.python_path, options.project_name + "_env"]
+
+    subprocess.call(virtualenv_cmd)
 
     abs_env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
     os.chdir(abs_env_dir)
