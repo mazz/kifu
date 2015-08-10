@@ -60,7 +60,7 @@ def login(request):
     # import pdb; pdb.set_trace()
 
     if 'form.submitted' in request.params:
-        email = request.params['email']
+        email = request.params['email'].lower()
         password = request.params['password']
 
         LOG.debug(email)
