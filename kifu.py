@@ -75,6 +75,7 @@ def main():
     abs_env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
     os.chdir(abs_env_dir)
 
+    setup_rabbitmq()
     perform_installs()
 
     abs_root_dir = os.path.join(abs_env_dir, options.project_name)
@@ -133,6 +134,15 @@ def substitute_in_file(filename, old_string, new_string):
     else:
             logger.info('No occurences of "{old_string}" found in "{filename}" '.format(**locals()))
 
+def setup_rabbitmq():
+    global options
+    
+    rabbitmq_user = options.project_name + '_user'
+    
+    subprocess.call(['rabbitmqctl', 'add_user', rabbitmq_user, options.project_name]) #project name is the password
+    subprocess.call(['rabbitmqctl', 'add_vhost', options.project_name])
+    subprocess.call(['rabbitmqctl', 'set_permissions', '-p', options.project_name, rabbitmq_user, '.*', '.*', '.*'])    
+    
 def perform_installs():
     global abs_env_dir
     global options
@@ -225,7 +235,6 @@ def setup_dotini():
     substitute_in_file(developmentini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, authsecret_orig, authsecret_subst)
     substitute_in_file(productionini, "[server:main]", "[server:main]\nunix_socket = %(here)s/" + unix_app_socket + "\nhost = localhost\nport = 80\n")
-
 
 def setup_packages():
     global options

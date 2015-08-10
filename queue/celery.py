@@ -30,7 +30,7 @@ def load_ini():
 
     celery = Celery(
         "~~~PROJNAME~~~.queue",
-        broker="amqp://",
+        broker="amqp://~~~PROJNAME~~~_user:~~~PROJNAME~~~@localhost/~~~PROJNAME~~~",
         include=["~~~PROJNAME~~~.queue.tasks"]
     )
 
