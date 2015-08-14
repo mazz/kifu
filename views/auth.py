@@ -153,7 +153,7 @@ def signup(request):
         return HTTPFound(location=request.route_url('user_account', username=request.user.username))
     else:
         if request.method == 'POST':
-            email = request.params['email']
+            email = request.params['email'].lower()
             # password = request.params['password']
 
             LOG.debug(email)
