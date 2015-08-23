@@ -33,10 +33,10 @@ RUN mkdir kifu_install
 WORKDIR kifu_install
 
 # expose port for redis-server
-EXPOSE 6379
+# EXPOSE 6379
 
 # expose port for rabbitmq-server
-EXPOSE 15672
+# EXPOSE 15672
 
 # get and install virtualenv
 RUN curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-13.1.1.tar.gz
