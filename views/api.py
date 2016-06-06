@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import contains_eager
 from StringIO import StringIO
 
-from ~~~PROJNAME~~~.queue import tasks
+# from ~~~PROJNAME~~~.queue import tasks
 from ~~~PROJNAME~~~.lib.access import api_auth
 from ~~~PROJNAME~~~.lib.applog import AuthLog
 from ~~~PROJNAME~~~.lib.msg import ReactivateMsg

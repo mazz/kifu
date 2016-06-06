@@ -1,6 +1,6 @@
 import logging
 
-from ~~~PROJNAME~~~.queue import tasks
+# from ~~~PROJNAME~~~.queue import tasks
 
 from datetime import datetime
 from pyramid.httpexceptions import HTTPFound
@@ -181,16 +181,16 @@ def signup(request):
                 settings = request.registry.settings
 
                 # Add a queue job to send the user a notification email.
-                tasks.email_signup_user.delay(
-                   new_user.email,
-                   "Enable your account",
-                   settings,
-                   request.route_url(
-                       'reset',
-                       username=new_user.username,
-                       reset_key=new_user.activation.code
-                   )
-                )
+#                 tasks.email_signup_user.delay(
+#                    new_user.email,
+#                    "Enable your account",
+#                    settings,
+#                    request.route_url(
+#                        'reset',
+#                        username=new_user.username,
+#                        reset_key=new_user.activation.code
+#                    )
+#                 )
 
                 # And let the user know they're signed up.
                 return {'message': message,
@@ -244,15 +244,15 @@ def forgot_password(request):
         if user:
             # Add a queue job to send the user a notification email.
             user.reactivate('forgot_password')
-            tasks.email_forgot_password_user.delay(
-                user.email,
-                "Reset Your Password",
-                settings,
-                request.route_url(
-                'reset',
-                username=user.username,
-                reset_key=user.activation.code)
-            )
+#             tasks.email_forgot_password_user.delay(
+#                 user.email,
+#                 "Reset Your Password",
+#                 settings,
+#                 request.route_url(
+#                 'reset',
+#                 username=user.username,
+#                 reset_key=user.activation.code)
+#             )
 
             message = 'An email has been sent with instructions for resetting your password. If you do not receive it within an hour or two, check your spam folder.'
             # # We use the Primary Key as our identifier once someone has

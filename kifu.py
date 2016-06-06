@@ -75,7 +75,7 @@ def main():
     abs_env_dir = os.path.abspath(os.path.join(absolute_deploydir, options.project_name + "_env"))
     os.chdir(abs_env_dir)
 
-    setup_rabbitmq()
+#    setup_rabbitmq()
     perform_installs()
 
     abs_root_dir = os.path.join(abs_env_dir, options.project_name)
@@ -91,6 +91,7 @@ def main():
     setup_tests()
 
     subprocess.call(["../bin/python", "setup.py", "develop"])
+    subprocess.call(["../bin/python", "setup.py", "develop"])
 
 
     # change all ~~~PROJNAME~~~ to actual name
@@ -104,19 +105,19 @@ def main():
     substitute_in_file(os.path.join(abs_root_dir, "development.ini"), "    pyramid_debugtoolbar", "#   pyramid_debugtoolbar")
     setup_alembic()
 
-    if options.supervisor_enabled:
-
-        output_nginx_help()
-        # Install supervisord and run
-        os.system("../bin/pip install supervisor")
-
-        # Copy supervisord.conf file to new environment
-        shutil.copy(base_dir + "/supervisord.conf", abs_root_dir)
-        substitute_in_file(os.path.join(abs_root_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
-
-        os.system("../bin/supervisord -n -c supervisord.conf")
-    else:
-        os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
+#     if options.supervisor_enabled:
+# 
+#         output_nginx_help()
+#         # Install supervisord and run
+#         os.system("../bin/pip install supervisor")
+# 
+#         # Copy supervisord.conf file to new environment
+#         shutil.copy(base_dir + "/supervisord.conf", abs_root_dir)
+#         substitute_in_file(os.path.join(abs_root_dir, "supervisord.conf"), "~~~PROJNAME~~~", options.project_name)
+# 
+#         os.system("../bin/supervisord -n -c supervisord.conf")
+#     else:
+#         os.system("../bin/gunicorn --paster production.ini --bind unix:app.sock --workers 4")
 
 def prepend_in_file(filepath, string):
     with open(filepath, 'r') as original: data = original.read()
@@ -134,24 +135,26 @@ def substitute_in_file(filename, old_string, new_string):
     else:
             logger.info('No occurences of "{old_string}" found in "{filename}" '.format(**locals()))
 
-def setup_rabbitmq():
-    global options
-    
-    rabbitmq_user = options.project_name + '_user'
-    
-    subprocess.call(['rabbitmqctl', 'add_user', rabbitmq_user, options.project_name]) #project name is the password
-    subprocess.call(['rabbitmqctl', 'add_vhost', options.project_name])
-    subprocess.call(['rabbitmqctl', 'set_permissions', '-p', options.project_name, rabbitmq_user, '.*', '.*', '.*'])    
+# def setup_rabbitmq():
+#     global options
+#     
+#     rabbitmq_user = options.project_name + '_user'
+#     
+#     subprocess.call(['rabbitmqctl', 'add_user', rabbitmq_user, options.project_name]) #project name is the password
+#     subprocess.call(['rabbitmqctl', 'add_vhost', options.project_name])
+#     subprocess.call(['rabbitmqctl', 'set_permissions', '-p', options.project_name, rabbitmq_user, '.*', '.*', '.*'])    
     
 def perform_installs():
     global abs_env_dir
     global options
 
     # Install pyramid_alembic_mako
-    # subprocess.call(["bin/easy_install", "pyramid"])
+
+    subprocess.call(['bin/pip', 'install','--upgrade', 'wheel'])
+
     subprocess.call(['bin/pip', 'install','pyramid'])
     subprocess.call(['bin/pip', 'install','setuptools_git'])
-    # subprocess.call(["bin/easy_install", "setuptools_git"])
+
     subprocess.call(["git", "clone", "https://github.com/inklesspen/pyramid_alembic_mako.git"])
     os.chdir(os.path.abspath(os.path.join(abs_env_dir, "pyramid_alembic_mako")))
     os.system("../bin/pip install .")
@@ -167,22 +170,15 @@ def perform_installs():
 
     subprocess.call(["bin/pip", "install", "bcrypt"])
 
-    # subprocess.call(["bin/easy_install", "celery"])
-    subprocess.call(['bin/pip', 'install','celery'])
-    # subprocess.call(["bin/easy_install", "decorator"])
-    subprocess.call(['bin/pip', 'install','decorator'])
-    # subprocess.call(["bin/easy_install", "gunicorn"])
-    subprocess.call(['bin/pip', 'install','gunicorn'])
-    # subprocess.call(["bin/easy_install", "redis"])
-    subprocess.call(['bin/pip', 'install','redis'])
-    # subprocess.call(["bin/easy_install", "wtforms"])
 
+#     subprocess.call(['bin/pip', 'install','celery'])
+    subprocess.call(['bin/pip', 'install','decorator'])
+#     subprocess.call(['bin/pip', 'install','gunicorn'])
+#     subprocess.call(['bin/pip', 'install','redis'])
     subprocess.call(["bin/pip", "install", "requests"])
 
-    # subprocess.call(["bin/easy_install", "pyramid_mailer"])
     subprocess.call(['bin/pip', 'install','pyramid_mailer'])
     if options.database_type is "postgresql":
-        # subprocess.call(["bin/easy_install", "psycopg2"])
         subprocess.call(['bin/pip', 'install','psycopg2'])
 
     # Install dependencies in requirements.txt
@@ -248,8 +244,8 @@ def setup_packages():
     print("base_dir: " + base_dir)
 
     # Copy Celery-related files to the app
-    celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
-    shutil.copytree(base_dir + "/queue", celery_dir)
+#     celery_dir = os.path.join(os.getcwd(), options.project_name + "/queue")
+#     shutil.copytree(base_dir + "/queue", celery_dir)
 
     # Copy models.py to the models package and rename it mymodel.py
     #shutil.copy(os.path.join(os.getcwd(), options.project_name + "/models.py"), base_dir + "/models/mymodel.py")

@@ -1,4 +1,4 @@
-from ~~~PROJNAME~~~.queue import tasks
+# from ~~~PROJNAME~~~.queue import tasks
 from pyramid.response import Response
 from pyramid.view import view_config
 

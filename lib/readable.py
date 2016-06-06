@@ -9,7 +9,7 @@ import urllib2
 
 from BaseHTTPServer import BaseHTTPRequestHandler as HTTPH
 from breadability.readable import Article
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 LOG = logging.getLogger(__name__)
 
